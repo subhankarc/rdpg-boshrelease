@@ -1,0 +1,13 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+echo $$ > ${pidFile} # Write the shell script's PID to the pidFile
+
+trap graceful_stop SIGTERM # Handle term signal sent by control script stop action.
+
+while true 
+do # Execute the package binary
+  user_exec ${binary} start ${binaryArgs[@]} -t 300 &>>${logPath}/${jobName}.log
+done # If there is no package binary, replace the user_exec within the loop
+

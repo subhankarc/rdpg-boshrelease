@@ -1,0 +1,6 @@
+---
+final_name: pgbdr
+blobstore:
+  provider: s3
+  options:
+    bucket_name: pgbdr-boshrelease

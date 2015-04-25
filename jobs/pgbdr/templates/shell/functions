@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+fail() { echo "$*" >&2 ; exit 1 ; }
+user_exec() { exec chpst -u "${userName}:${groupName}" "$@" &>>${logPath}/${jobName}.log ; }
+user_run() { chpst -u "${userName}:${groupName}" "$@" &>>${logPath}/${jobName}.log ; }
+user_chown() { chown -R "${userName}:${groupName}" "$@" ; }
+send_signal() { pid=$(head -1 ${pidFile}) ; (( ${pid:-0} < 1 )) || kill -${1} ${pid} ; }
+
+graceful_stop() {
+  user_run ${binary} stop ${binaryArgs[@]} -m fast \
+    &>>${logPath}/${jobName}.log
+  rm -f ${pidFile}
+  exit 0 # Normal exit, return code 0
+}
+
