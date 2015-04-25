@@ -112,11 +112,11 @@ For the two release `version: ` entries change 'latest' to the '0+dev.N' version
 bosh -n deploy
 ```
 
-If you want to test your changes on one specific job, say `runner_z0/0`, instead of all jobs:
+If you want to test your changes on one specific job, say `pgbdr/0`, instead of all jobs:
 
 ```sh
-bosh -n recreate runner_z1 0 --force
-bosh ssh runner_z1 0 # Hop on and have a look around...
+bosh -n recreate pgbdr 0 --force
+bosh ssh pgbdr 0 # Hop on and have a look around...
 ```
 
 Note, to restart all processes Monit on a host run the following command as root on the host.
