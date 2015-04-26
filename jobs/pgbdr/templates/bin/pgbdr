@@ -2,12 +2,17 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-echo $$ > ${pidFile} # Write the shell script's PID to the pidFile
-
 trap graceful_stop SIGTERM # Handle term signal sent by control script stop action.
 
-while true 
-do # Execute the package binary
-  user_exec ${binary} start ${binaryArgs[@]} -t 300 &>>${logPath}/${jobName}.log
-done # If there is no package binary, replace the user_exec within the loop
+initialize_database
+
+configure_pgbdr
+
+user_run ${binary} start ${binaryArgs[@]} -t 300
+
+sleep 10 # Allow postmaster to finish startup.
+
+initialize_pgbdr # Begin pgbdr replication
+
+exit 0 # Done! We could also watch the state of things here should we need to.
 

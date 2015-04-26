@@ -130,7 +130,7 @@ case ${action} in
       -e "s/DIRECTOR-UUID/${directorUUID}/g" \
       -e "s/NAME/${deploymentName}/g" \
       -e "s/STEMCELL/${stemcell}/g" \
-      -e "s/ENVIRONMENT/${ENVIRONMENT:-"pgbdr-development"}/g" \
+      -e "s/ENVIRONMENT/pgbdr-${ENVIRONMENT:-"dev"}/g" \
       "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
 
     echo "Merging templates using the spiff..."

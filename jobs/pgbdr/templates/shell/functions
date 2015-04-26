@@ -1,15 +1,135 @@
 #!/usr/bin/env bash
 
 fail() { echo "$*" >&2 ; exit 1 ; }
-user_exec() { exec chpst -u "${userName}:${groupName}" "$@" &>>${logPath}/${jobName}.log ; }
-user_run() { chpst -u "${userName}:${groupName}" "$@" &>>${logPath}/${jobName}.log ; }
+user_exec() { exec chpst -u "${userName}:${groupName}" "$@" ; }
+user_run() { chpst -u "${userName}:${groupName}" "$@" ; }
 user_chown() { chown -R "${userName}:${groupName}" "$@" ; }
 send_signal() { pid=$(head -1 ${pidFile}) ; (( ${pid:-0} < 1 )) || kill -${1} ${pid} ; }
 
+add_packages_to_path() {
+  # Add all packages' /bin & /sbin into $PATH
+  for _path in $(ls -d /var/vcap/packages/*/*bin)
+  do PATH="${_path}:${PATH}"
+  done
+  export PATH
+}
+
+configure_job_paths() {
+  _paths=(
+    "${jobPath}"
+    "${runPath}"
+    "${logPath}"
+    "${tmpPath}"
+    "${storePath}"
+  )
+
+  for _path in "${_paths[@]}"
+  do
+    if ! [[ -d ${_path} ]]
+    then
+      mkdir -p "${_path}"
+      chown -R ${userName}:${groupName} "${_path}"
+      chmod 0775 "${_path}"
+    fi
+  done
+}
+
 graceful_stop() {
-  user_run ${binary} stop ${binaryArgs[@]} -m fast \
-    &>>${logPath}/${jobName}.log
+  user_run ${binary} stop ${binaryArgs[@]} -m fast
   rm -f ${pidFile}
   exit 0 # Normal exit, return code 0
 }
 
+initialize_database() {
+  if [[ ! -d ${dataPath} ]]
+  then 
+    chown -R ${userName}:${groupName} ${storePath}
+    pushd ${storePath}
+    HOME=${storePath} chpst -u ${userName}:${groupName} ${pkgPath}/bin/initdb \
+      -E UTF8 --local "en_US.UTF-8" -D ${dataPath}
+    popd
+  fi
+}
+
+configure_pgbdr() {
+  sed -i ${dataPath}/postgresql.conf \
+    -e "s%^.*external_pid_file.*$\$%external_pid_file = '${pidFile}'%" \
+    -e "s/^.*shared_preload_libraries.*\$/shared_preload_libraries = 'bdr'/" \
+    -e "s/^.*wal_level.*\$/wal_level = 'logical'/" \
+    -e "s/^.*track_commit_timestamp.*\$/track_commit_timestamp = on/" \
+    -e "s/^.*max_connections*\$/max_connections = 300/" \
+    -e "s/^.*max_wal_senders.*\$/max_wal_senders = 50/" \
+    -e "s/^.*max_replication_slots.*\$/max_replication_slots = 100/" \
+    -e "s/^.*max_worker_processes.*\$/max_worker_processes = 200/" \
+    -e "s/^.*log_error_verbosity.*\$/log_error_verbosity = verbose/" \
+    -e "s/^.*log_min_messages.*\$/log_min_messages = debug1/" \
+    -e "s/^.*log_line_prefix.*\$/log_line_prefix = 'd=%d p=%p a=%a%q '/" \
+    -e "s/^.*bdr.default_apply_delay.*\$/bdr.default_apply_delay=2000   # milliseconds/" \
+    -e "s/^.*bdr.log_conflicts_to_table.*\$/bdr.log_conflicts_to_table=on/"
+
+  cat > ${dataPath}/pg_hba.conf <<EOF
+# TYPE  DATABASE      USER        ADDRESS       METHOD
+local   replication   vcap                      trust
+host    replication   postgres    127.0.0.1/32  trust
+host    replication   postgres    ::1/128       trust
+local   all           postgres                  trust
+host    all           postgres    127.0.0.1/32  trust
+host    all           postgres    ::1/128       trust
+local   all           vcap                      trust
+host    all           vcap        127.0.0.1/32  trust
+host    all           vcap        ::1/128       trust
+EOF
+
+  for node in ${pgbdrNodes[@]}
+  do echo "host    all   ${dbUser}    ${node}/32  trust" \
+    >> ${dataPath}/pg_hba.conf 
+  done
+
+  chown ${userName}:${groupName} ${dataPath}/*.conf
+  chmod 0644 ${dataPath}/*.conf
+}
+
+psqlc() {
+  if ! psql -U vcap ${1} -c "${2}"
+  then echo "psqlc: ERROR: $*"
+  fi
+}
+
+initialize_pgbdr() {
+  psql -U ${userName} postgres -c \
+    "CREATE USER ${dbUser} SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
+
+  psql -U ${userName} postgres -c \
+    "ALTER USER ${dbUser} ENCRYPTED PASSWORD '${dbPass}';"
+
+  createdb -U ${dbUser} ${dbName} || true
+
+  psqlc ${dbName} 'CREATE EXTENSION btree_gist;'
+  psqlc template1 'CREATE EXTENSION btree_gist;'
+
+  psqlc ${dbName} 'DROP EXTENSION IF EXISTS bdr CASCADE;'
+  psqlc ${dbName} 'CREATE EXTENSION bdr;'
+
+  psqlc ${dbName} "CREATE SCHEMA IF NOT EXISTS ${dbName};"
+
+  if (( ${vmIndex} == 0 )) # First Node
+  then # host=${pgbdrNodes[${vmIndex}]}  # host=${pgbdrNodes[0]} 
+    psqlc ${dbName} "
+SELECT bdr.bdr_group_create(
+  local_node_name := '${vmName}${vmIndex}',
+  node_external_dsn := 'user=${dbUser} port=${dbPort} dbname=${dbName}'
+);
+SELECT bdr.bdr_node_join_wait_for_ready();
+"
+  else # host=${pgbdrNodes[${vmIndex}]}  # host=${pgbdrNodes[${vmIndex}]} 
+    sleep 30
+    psqlc ${dbName} "
+SELECT bdr.bdr_group_join(
+  local_node_name := '${vmName}${vmIndex}',
+  node_external_dsn := 'port=${dbPort} user=${dbUser} dbname=${dbName}',
+  join_using_dsn := 'host=${pgbdrNodes[0]} port=${dbPort} user=${dbUser} dbname=${dbName}'
+);
+SELECT bdr.bdr_node_join_wait_for_ready();
+"
+  fi
+}

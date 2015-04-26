@@ -9,6 +9,20 @@ templates:
   shell/env.erb: shell/env
   shell/functions: shell/functions
 properties:
-  debug:
+  pgbdr.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: false
+  pgbdr.nodes:
+    description: "List of all BDR Node IP Addresses (must be set in manifest)."
+  pgbdr.db_name:
+    description: "pgbdr management databse name (Can be overridden in manifest)."
+    default: "pgbdr"
+  pgbdr.db_user:
+    description: "pgbdr database user (Can be overridden in manifest)."
+    default: "postgres"
+  pgbdr.db_port:
+    description: "pgbdr database port (Can be overridden in manifest)."
+    default: "5432"
+  pgbdr.db_pass:
+    description: "pgbdr database password. (Can be overridden in manifest)."
+    default: "pgbdr"
