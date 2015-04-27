@@ -25,8 +25,10 @@ jobs:
           - 10.244.2.18
     properties:
       pgbdr:
-        debug:
-          true
+        debug: "true"
+        hba: |
+          host    replication   postgres 10.0.2.15/32  trust
+          host    all           postgres 10.0.2.15/32  trust
         nodes:
           - 10.244.2.2
           - 10.244.2.6

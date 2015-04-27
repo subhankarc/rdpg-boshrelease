@@ -26,3 +26,6 @@ properties:
   pgbdr.db_pass:
     description: "pgbdr database password. (Can be overridden in manifest)."
     default: "pgbdr"
+  pgbdr.hba:
+    description: "Extra pg_hba lines (optional)."
+    default: ""
