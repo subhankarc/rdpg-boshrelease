@@ -4,13 +4,13 @@ set -e -u -x
 
 package="pgbdr"
 gitURL="git://git.postgresql.org/git/2ndquadrant_bdr.git"
-packagePath="${PWD}/${package}"
 releasePath=$(dirname ${PWD})
+packagePath="${PWD}/${package}"
 tmpPath="${releasePath}/tmp"
 srcPath="${releasePath}/src"
-mkdir -p ${package}
+mkdir -p ${packagePath} ${tmpPath} ${srcPath}
 
-if [[ ! -s "${package}/pgbdr.tar.xz" ]]
+if [[ ! -s "${packagePath}/pgbdr.tar.xz" ]]
 then 
   if [[ ! -d ${srcPath}/pgbdr ]]
   then git clone -b bdr-pg/REL9_4_STABLE ${gitURL} ${srcPath}/pgbdr
@@ -26,7 +26,7 @@ then
   )&
 fi
 
-if [[ ! -s "${package}/pgbdr-extension.tar.xz" ]]
+if [[ ! -s "${packagePath}/pgbdr-extension.tar.xz" ]]
 then
   if [[ ! -d ${srcPath}/pgbdr-extension ]]
   then git clone -b bdr-plugin/stable ${gitURL} ${srcPath}/pgbdr-extension
