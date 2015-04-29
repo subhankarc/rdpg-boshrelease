@@ -95,7 +95,7 @@ prepare_stemcell() {
   stemcell=${stemcell:-$(latest_uploaded_stemcell)}
   if [[ -z ${stemcell} ]]
   then
-    stemcellFile="${stemcellsPath}/$(basename ${stemcellURL}).tar.gz"
+    stemcellFile=$(find stemcells -iname "$(basename ${stemcellURL})*" | head -1)
     if [[ -s ${stemcellFile} ]]
     then 
       echo -e "\nUploading local stemcell ${stemcellFile}..."
