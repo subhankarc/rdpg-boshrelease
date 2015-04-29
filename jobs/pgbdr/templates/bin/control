@@ -3,14 +3,9 @@
 source "$(dirname $(dirname ${0}))/shell/env"
 
 case ${1} in
-  (start) 
-    exec ${jobPath}/bin/${jobName}
-    ;;
-  (stop)  
-    graceful_stop
-    ;;
-  (*) 
-    fail "Usage: $0 {start|stop}"
-    ;;
+  (start) exec ${jobPath}/bin/${jobName} ;;
+  (stop)  graceful_stop                  ;;
+  (*)     fail "Usage: $0 {start|stop}"  ;;
 esac
 
+exit $?

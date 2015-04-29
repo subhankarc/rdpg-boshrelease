@@ -1,17 +1,36 @@
 #!/usr/bin/env bash
 
-fail() { echo "$*" >&2 ; exit 1 ; }
-user_exec() { exec chpst -u "${userName}:${groupName}" "$@" ; }
-user_run() { chpst -u "${userName}:${groupName}" "$@" ; }
-user_chown() { chown -R "${userName}:${groupName}" "$@" ; }
-send_signal() { pid=$(head -1 ${pidFile}) ; (( ${pid:-0} < 1 )) || kill -${1} ${pid} ; }
+fail() { 
+  echo "$*" >&2 
+  exit 1
+}
 
-add_packages_to_path() {
-  # Add all packages' /bin & /sbin into $PATH
+user() {
+  local _action=$1 ; shift
+  case ${_action} in
+    (exec)  exec chpst -u "${userName}:${groupName}" "$@" ;;
+    (run)   chpst -u "${userName}:${groupName}" "$@"      ;;
+    (chown) chown -R "${userName}:${groupName}" "$@"      ;;
+  esac
+}
+
+send_signal() { 
+  pid=$(head -1 ${pidFile})
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
+  fi
+}
+
+turn_debugging_on() {
+  export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  export DEBUG="true" 
+  set -x
+}
+
+add_packages_to_path() { # Add all packages' /bin & /sbin into $PATH
   for _path in $(ls -d /var/vcap/packages/*/*bin)
   do PATH="${_path}:${PATH}"
-  done
-  export PATH
+  done ; export PATH
 }
 
 configure_job_paths() {
@@ -102,11 +121,12 @@ psqlc() {
   fi
 }
 
-initialize_pgbdr() {
+create_db_user() {
   psqlc postgres "CREATE USER ${dbUser} SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
-
   psqlc postgres "ALTER USER ${dbUser} ENCRYPTED PASSWORD '${dbPass}';"
+}
 
+initialize_pgbdr() {
   createdb -U ${dbUser} ${dbName} || true
 
   psqlc ${dbName} 'CREATE EXTENSION btree_gist;'

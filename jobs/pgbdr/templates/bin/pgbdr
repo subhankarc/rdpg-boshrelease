@@ -12,7 +12,9 @@ user_run ${binary} start ${binaryArgs[@]} -t 300
 
 sleep 10 # Allow postmaster to finish startup.
 
-initialize_pgbdr # Begin pgbdr replication
+create_db_user
+
+#initialize_pgbdr # Begin pgbdr replication
 
 exit 0 # Done! We could also watch the state of things here should we need to.
 

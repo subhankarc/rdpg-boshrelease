@@ -5,13 +5,15 @@ set -e -u
 fail() { echo -e "$*" ; exit 1 ; }
 
 latest_uploaded_stemcell() {
-  bosh stemcells | awk "/bosh/&&/${stemcellOS}/" |     awk -F'|' '{ print $2, $3 }' | sort -nr -k2 | head -n1 | awk '{ print $1 }'
+  bosh stemcells | awk "/bosh/&&/${stemcellOS}/" | awk -F'|' '{ print $2, $3 }' |
+    sort -nr -k2 | head -n1 | awk '{ print $1 }'
 }
 
 usage() { 
   echo "
-  Usage: $0 <blobs|manifest|dev> [options]
-  Where [options] for the 'manifest' action are: 'aws-ec2' or 'warden'
+  Usage: $0 <blobs|manifest|stemcell|dev> [options]
+  Where [options] for the 'manifest' action are: aws-ec2, warden
+  Where [options] for the 'stemcell' action are: aws-ec2, warden
   "
 }
 
@@ -26,6 +28,91 @@ requireCommands() {
   done
 }
 
+prepare_blobs() {
+  [[ -d ${releasePath}/blobs ]] || mkdir ${releasePath}/blobs
+  echo "Preparing all packages..."
+  for script in ${releasePath}/packages/*/prepare
+  do
+    if [[ -s ${script} ]]
+    then 
+      echo ${script}
+      ( cd ${releasePath}/blobs ; ${SHELL} ${script} )
+    fi
+  done
+}
+
+prepare_stemcell() {
+  stemcellOS=${stemcellOS:-"centos"}
+  directorCPI=$(bosh status | awk '/CPI/{print $2}')
+  directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
+  directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
+  deploymentName="${releaseName}-${infrastructure}"
+
+  [[ -d ${tmpPath} ]] || mkdir -p$ {tmpPath}
+
+  case ${infrastructure} in
+    (aws-ec2)
+      if [[ ${directorCPI} != aws ]]
+      then fail "No AWS BOSH Director targeted. Please use 'bosh target' first."
+      fi
+      hypervisor="xen"
+      case ${stemcellOS} in
+        (ubuntu) 
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent" 
+          ;;
+        (centos) 
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-centos-7-go_agent" 
+          ;;
+        (*) 
+          fail "Unknown Stemcell OS '${stemcellOS}'" 
+          ;;
+      esac
+      ;;
+    (warden) 
+      if ! [[ "${directorName}" =~ "Bosh Lite Director" ]]
+      then fail "No BOSH Lite  bosh-lite with warden CPI.\nPlease use 'bosh target' first."
+      fi
+      hypervisor="warden"
+      case ${stemcellOS} in
+        (ubuntu)
+          stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent"
+          ;;
+        (centos) 
+          stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-centos-go_agent" 
+          ;;
+        (*) 
+          fail "Unknown Stemcell OS '${stemcellOS}'" 
+          ;;
+      esac
+      ;;
+    (*)
+      usage 
+      fail 
+      ;;
+  esac
+  shift
+
+  stemcell=${stemcell:-$(latest_uploaded_stemcell)}
+  if [[ -z ${stemcell} ]]
+  then
+    stemcellFile="${stemcellsPath}/$(basename ${stemcellURL}).tar.gz"
+    if [[ -s ${stemcellFile} ]]
+    then 
+      echo -e "\nUploading local stemcell ${stemcellFile}..."
+      bosh upload stemcell ${stemcellFile}
+    else
+      echo -e "\nUploading latest ${hypervisor}/${stemcellOS} stemcell..."
+      bosh upload stemcell ${stemcellURL}
+    fi
+    stemcell=$(latest_uploaded_stemcell)
+  fi
+}
+
+prepare_dev_release() {
+  bosh create release --with-tarball --force
+  bosh -n upload release
+}
+
 if [[ ${DEBUG:-"false"} == "true" ]]
 then # Enable xtrace with context if debug is true.
   export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -35,6 +122,7 @@ fi
 releasePath=$(cd $(dirname $0) ; echo $PWD)
 tmpPath=${releasePath}/tmp
 manifestsPath=${releasePath}/manifests
+stemcellsPath=${releasePath}/stemcells
 releaseName=$(awk -F: '/final_name/{print $2}' config/final.yml | tr -d ' ') 
 templatesPath="${releasePath}/templates"
 
@@ -49,82 +137,27 @@ fi
 
 case ${action} in
   (dev)
-    bosh create release --with-tarball --force 
-    bosh -n upload release
+    prepare_dev_release $*
     ;;
   (blobs)
-    [[ -d ${releasePath}/blobs ]] || mkdir ${releasePath}/blobs
-    echo "Preparing all packages..."
-    for script in ${releasePath}/packages/*/prepare
-    do
-      if [[ -s ${script} ]]
-      then 
-        echo ${script}
-        ( cd ${releasePath}/blobs ; ${SHELL} ${script} )
-      fi
-    done
+    prepare_blobs $*
+    ;;
+  (stemcell)
+    infrastructure=${1:-}
+    if [[ -z ${infrastructure:-} ]]
+    then usage  ; fail 
+    fi ; shift
+    prepare_stemcell $infrastructure
     ;;
   (manifest)
     requireCommands spiff bosh
     echo "Preparing to build the manifest... "
 
-    stemcellOS=${stemcellOS:-"centos"}
-    directorCPI=$(bosh status | awk '/CPI/{print $2}')
-    directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
-    directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
     infrastructure=${1:-}
-    deploymentName="${releaseName}-${infrastructure}"
-    [[ -d ${tmpPath} ]] || mkdir ${tmpPath}
-
-    case ${infrastructure} in
-      (aws-ec2)
-        if [[ ${directorCPI} != aws ]]
-        then fail "No AWS BOSH Director targeted. Please use 'bosh target' first."
-        fi
-        hypervisor="xen"
-        case ${stemcellOS} in
-          (ubuntu) 
-            stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent" 
-            ;;
-          (centos) 
-            stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-centos-7-go_agent" 
-            ;;
-          (*) 
-            fail "Unknown Stemcell OS '${stemcellOS}'" 
-            ;;
-        esac
-        ;;
-      (warden) 
-        if ! [[ "${directorName}" =~ "Bosh Lite Director" ]]
-        then fail "No BOSH Lite  bosh-lite with warden CPI.\nPlease use 'bosh target' first."
-        fi
-        hypervisor="warden"
-        case ${stemcellOS} in
-          (ubuntu)
-            stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent" 
-            ;;
-          (centos) 
-            stemcellURL="https://bosh.io/d/stemcells/bosh-warden-boshlite-centos-go_agent" 
-            ;;
-          (*) 
-            fail "Unknown Stemcell OS '${stemcellOS}'" 
-            ;;
-        esac
-        ;;
-      (*)
-        usage 
-        fail 
-        ;;
-    esac
-    shift
-
-    stemcell=${stemcell:-$(latest_uploaded_stemcell)}
-    if [[ -z ${stemcell} ]]
-    then
-      echo -e "\nUploading latest ${hypervisor}/${stemcellOS} stemcell..."
-      bosh upload stemcell ${stemcellURL}
-      stemcell=$(latest_uploaded_stemcell)
-    fi
+    if [[ -z ${infrastructure:-} ]]
+    then usage  ; fail 
+    fi ; shift
+    prepare_stemcell $infrastructure
 
     sed \
       -e "s/DIRECTOR-UUID/${directorUUID}/g" \
