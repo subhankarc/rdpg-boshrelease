@@ -58,10 +58,10 @@ prepare_stemcell() {
       hypervisor="xen"
       case ${stemcellOS} in
         (ubuntu) 
-          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-ubuntu-trusty-go_agent" 
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-light-ubuntu-trusty-go_agent" 
           ;;
         (centos) 
-          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-hvm-centos-7-go_agent" 
+          stemcellURL="http://bosh.io/stemcells/bosh-aws-xen-light-centos-7-go_agent" 
           ;;
         (*) 
           fail "Unknown Stemcell OS '${stemcellOS}'" 
