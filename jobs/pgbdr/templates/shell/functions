@@ -54,7 +54,7 @@ configure_job_paths() {
 }
 
 graceful_stop() {
-  user_run ${binary} stop ${binaryArgs[@]} -m fast
+  user run ${binary} stop ${binaryArgs[@]} -m fast
   rm -f ${pidFile}
   exit 0 # Normal exit, return code 0
 }

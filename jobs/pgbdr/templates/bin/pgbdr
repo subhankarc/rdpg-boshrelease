@@ -8,7 +8,7 @@ initialize_database
 
 configure_pgbdr
 
-user_run ${binary} start ${binaryArgs[@]} -t 300
+user run ${binary} start ${binaryArgs[@]} -t 300
 
 sleep 10 # Allow postmaster to finish startup.
 

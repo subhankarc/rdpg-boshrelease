@@ -24,7 +24,7 @@ binary executable.
 By default this file is setup to exec an binary/script stored within the package
 path of the same name as the job. If you do not have a package with a binary 
 that you are running directly which represents the job itself then delete the 
-`user_exec` line within the while loop and replace it with code to do what the 
+`user exec` line within the while loop and replace it with code to do what the 
 job needs to do. For a simple example, to run a command every minute you would 
 place that command followed by a second command 'sleep 60' within the while loop.
 
