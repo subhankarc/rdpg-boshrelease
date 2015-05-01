@@ -5,6 +5,12 @@ fail() {
   exit 1
 }
 
+debug() {
+  if [[ ${DEBUG:-"false"} = "true" ]]
+  then echo "$*"
+  fi
+}
+
 user() {
   local _action=$1 ; shift
   case ${_action} in
@@ -116,45 +122,56 @@ EOF
 }
 
 psqlc() {
-  if ! psql -U vcap ${1} -c "${2}"
+  local _db=${1}  ; shift
+  debug "psqlc: db: ${_db} SQL: ${*}"
+  if ! psql -U ${dbUser} ${_db} -c "${*}"
   then echo "psqlc: ERROR: $*"
   fi
 }
 
 create_db_user() {
-  psqlc postgres "CREATE USER ${dbUser} SUPERUSER CREATEDB CREATEROLE INHERIT LOGIN;"
-  psqlc postgres "ALTER USER ${dbUser} ENCRYPTED PASSWORD '${dbPass}';"
+  psql -U vcap postgres -c "CREATE USER ${dbUser} WITH SUPERUSER CREATEDB CREATEROLE INHERIT;"
+  psql -U vcap postgres -c "ALTER USER ${dbUser} ENCRYPTED PASSWORD '${dbPass}';"
+  psql -U vcap template1 -c "CREATE EXTENSION btree_gist;"
+}
+
+join_node_ready() {
+  if psql -U ${dbUser} --host="${pgbdrNodes[0]}" postgres -c "SELECT true;" &>/dev/null
+  then return 0
+  else return $?
+  fi
 }
 
 initialize_pgbdr() {
-  createdb -U ${dbUser} ${dbName} || true
+  if (( ${vmIndex} == 0 ))
+  then # First Node
+    sql="SELECT bdr.bdr_group_create( 
+    local_node_name := '${vmName}${vmIndex}',
+    node_external_dsn := 'host=${pgbdrNodes[0]} port=${dbPort} user=${dbUser} dbname=${dbName}'
+    ); 
+    SELECT bdr.bdr_node_join_wait_for_ready();
+    "
+  else # Subsequent Nodes
+    sql="SELECT bdr.bdr_group_join( 
+    local_node_name := '${vmName}${vmIndex}',
+    node_external_dsn := 'host=${pgbdrNodes[${vmIndex}]} port=${dbPort} user=${dbUser} dbname=${dbName}',
+    join_using_dsn := 'host=${pgbdrNodes[0]} port=${dbPort} user=${dbUser} dbname=${dbName}'
+    ); 
+    SELECT bdr.bdr_node_join_wait_for_ready();
+    "
 
-  psqlc ${dbName} 'CREATE EXTENSION btree_gist;'
-  psqlc template1 'CREATE EXTENSION btree_gist;'
+    while ! join_node_ready
+    do sleep 1
+    done
+  fi
 
-  psqlc ${dbName} 'DROP EXTENSION IF EXISTS bdr CASCADE;'
-  psqlc ${dbName} 'CREATE EXTENSION bdr;'
+  psql -U ${dbUser} postgres "CREATE database ${dbName};" || true
 
+  --psqlc ${dbName} "CREATE EXTENSION btree_gist;"
+  psqlc ${dbName} "CREATE EXTENSION bdr;"
   psqlc ${dbName} "CREATE SCHEMA IF NOT EXISTS ${dbName};"
 
-  if (( ${vmIndex} == 0 )) # First Node
-  then # host=${pgbdrNodes[${vmIndex}]}
-    psqlc ${dbName} "
-SELECT bdr.bdr_group_create(
-  local_node_name := '${vmName}${vmIndex}',
-  node_external_dsn := 'host=${pgbdrNodes[0]} user=${dbUser} port=${dbPort} dbname=${dbName}'
-);
-SELECT bdr.bdr_node_join_wait_for_ready();
-"
-  else # host=${pgbdrNodes[${vmIndex}]}
-    sleep 10
-    psqlc ${dbName} "
-SELECT bdr.bdr_group_join(
-  local_node_name := '${vmName}${vmIndex}',
-  node_external_dsn := 'host=${pgbdrNodes[${vmIndex}]} port=${dbPort} user=${dbUser} dbname=${dbName}',
-  join_using_dsn := 'host=${pgbdrNodes[0]} port=${dbPort} user=${dbUser} dbname=${dbName}'
-);
-SELECT bdr.bdr_node_join_wait_for_ready();
-"
-  fi
+  echo "${sql}" > ${logPath}/sql.sql
+
+  psqlc ${dbName} "${sql}"
 }

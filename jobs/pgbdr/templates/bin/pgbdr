@@ -14,7 +14,7 @@ sleep 10 # Allow postmaster to finish startup.
 
 create_db_user
 
-#initialize_pgbdr # Begin pgbdr replication
+initialize_pgbdr # Begin pgbdr replication
 
 exit 0 # Done! We could also watch the state of things here should we need to.
 
