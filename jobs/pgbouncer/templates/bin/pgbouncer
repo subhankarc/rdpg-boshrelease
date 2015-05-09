@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+user exec ${binary} "${binaryArgs[@]}"

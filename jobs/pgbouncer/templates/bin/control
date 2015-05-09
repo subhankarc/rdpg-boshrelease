@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+case ${1} in
+  (start) exec ${jobPath}/bin/${jobName} ;;
+  (stop)  send_signal TERM                 ;;
+  (*)     fail "Usage: $0 {start|stop}"   ;;
+esac
+
+exit $?

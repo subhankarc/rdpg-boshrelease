@@ -13,6 +13,8 @@ jobs:
     templates:
     - name: pgbdr
       release: pgbdr
+    - name: pgbouncer
+      release: pgbdr
     instances: 0
     resource_pool: small_z1
     networks: (( merge ))

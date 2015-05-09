@@ -35,6 +35,9 @@ jobs:
           - 10.244.2.10
           - 10.244.2.14
           - 10.244.2.18
+      pgbouncer:
+        debug: "true"
+        admin_pass: "pgbdrdev"
 
 properties: {}
 
