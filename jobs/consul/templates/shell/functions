@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+fail() { 
+  echo "$*" >&2 
+  exit 1 
+}
+
+user() {
+  local _action=$1 ; shift
+  case ${_action} in
+    (exec)  exec chpst -u "${userName}:${groupName}" "$@" ;;
+    (run)   chpst -u "${userName}:${groupName}" "$@"      ;;
+    (chown) chown -R "${userName}:${groupName}" "$@"      ;;
+  esac
+}
+
+send_signal() { 
+  pid=$(head -1 ${pidFile})
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
+  fi
+}
+
+turn_debugging_on() {
+  export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  export DEBUG="true" 
+  set -x
+  set -v
+}
+
+add_packages_to_path() { # Add all packages' /bin & /sbin into $PATH
+  for _path in $(ls -d /var/vcap/packages/*/*bin)
+  do PATH="${_path}:${PATH}"
+  done ; export PATH
+}
+
+configure_job_paths() {
+  paths=(
+    "${jobPath}"
+    "${runPath}"
+    "${logPath}"
+    "${tmpPath}"
+    "${storePath}"
+  )
+  if (( ${UID} == 0 ))
+  then
+    for _path in "${paths[@]}"
+    do
+      [[ -d ${_path} ]] || mkdir -p "${_path}"
+      chown -R ${userName}:${groupName} "${_path}"
+      chmod 0775 "${_path}"
+    done
+  fi
+}
+
+graceful_stop() {
+  user exec ${binary} leave
+  exit 0 # Normal exit, return code 0
+}
+
+configure_consul() {
+  ulimit -v unlimited
+  setcap cap_net_bind_service=+ep $(readlink -nf ${binary})
+  user chown ${storePath}
+  
+  if ! grep -q 127.0.0.1 /etc/resolv.conf
+  then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
+  fi
+
+  [[ -z ${consulSSLCa} ]] ||
+    echo "${consulSSLCa}" > ${jobPath}/config/ca.cert
+  [[ -z ${consulSSLCert} ]] ||
+    echo "${consulSSLCert}" > ${jobPath}/config/consul.cert
+  [[ -z ${consulSSLKey} ]] ||
+    echo "${consulSSLKey}" > ${jobPath}/config/consul.key
+}

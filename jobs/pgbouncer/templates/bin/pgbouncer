@@ -2,4 +2,6 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
+ulimit -v unlimited
+
 user exec ${binary} "${binaryArgs[@]}"
