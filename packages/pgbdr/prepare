@@ -15,6 +15,7 @@ then
   if [[ ! -d ${srcPath}/pgbdr ]]
   then git clone -b bdr-pg/REL9_4_STABLE ${gitURL} ${srcPath}/pgbdr
   fi
+
   time (
     rsync -a --exclude '.git' ${srcPath}/pgbdr/ ${tmpPath}/pgbdr/
     cd ${tmpPath}
@@ -29,8 +30,9 @@ fi
 if [[ ! -s "${packagePath}/pgbdr-extension.tar.xz" ]]
 then
   if [[ ! -d ${srcPath}/pgbdr-extension ]]
-  then git clone -b bdr-plugin/stable ${gitURL} ${srcPath}/pgbdr-extension
+  then git clone -b bdr-plugin/REL0_9_STABLE ${gitURL} ${srcPath}/pgbdr-extension
   fi
+
   time (
     rsync -a --exclude '.git' ${srcPath}/pgbdr-extension/ ${tmpPath}/pgbdr-extension/
     cd ${tmpPath}

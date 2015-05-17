@@ -16,20 +16,20 @@ properties: (( merge ))
 
 compilation:
   workers: 2
-  network: pgbdr
+  network: rdpg
   reuse_compilation_vms: true
   cloud_properties: (( merge ))
 
 update:
   canaries: 1
-  max_in_flight: 5
+  max_in_flight: 4
   canary_watch_time: 30000-60000
   update_watch_time: 5000-60000
   serial: false
 
 resource_pools:
   - name: small_z1
-    network: pgbdr
+    network: rdpg
     size: (( auto ))
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))

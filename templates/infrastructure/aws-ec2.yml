@@ -6,17 +6,45 @@ meta:
   persistent_disk: 4096
 
   stemcell:
-    name: bosh-aws-xen-ubuntu
+    name: bosh-aws-xen-centos-7-go_agent
     version: latest
 
 jobs:
-  - name: pgbdr
-    instances: 2
-    networks:
-      - name: pgbdr
+  - name: rdpg
+    instances: 5
+    resource_pool: default
     persistent_disk: (( meta.persistent_disk ))
+    templates: (( meta.templates ))
+    networks:
+      - name: rdpg
+      - name: default
+        default: [dns, gateway]
+        static_ips:
+          - 10.10.1.10
+          - 10.10.1.11
+          - 10.10.1.12
+          - 10.10.1.13
+          - 10.10.1.14
     properties:
       pgbdr:
+        #debug: "true"
+        nodes:
+          - 10.10.1.10
+          - 10.10.1.11
+          - 10.10.1.12
+          - 10.10.1.13
+          - 10.10.1.14
+      pgbouncer:
+        #debug: "true"
+        admin_pass: "rdpgadmin"
+      consul:
+        #debug: "true"
+        nodes:
+          - 10.10.1.10
+          - 10.10.1.11
+          - 10.10.1.12
+          - 10.10.1.13
+          - 10.10.1.14
 
 compilation:
   cloud_properties:
@@ -31,7 +59,7 @@ networks:
   - name: floating
     type: vip
     cloud_properties: {}
-  - name: pgbdr
+  - name: rdpg
     type: dynamic
     cloud_properties:
       security_groups: (( meta.security_groups ))

@@ -133,14 +133,17 @@ psqlc() {
 create_db_user() {
   psql -U vcap postgres -c "CREATE USER ${dbUser} WITH SUPERUSER CREATEDB CREATEROLE INHERIT;" || true
   psql -U vcap postgres -c "ALTER USER ${dbUser} ENCRYPTED PASSWORD '${dbPass}';" || true
-  psql -U vcap template1 -c "CREATE EXTENSION btree_gist;" || true
 }
 
 join_node_ready() {
-  if psql -U ${dbUser} --host="${pgbdrNodes[${1}]}" postgres -c "SELECT true;" &>/dev/null
+  if psql -U ${dbUser} --host="${pgbdrNodes[${1}]}" ${dbName} -c "SELECT true;" &>/dev/null
   then return 0
   else return $?
   fi
+}
+
+number_of_joined_nodes() {
+  psql --host="${pgbdrNodes[${1}]}" -U postgres pgbdr -t -c 'SELECT count(*) FROM bdr.bdr_nodes;'
 }
 
 initialize_pgbdr() {
@@ -164,11 +167,17 @@ initialize_pgbdr() {
     done
   fi
 
-  createdb -U postgres -O ${dbUser} -T template1 ${dbName} || true
+  createdb -U postgres -O ${dbUser} -T template0 ${dbName} || true
 
+  psqlc ${dbName} "CREATE EXTENSION btree_gist;" || true
   psqlc ${dbName} "CREATE EXTENSION bdr;" || true
-  psqlc ${dbName} "CREATE SCHEMA IF NOT EXISTS ${dbName};"
+  if (( ${vmIndex} == 0 ))
+  then psqlc ${dbName} "CREATE SCHEMA IF NOT EXISTS ${dbName};"
+  fi
 
+  while (( $(number_of_joined_nodes) != ${vmIndex}-1 ))
+  do slep 1
+  done
   # user run ${binary} restart ${binaryArgs[@]} -w -t 300
 
   echo "${sql}" > ${logPath}/sql.sql

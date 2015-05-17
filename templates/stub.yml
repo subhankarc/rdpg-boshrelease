@@ -1,14 +1,15 @@
 ---
 meta:
-  environment: ENVIRONMENT
+  environment: NAME
   dns_root: microbosh
   security_groups:
-    - pgbdr
+    - bosh
+    - rdpg
   stemcell:
     name: STEMCELL
 
-director_uuid: DIRECTOR-UUID
+director_uuid: PLACEHOLDER-DIRECTOR-UUID
 
 releases:
-  - name: pgbdr
+  - name: rdpg
     version: latest

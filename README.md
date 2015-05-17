@@ -1,4 +1,4 @@
-# BOSH release for pgbdr
+# Reliable Distributed PostgreSQL (RDPG) BOSH release
 
 ## License
 
@@ -12,17 +12,17 @@ To use this bosh release, first upload it to your bosh:
 
 ```sh
 bosh target $BOSH_HOST
-git clone https://.../pgbdr-boshrelease.git
-cd pgbdr-boshrelease
-bosh upload release releases/pgbdr-1.yml
+git clone https://.../rdpg-boshrelease.git
+cd rdpg-boshrelease
+bosh upload release releases/rdpg-1.yml
 ```
 
 Next download your manifest file for the deployment targeted so we can edit it and add the release.
 
 ```sh
 mkdir -p ~/workspace/manifests
-bosh download manifest pgbdr-development ~/workspace/manifests/pgbdr.yml
-bosh deployment ~/workspace/manifests/pgbdr.yml
+bosh download manifest rdpg-development ~/workspace/manifests/rdpg.yml
+bosh deployment ~/workspace/manifests/rdpg.yml
 ```
 
 Alternatively, you can make your manifest. For example to prepare a manifest for 
@@ -33,14 +33,14 @@ STEMCELL_OS=centos ./prepare manifest warden
 ```
 
 
-Edit the manifest file you downloaded (`~/workspace/manifests/pgbdr.yml`) and add settings as follows.
+Edit the manifest file you downloaded (`~/workspace/manifests/rdpg.yml`) and add settings as follows.
 
 Add to the list of known `releases: `
 
 ```yaml
 releases:
 #...
-- name: pgbdr
+- name: rdpg
   version: latest
 ```
 
@@ -48,11 +48,11 @@ For consistency also add to the `releases: ` section under `meta: `
 
 ```yaml
 meta:
-  environment: pgbdr-development
+  environment: rdpg-development
   releases:
   - name: cf
     version: latest
-  - name: pgbdr
+  - name: rdpg
     version: latest
 ```
 
@@ -61,14 +61,14 @@ Add properties such as tags.
 ```yaml
 properties:
 # ... lots of properties ... at bottom put vv
-  pgbdr:
+  rdpg:
 ```
 
 Now, for every `instances: ` entry you wish to collocate this release with under `jobs:` add the following in the `templates: ` section:
 
 ```yaml
-  - name: pgbdr
-    release: pgbdr
+  - name: rdpg
+    release: rdpg
 ```
 
 Now you can deploy,
@@ -96,8 +96,8 @@ Download your manifest file for the deployment targeted.
 ```sh
 bosh target {{BOSH_DIRECTOR_URL/IP}}:25555
 mkdir -p ~/workspace/manifests
-bosh download manifest pgbdr-development ~/workspace/manifests/pgbdr-development.yml
-bosh deployment ~/workspace/manifests/pgbdr-development.yml
+bosh download manifest rdpg-development ~/workspace/manifests/rdpg-development.yml
+bosh deployment ~/workspace/manifests/rdpg-development.yml
 ```
 
 Make your changes to the release and then create a new development release by running:
@@ -112,11 +112,11 @@ For the two release `version: ` entries change 'latest' to the '0+dev.N' version
 bosh -n deploy
 ```
 
-If you want to test your changes on one specific job, say `pgbdr/0`, instead of all jobs:
+If you want to test your changes on one specific job, say `rdpg/0`, instead of all jobs:
 
 ```sh
-bosh -n recreate pgbdr 0 --force
-bosh ssh pgbdr 0 # Hop on and have a look around...
+bosh -n recreate rdpg 0 --force
+bosh ssh rdpg 0 # Hop on and have a look around...
 ```
 
 Note, to restart all processes Monit on a host run the following command as root on the host.
