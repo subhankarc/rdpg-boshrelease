@@ -19,6 +19,6 @@ dev_releases/
 my*.yml
 releases/*.tgz
 src/*
-manifests/
-stemcells/
+manifests/*
+stemcells/*
 tmp/
