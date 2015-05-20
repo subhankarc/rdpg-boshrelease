@@ -212,11 +212,11 @@ case ${action} in
     fi
     prepare_blobs "${args[@]}"
     prepare_stemcell "${args[@]}"
-    prepare_dev_release "${args[@]}"
+    prepare_dev_release
     prepare_manifest "${args[@]}"
     ;;
   (release|dev)
-    prepare_dev_release "${args[@]}"
+    prepare_dev_release
     ;;
   (blobs)
     prepare_blobs "${args[@]}"
