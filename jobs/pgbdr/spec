@@ -29,3 +29,30 @@ properties:
   pgbdr.hba:
     description: "Extra pg_hba lines (optional)."
     default: ""
+  pgbdr.max_connections:
+    description: "Maximum Number of Connections"
+    default: "2000"
+  pgbdr.shared_buffers:
+    description: "Shared Buffers"
+    default: "512MB"
+  pgbdr.effective_cache_size:
+    description: "Effective Cache Size"
+    default: "1536MB"
+  pgbdr.work_mem:
+    description: "Working Memory (per connection)"
+    default: "262kB"
+  pgbdr.maintenance_work_mem:
+    description: "Maintenance Working Memory"
+    default: "128MB"
+  pgbdr.checkpoint_segments:
+    description: "Checkpoint Segments"
+    default: "32"
+  pgbdr.checkpoint_completion_target:
+    description: "Checkpoint Completion Target"
+    default: "0.7"
+  pgbdr.wal_buffers:
+    description: "WAL Buffers"
+    default: "16MB"
+  pgbdr.default_statistics_target:
+    description: "Default Statistics Target"
+    default: "100"

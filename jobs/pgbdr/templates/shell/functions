@@ -84,7 +84,6 @@ configure_pgbdr() {
     -e "s/^.*shared_preload_libraries.*\$/shared_preload_libraries = 'bdr'/" \
     -e "s/^.*wal_level.*\$/wal_level = 'logical'/" \
     -e "s/^.*track_commit_timestamp.*\$/track_commit_timestamp = on/" \
-    -e "s/^.*max_connections*\$/max_connections = 300/" \
     -e "s/^.*max_wal_senders.*\$/max_wal_senders = 50/" \
     -e "s/^.*max_replication_slots.*\$/max_replication_slots = 100/" \
     -e "s/^.*max_worker_processes.*\$/max_worker_processes = 200/" \
@@ -92,7 +91,16 @@ configure_pgbdr() {
     -e "s/^.*log_min_messages.*\$/log_min_messages = debug1/" \
     -e "s/^.*log_line_prefix.*\$/log_line_prefix = 'd=%d p=%p a=%a%q '/" \
     -e "s/^.*bdr.default_apply_delay.*\$/bdr.default_apply_delay=2000   # milliseconds/" \
-    -e "s/^.*bdr.log_conflicts_to_table.*\$/bdr.log_conflicts_to_table=on/"
+    -e "s/^.*bdr.log_conflicts_to_table.*\$/bdr.log_conflicts_to_table=on/" \
+    -e "s/^.*max_connections*\$/max_connections = ${pgbdrMaxConnections}/" \
+    -e "s/^.*shared_buffers*\$/shared_buffers = ${pgbdrSharedBuffers}/" \
+    -e "s/^.*effective_cache_size*\$/effective_cache_size = ${pgbdrEffectiveCacheSize}/" \
+    -e "s/^.*work_mem*\$/work_mem = ${pgbdrWorkMem}/" \
+    -e "s/^.*maintenance_work_mem*\$/maintenance_work_mem = ${pgbdrMaintenanceWorkMem}/" \
+    -e "s/^.*checkpoint_segments*\$/checkpoint_segments = ${pgbdrCheckpointSegments}/" \
+    -e "s/^.*checkpoint_completion_target*\$/checkpoint_completion_target = ${pgbdrCheckpointSegments}/" \
+    -e "s/^.*wal_buffers*\$/wal_buffers = ${pgbdrWALBuffers}/" \
+    -e "s/^.*default_statistics_target*\$/default_statistics_target = ${pgbdrDefaultStatisticsTarget}/"
 
   cat > ${dataPath}/pg_hba.conf <<EOF
 # TYPE  DATABASE      USER        ADDRESS       METHOD
@@ -103,8 +111,8 @@ local   all           postgres                  trust
 host    all           postgres    127.0.0.1/32  trust
 host    all           postgres    ::1/128       trust
 local   all           vcap                      trust
-host    all           vcap        127.0.0.1/32  trust
-host    all           vcap        ::1/128       trust
+host    all           all        127.0.0.1/32  md5
+host    all           all        ::1/128       md5
 EOF
 
   for node in ${pgbdrNodes[@]}

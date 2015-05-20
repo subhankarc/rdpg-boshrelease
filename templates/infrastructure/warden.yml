@@ -42,6 +42,15 @@ jobs:
           - 10.244.2.10
           - 10.244.2.14
           - 10.244.2.18
+        max_connections: "100"
+        shared_buffers: "128MB"
+        effective_cache_size: "256MB"
+        work_mem: "2MB"
+        maintenance_work_mem: "16MB"
+        checkpoint_segments: "16"
+        checkpoint_completion_target: "0.7"
+        wal_buffers: "1MB"
+        default_statistics_target: "100"
       pgbouncer:
         debug: "true"
         admin_pass: "rdpgadmin"

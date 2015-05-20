@@ -4,16 +4,34 @@ set -e -u
 
 fail() { echo -e "$*" ; exit 1 ; }
 
+bosh_cli_check() {
+  if ! command -v bosh &>/dev/null
+  then fail "'bosh' command was not found in your path, please 'gem install bosh_cli' and try again."
+  fi
+}
+
+bosh_target_check() {
+  boshTarget=$(bosh target 2>&1)
+  case "${boshTarget}" in
+    (Current\ target\ is*)
+      echo ${boshTarget}
+      ;;
+    (*)
+      fail "A bosh director is not targeted, please target a director and login then try again."
+      ;;
+  esac
+}
+
 latest_uploaded_stemcell() {
   bosh stemcells | awk "/bosh/&&/${stemcellOS}/" | awk -F'|' '{ print $2, $3 }' |
-    sort -nr -k2 | head -n1 | awk '{ print $1 }'
+  sort -nr -k2 | head -n1 | awk '{ print $1 }'
 }
 
 usage() { 
   echo "
-  Usage: $0 <blobs|manifest|stemcell|dev> [options]
-  Where [options] for the 'manifest' action are: aws-ec2, warden
-  Where [options] for the 'stemcell' action are: aws-ec2, warden
+  Usage: $0 <all|blobs|manifest|stemcell|dev> [options]
+
+  Where [options] for 'manifest', 'stemcell' and 'all' actions are: aws-ec2, warden
   "
 }
 
@@ -26,6 +44,15 @@ requireCommands() {
       exit 1
     fi
   done
+}
+
+select_infrastructure() {
+  infrastructure=${1:-}
+  if ! [[ -n ${infrastructure:-} ]]
+  then
+    usage
+    fail
+  fi
 }
 
 prepare_blobs() {
@@ -42,14 +69,17 @@ prepare_blobs() {
 }
 
 prepare_stemcell() {
+  select_infrastructure $*
+
   stemcellOS=${stemcellOS:-"centos"}
   directorCPI=$(bosh status | awk '/CPI/{print $2}')
   directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
   directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
   deploymentName="${releaseName}-${infrastructure}"
 
-  [[ -d ${tmpPath} ]] || mkdir -p$ {tmpPath}
+  [[ -d ${tmpPath} ]] || mkdir -p ${tmpPath}
 
+  echo ${infrastructure}
   case ${infrastructure} in
     (aws-ec2)
       if [[ ${directorCPI} != aws ]]
@@ -114,10 +144,42 @@ prepare_dev_release() {
   bosh -n upload release
 }
 
+prepare_manifest() {
+  select_infrastructure $*
+  shift # remove the warden|aws-ec2 to allow params passing to spiff below.
+  releaseName=$(basename $PWD | sed -e 's/-boshrelease//')
+
+  requireCommands spiff bosh
+  echo "Preparing to build the manifest... "
+
+  sed \
+    -e "s/DIRECTOR-UUID/${directorUUID}/g" \
+    -e "s/NAME/${releaseName}/g" \
+    -e "s/STEMCELL/${stemcell}/g" \
+    -e "s/ENVIRONMENT/${releaseName}-${ENVIRONMENT:-"dev"}/g" \
+    "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
+
+    echo "Merging templates using the spiff..."
+
+    spiff merge \
+      "${templatesPath}/deployment.yml" \
+      "${templatesPath}/jobs.yml" \
+      "${templatesPath}/infrastructure/${infrastructure}.yml" \
+      "${tmpPath}/targeted-director-stub.yml" \
+      $* > "${manifestsPath}/${deploymentName}-manifest.yml"
+
+    rm "${tmpPath}/targeted-director-stub.yml"
+
+    bosh deployment "${manifestsPath}/${deploymentName}-manifest.yml"
+
+    bosh status
+}
+
 if [[ ${DEBUG:-"false"} == "true" ]]
 then # Enable xtrace with context if debug is true.
   export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   set -x
+  set -v
 fi
 
 releasePath=$(cd $(dirname $0) ; echo $PWD)
@@ -136,51 +198,34 @@ else
   fail
 fi
 
+bosh_target_check
+bosh_cli_check
+
+declare -a args
+args=($(echo "${@}"))
 case ${action} in
-  (dev)
-    prepare_dev_release $*
+  (all)
+    if (( ${#args[@]} == 0 ))
+    then
+      usage
+      fail
+    fi
+    prepare_blobs "${args[@]}"
+    prepare_stemcell "${args[@]}"
+    prepare_dev_release "${args[@]}"
+    prepare_manifest "${args[@]}"
+    ;;
+  (release|dev)
+    prepare_dev_release "${args[@]}"
     ;;
   (blobs)
-    prepare_blobs $*
+    prepare_blobs "${args[@]}"
     ;;
   (stemcell)
-    infrastructure=${1:-}
-    if [[ -z ${infrastructure:-} ]]
-    then usage  ; fail 
-    fi ; shift
-    prepare_stemcell $infrastructure
+    prepare_stemcell "${args[@]}"
     ;;
   (manifest)
-    requireCommands spiff bosh
-    echo "Preparing to build the manifest... "
-
-    infrastructure=${1:-}
-    if [[ -z ${infrastructure:-} ]]
-    then usage  ; fail 
-    fi ; shift
-    prepare_stemcell $infrastructure
-
-    sed \
-      -e "s/DIRECTOR-UUID/${directorUUID}/g" \
-      -e "s/NAME/${deploymentName}/g" \
-      -e "s/STEMCELL/${stemcell}/g" \
-      -e "s/ENVIRONMENT/pgbdr-${ENVIRONMENT:-"dev"}/g" \
-      "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
-
-    echo "Merging templates using the spiff..."
-
-    spiff merge \
-      "${templatesPath}/deployment.yml" \
-      "${templatesPath}/jobs.yml" \
-      "${templatesPath}/infrastructure/${infrastructure}.yml" \
-      "${tmpPath}/targeted-director-stub.yml" \
-      $* > "${manifestsPath}/${deploymentName}-manifest.yml"
-
-    rm "${tmpPath}/targeted-director-stub.yml"
-
-    bosh deployment "${manifestsPath}/${deploymentName}-manifest.yml"
-
-    bosh status
+    prepare_manifest "${args[@]}"
     ;;
   (*) 
     usage 
