@@ -47,14 +47,8 @@ jobs:
       pgbouncer:
         #debug: "true"
         admin_pass: "rdpgadmin"
-      consul:
+      consul: {}
         #debug: "true"
-        nodes:
-          - 10.10.1.10
-          - 10.10.1.11
-          - 10.10.1.12
-          - 10.10.1.13
-          - 10.10.1.14
 
 compilation:
   cloud_properties:

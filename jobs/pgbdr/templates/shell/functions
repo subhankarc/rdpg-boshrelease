@@ -81,6 +81,7 @@ configure_pgbdr() {
   sed -i ${dataPath}/postgresql.conf \
     -e "s%^.*external_pid_file.*\$%external_pid_file = '${pidFile}'%" \
     -e "s/^.*listen_addresses.*\$/listen_addresses = '*'/" \
+    -e "s/^.*port\$/port = '5432'/" \
     -e "s/^.*shared_preload_libraries.*\$/shared_preload_libraries = 'bdr'/" \
     -e "s/^.*wal_level.*\$/wal_level = 'logical'/" \
     -e "s/^.*track_commit_timestamp.*\$/track_commit_timestamp = on/" \
