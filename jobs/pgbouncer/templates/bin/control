@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/var/vcap/packages/bash-4.3/bin/bash
 
 source "$(dirname $(dirname ${0}))/shell/env"
 

@@ -21,9 +21,12 @@ user() {
 }
 
 send_signal() { 
-  pid=$(head -1 ${pidFile})
-  if (( ${pid:-0} > 0 ))
-  then kill -${1} ${pid}
+  if [[ -s ${pidFile} ]]
+  then
+    pid=$(head -1 ${pidFile})
+    if (( ${pid:-0} > 0 ))
+    then kill -${1} ${pid}
+    fi
   fi
 }
 
