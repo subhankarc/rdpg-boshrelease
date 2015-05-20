@@ -70,16 +70,9 @@ prepare_blobs() {
 
 prepare_stemcell() {
   select_infrastructure $*
-
-  stemcellOS=${stemcellOS:-"centos"}
-  directorCPI=$(bosh status | awk '/CPI/{print $2}')
-  directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
   directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
-  deploymentName="${releaseName}-${infrastructure}"
-
+  stemcellOS=${stemcellOS:-"centos"}
   [[ -d ${tmpPath} ]] || mkdir -p ${tmpPath}
-
-  echo ${infrastructure}
   case ${infrastructure} in
     (aws-ec2)
       if [[ ${directorCPI} != aws ]]
@@ -146,8 +139,14 @@ prepare_dev_release() {
 
 prepare_manifest() {
   select_infrastructure $*
+  prepare_stemcell $*
+
   shift # remove the warden|aws-ec2 to allow params passing to spiff below.
   releaseName=$(basename $PWD | sed -e 's/-boshrelease//')
+  directorCPI=$(bosh status | awk '/CPI/{print $2}')
+  directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')
+  directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
+  deploymentName="${releaseName}-${infrastructure}"
 
   requireCommands spiff bosh
   echo "Preparing to build the manifest... "
@@ -159,20 +158,20 @@ prepare_manifest() {
     -e "s/ENVIRONMENT/${releaseName}-${ENVIRONMENT:-"dev"}/g" \
     "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
 
-    echo "Merging templates using the spiff..."
+  echo "Merging templates using the spiff..."
 
-    spiff merge \
-      "${templatesPath}/deployment.yml" \
-      "${templatesPath}/jobs.yml" \
-      "${templatesPath}/infrastructure/${infrastructure}.yml" \
-      "${tmpPath}/targeted-director-stub.yml" \
-      $* > "${manifestsPath}/${deploymentName}-manifest.yml"
+  spiff merge \
+    "${templatesPath}/deployment.yml" \
+    "${templatesPath}/jobs.yml" \
+    "${templatesPath}/infrastructure/${infrastructure}.yml" \
+    "${tmpPath}/targeted-director-stub.yml" \
+    $* > "${manifestsPath}/${deploymentName}-manifest.yml"
 
-    rm "${tmpPath}/targeted-director-stub.yml"
+  rm "${tmpPath}/targeted-director-stub.yml"
 
-    bosh deployment "${manifestsPath}/${deploymentName}-manifest.yml"
+  bosh deployment "${manifestsPath}/${deploymentName}-manifest.yml"
 
-    bosh status
+  bosh status
 }
 
 if [[ ${DEBUG:-"false"} == "true" ]]
