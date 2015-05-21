@@ -113,9 +113,9 @@ If this is your first time cloning the release repository for develompent first 
 
 This is equivalent to:
 ```sh
-./rdpg-dev blobs warden
+./rdpg-dev blobs
+./rdpg-dev release
 ./rdpg-dev stemcell warden
-./rdpg-dev release warden
 ./rdpg-dev manifest warden
 ```
 

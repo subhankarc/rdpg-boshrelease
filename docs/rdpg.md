@@ -21,7 +21,6 @@ Remove old VM ssh keys when destroyed
 vim ~/.ssh/known_hosts # delete the 10.* lines at the bottom
 
 ## On a VM
-
 head -n 100 /var/vcap/sys/log/pgbdr/pgbdr.log # first 100 lines
 tail -n 100 /var/vcap/sys/log/pgbdr/pgbdr.log # last 100 lines
 tail -f /var/vcap/sys/log/pgbdr/pgbdr.log # follow

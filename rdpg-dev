@@ -29,7 +29,7 @@ latest_uploaded_stemcell() {
 
 usage() { 
   echo "
-  Usage: $0 <prepare|blobs|manifest|stemcell|release|dev> [options]
+  Usage: $0 <prepare|blobs|manifest|stemcell|release> [options]
 
   Where [options] for 'manifest', 'stemcell' and 'prepare' actions are: aws-ec2, warden
   "
