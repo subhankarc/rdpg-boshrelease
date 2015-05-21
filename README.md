@@ -41,7 +41,7 @@ Alternatively, you can make your manifest. For example to prepare a manifest for
 bosh-lite (warden) using the 'centos' stemcell we would do the following:
 
 ```sh
-STEMCELL_OS=centos ./prepare manifest warden
+STEMCELL_OS=centos ./rdpg-dev manifest warden
 ```
 
 Edit the manifest file you downloaded (`~/workspace/manifests/rdpg.yml`) and add settings as follows.
@@ -94,7 +94,7 @@ and the `release:` from which it comes.
 
 ## Deployments Blobs
 
-The script `./prepare blobs` is used to prepare the `blobs/` directory
+The script `./rdpg-dev blobs` is used to prepare the `blobs/` directory
 runs each package's `prepare` script from within the `blobs/`
 directory. This will run each package's `prepare` script, if it exists,
 which *should* download and prepare that package's required blobs 
@@ -108,15 +108,15 @@ Target your BOSH Director as explained above, if you already have a deploy be su
 
 If this is your first time cloning the release repository for develompent first prepare all of the things:
 ```sh
-./prepare all warden
+./rdpg-dev prepare warden
 ```
 
 This is equivalent to:
 ```sh
-./prepare blobs warden
-./prepare stemcell warden
-./prepare release warden
-./prepare manifest warden
+./rdpg-dev blobs warden
+./rdpg-dev stemcell warden
+./rdpg-dev release warden
+./rdpg-dev manifest warden
 ```
 
 Once these steps have all been completed

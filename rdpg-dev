@@ -29,9 +29,9 @@ latest_uploaded_stemcell() {
 
 usage() { 
   echo "
-  Usage: $0 <all|blobs|manifest|stemcell|dev> [options]
+  Usage: $0 <prepare|blobs|manifest|stemcell|release|dev> [options]
 
-  Where [options] for 'manifest', 'stemcell' and 'all' actions are: aws-ec2, warden
+  Where [options] for 'manifest', 'stemcell' and 'prepare' actions are: aws-ec2, warden
   "
 }
 
@@ -203,7 +203,7 @@ bosh_cli_check
 declare -a args
 args=($(echo "${@}"))
 case ${action} in
-  (all)
+  (prepare)
     if (( ${#args[@]} == 0 ))
     then
       usage

@@ -5,9 +5,9 @@
 mkdir stemcells # we are going to download the stemcell locally
 curl -sL https://bosh.io/d/stemcells/bosh-warden-boshlite-centos-go_agent  -o stemcells/bosh-warden-boshlite-centos-go_agent.tgz
 
-./prepare stemcell warden # uploads the stemcell
-./prepare manifest warden # only first time, also does the stemcell
-./prepare dev # generates a new release and uploads it
+./rdpg-dev stemcell warden # uploads the stemcell
+./rdpg-dev manifest warden # only first time, also does the stemcell
+./rdpg-dev dev # generates a new release and uploads it
 bosh -n deploy
 
 SSH To a BOSH Deployed VM: bosh ssh {vm name} {vm index}
