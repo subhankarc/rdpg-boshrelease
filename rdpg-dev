@@ -201,7 +201,9 @@ bosh_target_check
 bosh_cli_check
 
 declare -a args
-args=($(echo "${@}"))
+if (( ${#@} ))
+then args=($(echo "${@}"))
+fi
 case ${action} in
   (prepare)
     if (( ${#args[@]} == 0 ))
@@ -209,16 +211,16 @@ case ${action} in
       usage
       fail
     fi
-    prepare_blobs "${args[@]}"
-    prepare_stemcell "${args[@]}"
+    prepare_blobs
     prepare_dev_release
+    prepare_stemcell "${args[@]}"
     prepare_manifest "${args[@]}"
     ;;
   (release|dev)
     prepare_dev_release
     ;;
   (blobs)
-    prepare_blobs "${args[@]}"
+    prepare_blobs
     ;;
   (stemcell)
     prepare_stemcell "${args[@]}"
