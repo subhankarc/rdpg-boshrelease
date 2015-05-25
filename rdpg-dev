@@ -72,6 +72,7 @@ prepare_stemcell() {
   select_infrastructure $*
   directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
   stemcellOS=${stemcellOS:-"centos"}
+  directorCPI=$(bosh status | awk '/CPI/{print $2}')
   [[ -d ${tmpPath} ]] || mkdir -p ${tmpPath}
   case ${infrastructure} in
     (aws-ec2)

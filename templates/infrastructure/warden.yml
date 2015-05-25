@@ -6,24 +6,12 @@ meta:
     name: bosh-warden-boshlite-centos-7-go_agent
     version: latest
 
-update:
-  canaries: 1
-  max_in_flight: 50
-  canary_watch_time: 1000-30000
-  update_watch_time: 1000-30000
-
 jobs:
   - name: rdpg
-    instances: 5
-    templates:
-    - name: pgbdr
-      release: rdpg
-    - name: pgbouncer
-      release: rdpg
-    - name: consul
-      release: rdpg
+
     networks:
       - name: rdpg
+        default: [dns, gateway]
         static_ips:
           - 10.244.2.2
           - 10.244.2.6
@@ -55,17 +43,21 @@ jobs:
         debug: "true"
         admin_pass: "rdpgadmin"
       consul: {}
-
-properties: {}
+      haproxy:
+        admin_user: admin
+        admin_pass: admin
+        admin_port: 9999
 
 compilation:
   cloud_properties:
     name: random
 
 resource_pools:
-  - name: small_z1
+  - name: pool_z1
     cloud_properties:
       name: random
+
+properties: {}
 
 networks:
 - name: rdpg

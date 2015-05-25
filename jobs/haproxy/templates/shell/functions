@@ -1,0 +1,154 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+fail() { 
+  echo "$*" >&2 
+  exit 1 
+}
+
+user() {
+  local _action=$1 ; shift
+  case ${_action} in
+    (exec)  exec chpst -u "${userName}:${groupName}" "$@" ;;
+    (run)   chpst -u "${userName}:${groupName}" "$@"      ;;
+    (chown) chown -R "${userName}:${groupName}" "$@"      ;;
+  esac
+}
+
+send_signal() { 
+  if [[ -s ${pidFile} ]]
+  then
+    pid=$(head -1 ${pidFile})
+    if (( ${pid:-0} > 0 ))
+    then kill -${1} ${pid}
+    fi
+  fi
+}
+
+turn_debugging_on() {
+  echo "Turning Debugging On"
+  export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  export DEBUG="true" 
+  set -x
+  set -v
+}
+
+add_packages_to_path() { # Add all packages' /bin & /sbin into $PATH
+  for _path in $(ls -d /var/vcap/packages/*/*bin)
+  do PATH="${_path}:${PATH}"
+  done ; export PATH
+}
+
+configure_job_paths() {
+  paths=(
+    "${jobPath}"
+    "${runPath}"
+    "${logPath}"
+    "${tmpPath}"
+    "${storePath}"
+  )
+  if (( ${UID} == 0 ))
+  then
+    for _path in "${paths[@]}"
+    do
+      [[ -d ${_path} ]] || mkdir -p "${_path}"
+      chown -R ${userName}:${groupName} "${_path}"
+      chmod 0775 "${_path}"
+    done
+  fi
+}
+
+compute_write_master_ip() {
+  # TODO: Eventually this will be election out of Consul for failure.
+  writeMasterIP="${haproxyNodes[0]}"
+}
+
+configure_haproxy() {
+  # TODO: Add query to consul to determine write-master and adjust based on this.
+
+  compute_write_master_ip
+
+  mkdir -p ${jobPath}/config
+  user chown ${jobPath}/config
+
+  if [[ -n "${haproxySSLPem}" ]]
+  then 
+    echo "${haproxySSLPem}" > ${jobPath}/config/cert.pem
+    user chown ${jobPath}/config/cert.pem
+    chmod 0600 ${jobPath}/config/cert.pem
+  fi
+
+  cat > ${jobPath}/config/haproxy.cfg <<EOF
+global
+  log 127.0.0.1 syslog info
+  daemon
+  user ${userName}
+  group ${groupName}
+  maxconn ${haproxyMaxConn}
+  spread-checks 4
+  stats socket ${runPath}/haproxy.sock mode 600 level admin
+  stats timeout 2m
+
+defaults
+  log global
+  timeout connect ${haproxyTimeoutConnect}
+  timeout client ${haproxyTimeoutClient}ms
+  timeout server ${haproxyTimeoutServer}ms
+  maxconn ${haproxyMaxConn}
+
+frontend pgbdr_write_port
+  bind 0.0.0.0:${haproxyWritePort}
+  mode tcp
+  default_backend pgbdr_write_master
+
+frontend pgbdr_read_port
+  bind 0.0.0.0:${haproxyReadPort}
+  mode tcp
+  default_backend pgbdr_read_nodes
+
+backend pgbdr_write_master
+  mode tcp
+  server master ${writeMasterIP}:${pgbouncerPort} check
+
+EOF
+
+cat >> ${jobPath}/config/haproxy.cfg <<EOF
+
+backend pgbdr_read_nodes
+  mode tcp
+EOF
+
+for index in ${!haproxyNodes[@]}
+do
+  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
+  then
+    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
+      >> ${jobPath}/config/haproxy.cfg
+    break
+  fi
+done
+
+cat >> ${jobPath}/config/haproxy.cfg <<EOF
+
+listen stats
+  bind 0.0.0.0:${haproxyStatsPort}
+  mode http
+
+  #This is the virtual URL to access the stats page
+  stats uri /haproxy/stats
+
+  #Authentication realm. This can be set to anything. Escape space characters with a backslash.
+  stats realm HAProxy\ Statistics 
+
+  #The user/pass you want to use. Change this password!
+  stats auth ${haproxyAdminUser}:${haproxyAdminPass}
+
+  #This allows you to take down and bring up back end servers.
+  #This will produce an error on older versions of HAProxy.
+  stats admin if TRUE
+EOF
+
+# TODO: Allow SSL frontend if haproxy.ssl_pem is set
+# bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${haproxySSLCiphers}
+
+}
+

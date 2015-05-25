@@ -25,6 +25,7 @@ send_signal() {
 }
 
 turn_debugging_on() {
+  echo "Turning Debugging On"
   export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   export DEBUG="true" 
   set -x
@@ -63,17 +64,45 @@ graceful_stop() {
 
 configure_consul() {
   ulimit -v unlimited
+
   setcap cap_net_bind_service=+ep $(readlink -nf ${binary})
+
   user chown ${storePath}
-  
+
   if ! grep -q 127.0.0.1 /etc/resolv.conf
   then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
   fi
 
   [[ -z ${consulSSLCa} ]] ||
     echo "${consulSSLCa}" > ${jobPath}/config/ca.cert
+
   [[ -z ${consulSSLCert} ]] ||
     echo "${consulSSLCert}" > ${jobPath}/config/consul.cert
+
   [[ -z ${consulSSLKey} ]] ||
     echo "${consulSSLKey}" > ${jobPath}/config/consul.key
+
+  cat > ${storePath}/haproxy.json <<EOF
+  {
+    "service": {"name": "haproxy", "tags": ["haproxy"], "port": 6432}
+  }
+EOF
+
+  cat > ${storePath}/postgres.json <<EOF
+  {
+    "service": {"name": "postgres", "tags": ["postgres"], "port": 5432}
+  }
+EOF
+
+  cat > ${storePath}/pgbouncer.json <<EOF
+  {
+    "service": {"name": "pgbouncer", "tags": ["pgbouncer"], "port": 6543}
+  }
+EOF
+
+cat > ${storePath}/ha_pgb_pg.json <<EOF
+{
+  "check": {"id": "ha_pgb_pg", "name": "Check Connection from HAProxy through PGBouncer to PostgreSQL", "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "interval": "5s"}
+}
+EOF
 }

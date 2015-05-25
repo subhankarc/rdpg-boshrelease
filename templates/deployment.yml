@@ -28,7 +28,7 @@ update:
   serial: false
 
 resource_pools:
-  - name: small_z1
+  - name: pool_z1
     network: rdpg
     size: (( auto ))
     stemcell: (( meta.stemcell ))

@@ -11,20 +11,15 @@ meta:
 
 jobs:
   - name: rdpg
-    instances: 5
-    resource_pool: default
+
+    resource_pool: pool_z1
     persistent_disk: (( meta.persistent_disk ))
-    templates: (( meta.templates ))
+
     networks:
       - name: rdpg
-      - name: default
-        default: [dns, gateway]
-        static_ips:
-          - 10.10.1.10
-          - 10.10.1.11
-          - 10.10.1.12
-          - 10.10.1.13
-          - 10.10.1.14
+        default: [ dns, gateway ]
+        static_ips: [ 10.10.1.10-10.10.1.14 ]
+
     properties:
       pgbdr:
         #debug: "true"
@@ -49,21 +44,42 @@ jobs:
         admin_pass: "rdpgadmin"
       consul: {}
         #debug: "true"
+      haproxy:
+        admin_user: rdpghaadmin
+        admin_pass: Changeme123
+        admin_port: 9999
 
 compilation:
   cloud_properties:
     instance_type: m1.small
 
 resource_pools:
-  - name: small_z1
+  - name: pool_z1
     cloud_properties:
       instance_type: m1.small
 
 networks:
+  - name: rdpg
+    type: manual
+    subnets:
+    - range: 10.10.1.0/24
+      name: rdpg
+      dns: [10.10.0.2]
+      gateway: 10.10.1.1
+      reserved: 
+        - 10.10.1.2-10.10.1.5
+        - 10.10.1.250-10.10.1.254
+      static: 
+        - 10.10.1.10-10.10.1.60
+      cloud_properties:
+        subnet_ids: (( meta.subnet_ids ))
+        security_groups: (( meta.security_groups ))
+
   - name: floating
     type: vip
-    cloud_properties: {}
-  - name: rdpg
-    type: dynamic
     cloud_properties:
+      subnet_ids: (( meta.subnet_ids ))
       security_groups: (( meta.security_groups ))
+
+properties: {}
+

@@ -1,0 +1,16 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+if [[ -s ${pidFile} ]]
+then
+  pid=$(head -1 ${pidFile})
+  if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
+  then 
+    echo "haproxy already running with pid ${pidFile}"
+    exit 0
+  fi
+fi
+
+echo exec ${binary} "${binaryArgs[@]}"
+exec ${binary} "${binaryArgs[@]}"

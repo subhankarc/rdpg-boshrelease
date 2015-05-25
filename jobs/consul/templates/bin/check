@@ -1,0 +1,16 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+action=$1
+shift || fail "$0 {ha_pgb_pg}"
+
+case ${action} in
+  (ha_pgb_pg) 
+    /var/vcap/packages/pgbdr/bin/psql \
+      -U postgres -h 127.0.0.1 -p 6432 pgbdr -t -c 'select true;'
+    ;;
+  (*)
+    fail "Unknown check action ${action}"
+    ;;
+esac

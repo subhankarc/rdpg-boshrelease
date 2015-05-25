@@ -5,6 +5,8 @@ meta:
   security_groups:
     - bosh
     - rdpg
+  subnet_ids:
+    rdpg: SUBNET_ID_GOES_HERE
   stemcell:
     name: STEMCELL
 

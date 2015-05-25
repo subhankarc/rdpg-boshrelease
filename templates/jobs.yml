@@ -10,6 +10,15 @@ update:
 
 jobs:
   - name: rdpg
+
+    instances: 5
+
+    resource_pool: pool_z1
+    networks: (( merge ))
+    persistent_disk: 65536
+    update:
+      canaries: 10
+
     templates:
     - name: pgbdr
       release: rdpg
@@ -17,12 +26,9 @@ jobs:
       release: rdpg
     - name: consul
       release: rdpg
-    instances: 0
-    resource_pool: small_z1
-    networks: (( merge ))
-    persistent_disk: 65536
-    update:
-      canaries: 10
+    - name: haproxy
+      release: rdpg
+
     properties: ((merge))
 
 networks: ((merge))

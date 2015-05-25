@@ -6,6 +6,7 @@ packages:
 templates:
   bin/control: bin/control
   bin/consul: bin/consul
+  bin/check: bin/check
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/agent.json.erb: config/agent.json
