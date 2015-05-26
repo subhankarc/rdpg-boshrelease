@@ -123,7 +123,6 @@ do
   then
     echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
       >> ${jobPath}/config/haproxy.cfg
-    break
   fi
 done
 
