@@ -102,7 +102,7 @@ EOF
 
 cat > ${storePath}/ha_pgb_pg.json <<EOF
 {
-  "check": {"id": "ha_pgb_pg", "name": "Check Connection from HAProxy through PGBouncer to PostgreSQL", "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "interval": "5s"}
+  "check": {"id": "ha_pgb_pg", "name": "ha_pgb_pg", "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "interval": "5s"}
 }
 EOF
 }
