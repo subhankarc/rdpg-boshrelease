@@ -5,7 +5,7 @@ package="zlib"
 version="1.2.8"
 file="${package}-${version}.tar.gz"
 
-tar zxvf ${package}/${file}
+tar zxf ${package}/${file}
 
 cd ${file//.tar*}
 

@@ -9,8 +9,8 @@ archivePath=$PWD/pgbdr
 
 mkdir -p ${srcPath}
 
-tar -Jxvf ${archivePath}/pgbdr.tar.xz -C ${srcPath}
-tar -Jxvf ${archivePath}/pgbdr-extension.tar.xz -C ${srcPath}
+tar -Jxf ${archivePath}/pgbdr.tar.xz -C ${srcPath}
+tar -Jxf ${archivePath}/pgbdr-extension.tar.xz -C ${srcPath}
 
 cd ${srcPath}/pgbdr
 ./configure --prefix=${BOSH_INSTALL_TARGET}

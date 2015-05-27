@@ -5,7 +5,7 @@ package="pgbouncer"
 version="1.5.5"
 file="${package}-${version}.tar.gz"
 
-tar zxvf ${package}/${file}
+tar zxf ${package}/${file}
 
 cd ${file//.tar*}
 
