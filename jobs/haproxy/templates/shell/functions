@@ -118,16 +118,45 @@ listen stats
 EOF
 
 if ! [[ -s ${configFile} ]]
-then cp ${configTmpl} ${configFile}
+then 
+  cp ${configTmpl} ${configFile}
+  cat >> ${configFile} <<EOF
+
+frontend pgbdr_write_port
+  bind 0.0.0.0:${haproxyWritePort}
+  mode tcp
+  default_backend pgbdr_write_master
+ 
+backend pgbdr_write_master
+  mode tcp
+  server master ${haproxyNodes[0]}
+
+frontend pgbdr_read_port
+  bind 0.0.0.0:${haproxyReadPort}
+  mode tcp
+  default_backend pgbdr_read_nodes
+
+backend pgbdr_read_nodes
+  mode tcp
+EOF
+
+for index in ${!haproxyNodes[@]}
+do
+  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
+  then
+    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
+      >> ${configFile}
+  fi
+done
 fi
 
 cat >> ${configTmpl} <<EOF
 
- frontend pgbdr_write_port
-   bind 0.0.0.0:${haproxyWritePort}
-   mode tcp
-   default_backend pgbdr_write_master
- 
+frontend pgbdr_write_port
+  bind 0.0.0.0:${haproxyWritePort}
+  mode tcp
+  default_backend pgbdr_write_master
+
 backend pgbdr_write_master
   mode tcp {{range service "master"}}
   server master {{.Address}}:{{.Port}} check {{end}}
@@ -135,13 +164,13 @@ EOF
 
 cat >> ${configTmpl} <<EOF
 
- frontend pgbdr_read_port
-   bind 0.0.0.0:${haproxyReadPort}
-   mode tcp
-   default_backend pgbdr_read_nodes
- 
- backend pgbdr_read_nodes
-   mode tcp
+frontend pgbdr_read_port
+  bind 0.0.0.0:${haproxyReadPort}
+  mode tcp
+  default_backend pgbdr_read_nodes
+
+backend pgbdr_read_nodes
+  mode tcp
 EOF
 
 for index in ${!haproxyNodes[@]}

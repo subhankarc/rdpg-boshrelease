@@ -89,15 +89,7 @@ configure_consul() {
     "id": "rdpg-haproxy",
     "name": "haproxy",
     "tags": ["haproxy"], 
-    "port": ${haproxyWritePort},
-    "checks": [
-    {
-      "id": "ha_pgb_pg",
-      "name": "Check Connection from HAProxy through PGBouncer to PostgreSQL",
-      "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg",
-      "interval": "5s",
-      "ServiceID": "rdpg1"
-    }]
+    "port": ${haproxyWritePort}
   },
   {
     "id": "rdpg-pgbouncer",
