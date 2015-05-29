@@ -82,27 +82,37 @@ configure_consul() {
   [[ -z ${consulSSLKey} ]] ||
     echo "${consulSSLKey}" > ${jobPath}/config/consul.key
 
-  cat > ${storePath}/haproxy.json <<EOF
-  {
-    "service": {"name": "haproxy", "tags": ["haproxy"], "port": 6432}
-  }
-EOF
-
-  cat > ${storePath}/postgres.json <<EOF
-  {
-    "service": {"name": "postgres", "tags": ["postgres"], "port": 5432}
-  }
-EOF
-
-  cat > ${storePath}/pgbouncer.json <<EOF
-  {
-    "service": {"name": "pgbouncer", "tags": ["pgbouncer"], "port": 6543}
-  }
-EOF
-
-cat > ${storePath}/ha_pgb_pg.json <<EOF
+  cat > ${storePath}/Consul_Services.json <<EOF
 {
-  "check": {"id": "ha_pgb_pg", "name": "ha_pgb_pg", "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "interval": "5s"}
+  "services": [
+  {
+    "id": "rdpg-haproxy",
+    "name": "haproxy",
+    "tags": ["haproxy"], 
+    "port": ${haproxyWritePort},
+    "checks": [
+    {
+      "id": "ha_pgb_pg",
+      "name": "Check Connection from HAProxy through PGBouncer to PostgreSQL",
+      "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg",
+      "interval": "5s",
+      "ServiceID": "rdpg1"
+    }]
+  },
+  {
+    "id": "rdpg-pgbouncer",
+    "name": "pgbouncer",
+    "tags": ["pgbouncer"],
+    "port": ${pgbListenPort}
+  },
+    
+  {
+    "id": "rdpg-pgbdr",
+    "name": "postgres",
+    "tags": ["postgres"],
+    "port": 5432
+  }]
 }
 EOF
+
 }

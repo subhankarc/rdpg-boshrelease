@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+echo $$ > ${pidFile}
+
+user exec ${binary} "${binaryArgs[@]}"

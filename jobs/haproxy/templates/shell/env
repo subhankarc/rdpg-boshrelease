@@ -26,14 +26,18 @@ pkgPath="/var/vcap/packages/${jobName}"
 runPath="/var/vcap/sys/run/${jobName}"
 tmpPath="/var/vcap/sys/tmp/${jobName}"
 storePath="/var/vcap/store/${jobName}"
+configFile="${jobPath}/config//haproxy.cfg"
+configTmpl="${jobPath}/config/haproxy.cfg.ctmpl"
 
 userName="root"
 groupName="root"
 LANG="en_US.UTF-8"
 HOME="${HOME:-"/home/${userName}"}"
 pidFile="${runPath}/${jobName}.pid"
+
 binary="${pkgPath}/bin/${jobName}"
-binaryArgs=(-f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -D )
+binaryArgs=(-f "${configFile}" -p "${pidFile}" )
+
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
 export LANG HOME LD_LIBRARY_PATH
 
@@ -57,3 +61,6 @@ haproxyReadPort="<%=p('haproxy.read_port').to_s %>"
 haproxyMaxConn="<%=p('haproxy.max_conn').to_s %>"
 
 configure_haproxy
+
+set_pid
+

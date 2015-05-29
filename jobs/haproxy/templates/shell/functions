@@ -14,13 +14,16 @@ user() {
   esac
 }
 
-send_signal() { 
+set_pid() {
+  pid=0
   if [[ -s ${pidFile} ]]
-  then
-    pid=$(head -1 ${pidFile})
-    if (( ${pid:-0} > 0 ))
-    then kill -${1} ${pid}
-    fi
+  then pid=$(head -1 ${pidFile})
+  fi
+}
+
+send_signal() { 
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
   fi
 }
 
@@ -77,7 +80,7 @@ configure_haproxy() {
     chmod 0600 ${jobPath}/config/cert.pem
   fi
 
-  cat > ${jobPath}/config/haproxy.cfg <<EOF
+cat > ${configTmpl} <<EOF
 global
   log 127.0.0.1 syslog info
   daemon
@@ -95,39 +98,6 @@ defaults
   timeout server ${haproxyTimeoutServer}ms
   maxconn ${haproxyMaxConn}
 
-frontend pgbdr_write_port
-  bind 0.0.0.0:${haproxyWritePort}
-  mode tcp
-  default_backend pgbdr_write_master
-
-frontend pgbdr_read_port
-  bind 0.0.0.0:${haproxyReadPort}
-  mode tcp
-  default_backend pgbdr_read_nodes
-
-backend pgbdr_write_master
-  mode tcp
-  server master ${writeMasterIP}:${pgbouncerPort} check
-
-EOF
-
-cat >> ${jobPath}/config/haproxy.cfg <<EOF
-
-backend pgbdr_read_nodes
-  mode tcp
-EOF
-
-for index in ${!haproxyNodes[@]}
-do
-  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
-  then
-    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
-      >> ${jobPath}/config/haproxy.cfg
-  fi
-done
-
-cat >> ${jobPath}/config/haproxy.cfg <<EOF
-
 listen stats
   bind 0.0.0.0:${haproxyStatsPort}
   mode http
@@ -144,7 +114,44 @@ listen stats
   #This allows you to take down and bring up back end servers.
   #This will produce an error on older versions of HAProxy.
   stats admin if TRUE
+
 EOF
+
+if ! [[ -s ${configFile} ]]
+then cp ${configTmpl} ${configFile}
+fi
+
+cat >> ${configTmpl} <<EOF
+
+ frontend pgbdr_write_port
+   bind 0.0.0.0:${haproxyWritePort}
+   mode tcp
+   default_backend pgbdr_write_master
+ 
+backend pgbdr_write_master
+  mode tcp {{range service "master"}}
+  server master {{.Address}}:{{.Port}} check {{end}}
+EOF
+
+cat >> ${configTmpl} <<EOF
+
+ frontend pgbdr_read_port
+   bind 0.0.0.0:${haproxyReadPort}
+   mode tcp
+   default_backend pgbdr_read_nodes
+ 
+ backend pgbdr_read_nodes
+   mode tcp
+EOF
+
+for index in ${!haproxyNodes[@]}
+do
+  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
+  then
+    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
+      >> ${configTmpl}
+  fi
+done
 
 # TODO: Allow SSL frontend if haproxy.ssl_pem is set
 # bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${haproxySSLCiphers}

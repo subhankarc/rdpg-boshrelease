@@ -2,15 +2,22 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-if [[ -s ${pidFile} ]]
-then
-  pid=$(head -1 ${pidFile})
-  if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
-  then 
-    echo "haproxy already running with pid ${pidFile}"
-    exit 0
-  fi
-fi
-
-echo exec ${binary} "${binaryArgs[@]}"
-exec ${binary} "${binaryArgs[@]}"
+action=${1:-""}
+case ${action} in
+  (reload)
+    if (( ${pid:-0} > 0 ))
+    then 
+      echo exec ${binary} "${binaryArgs[@]}" -sf ${pid}
+      exec ${binary} "${binaryArgs[@]}" -sf ${pid}
+    fi
+    ;;
+  (start|*)
+    if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
+    then 
+      echo "haproxy already running with pid ${pidFile}"
+      exit 0
+    fi
+    echo exec ${binary} "${binaryArgs[@]}" -D
+    exec ${binary} "${binaryArgs[@]}" -D
+    ;;
+esac

@@ -3,7 +3,6 @@ name: consul
 packages:
 - consul
 - consul-ui
-- consul-template
 templates:
   bin/control: bin/control
   bin/consul: bin/consul
@@ -15,6 +14,9 @@ properties:
   consul.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: "false"
+  consul.port:
+    description: "Consul Port."
+    default: 8500
   consul.ssl_ca:
     description: "CA Certificate for Consul Service."
     default:
