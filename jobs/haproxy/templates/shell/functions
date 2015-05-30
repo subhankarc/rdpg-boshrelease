@@ -60,15 +60,8 @@ configure_job_paths() {
   fi
 }
 
-compute_write_master_ip() {
-  # TODO: Eventually this will be election out of Consul for failure.
-  writeMasterIP="${haproxyNodes[0]}"
-}
-
 configure_haproxy() {
   # TODO: Add query to consul to determine write-master and adjust based on this.
-
-  compute_write_master_ip
 
   mkdir -p ${jobPath}/config
   user chown ${jobPath}/config
@@ -80,7 +73,7 @@ configure_haproxy() {
     chmod 0600 ${jobPath}/config/cert.pem
   fi
 
-cat > ${configTmpl} <<EOF
+cat > ${configFile} <<EOF
 global
   log 127.0.0.1 syslog info
   daemon
@@ -116,71 +109,6 @@ listen stats
   stats admin if TRUE
 
 EOF
-
-if ! [[ -s ${configFile} ]]
-then 
-  cp ${configTmpl} ${configFile}
-  cat >> ${configFile} <<EOF
-
-frontend pgbdr_write_port
-  bind 0.0.0.0:${haproxyWritePort}
-  mode tcp
-  default_backend pgbdr_write_master
- 
-backend pgbdr_write_master
-  mode tcp
-  server master ${haproxyNodes[0]}
-
-frontend pgbdr_read_port
-  bind 0.0.0.0:${haproxyReadPort}
-  mode tcp
-  default_backend pgbdr_read_nodes
-
-backend pgbdr_read_nodes
-  mode tcp
-EOF
-
-for index in ${!haproxyNodes[@]}
-do
-  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
-  then
-    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
-      >> ${configFile}
-  fi
-done
-fi
-
-cat >> ${configTmpl} <<EOF
-
-frontend pgbdr_write_port
-  bind 0.0.0.0:${haproxyWritePort}
-  mode tcp
-  default_backend pgbdr_write_master
-
-backend pgbdr_write_master
-  mode tcp {{range service "master"}}
-  server master {{.Address}}:{{.Port}} check {{end}}
-EOF
-
-cat >> ${configTmpl} <<EOF
-
-frontend pgbdr_read_port
-  bind 0.0.0.0:${haproxyReadPort}
-  mode tcp
-  default_backend pgbdr_read_nodes
-
-backend pgbdr_read_nodes
-  mode tcp
-EOF
-
-for index in ${!haproxyNodes[@]}
-do
-  if [[ "${haproxyNodes[${index}]}" != "${writeMasterIP}" ]]
-  then
-    echo "  server read${index} ${haproxyNodes[${index}]}:${pgbouncerPort} check inter 1000" \
-      >> ${configTmpl}
-  fi
-done
 
 # TODO: Allow SSL frontend if haproxy.ssl_pem is set
 # bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${haproxySSLCiphers}

@@ -78,12 +78,12 @@ pool_mode = ${pgbPoolMode}
 ignore_startup_parameters = extra_float_digits
 
 [databases]
-template1 = host=${pgbdrNodes[${vmIndex}]} port=5432 dbname=template1
-${dbName} = host=${pgbdrNodes[${vmIndex}]} port=5432 dbname=${dbName}
+template1 = host=${pgbdrNodes[${vmIndex}]} port=${pgPort} dbname=template1
+${rdpgDB} = host=${pgbdrNodes[${vmIndex}]} port=${pgPort} dbname=${rdpgDB}
 EOF
 
   cat > ${jobPath}/config/users <<EOF
 "${pgbAdminUser}" "${pgbAdminPass}"
-"${dbUser}" "${dbPass}"
+"${rdpgUser}" "${rdpgPass}"
 EOF
 }

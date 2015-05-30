@@ -8,7 +8,7 @@ shift || fail "$0 {ha_pgb_pg}"
 case ${action} in
   (ha_pgb_pg) 
     /var/vcap/packages/pgbdr/bin/psql \
-      -U postgres -h 127.0.0.1 -p 6432 pgbdr -t -c 'select true;'
+      -U postgres -h 127.0.0.1 -p 6432 ${rdpgDB} -t -c 'select true;'
     ;;
   (*)
     fail "Unknown check action ${action}"

@@ -24,12 +24,6 @@ jobs:
         hba: |
           host    replication   postgres 10.0.2.15/32  trust
           host    all           postgres 10.0.2.15/32  trust
-        nodes:
-          - 10.244.2.2
-          - 10.244.2.6
-          - 10.244.2.10
-          - 10.244.2.14
-          - 10.244.2.18
         max_connections: "100"
         shared_buffers: "128MB"
         effective_cache_size: "256MB"
@@ -47,6 +41,14 @@ jobs:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
+      rdpg:
+        debug: "true"
+        nodes:
+          - 10.244.2.2
+          - 10.244.2.6
+          - 10.244.2.10
+          - 10.244.2.14
+          - 10.244.2.18
 
 compilation:
   cloud_properties:

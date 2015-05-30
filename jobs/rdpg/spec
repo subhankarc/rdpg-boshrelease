@@ -1,0 +1,24 @@
+---
+name: rdpg
+packages:
+- bash-4.3
+templates:
+  bin/control: bin/control
+  bin/rdpg: bin/rdpg
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+properties:
+  rdpg.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpg.nodes:
+    description: "List of all BDR Node IP Addresses (must be set in manifest)."
+  rdpg.db_name:
+    description: "management databse name (Can be overridden in manifest)."
+    default: "rdpg"
+  rdpg.db_user:
+    description: "management database user (Can be overridden in manifest)."
+    default: "postgres"
+  rdpg.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+    default: "admin"

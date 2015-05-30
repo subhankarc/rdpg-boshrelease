@@ -10,15 +10,4 @@ configure_pgbdr
 
 ulimit -v unlimited
 
-user run ${binary} start ${binaryArgs[@]} -t 300
-
-while !  psql -U vcap postgres -c "SELECT true;" &>/dev/null
-do sleep 1
-done
-
-create_db_user
-
-initialize_pgbdr # Begin pgbdr replication
-
-exit 0 # Done! We could also watch the state of things here should we need to.
-
+user exec ${binary} start ${binaryArgs[@]} -t 300

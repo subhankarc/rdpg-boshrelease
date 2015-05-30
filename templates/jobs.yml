@@ -30,6 +30,8 @@ jobs:
       release: rdpg
     - name: haproxy
       release: rdpg
+    - name: rdpg
+      release: rdpg
 
     properties: ((merge))
 

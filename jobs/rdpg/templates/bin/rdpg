@@ -1,0 +1,22 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+trap graceful_stop SIGTERM # Handle term signal sent by control script stop action.
+
+echo $$ > ${pidFile} # Write the shell script's PID to the pidFile
+
+# TODO: Move pg_hba.conf configuration into here?
+initialize_rdpg_db
+# Configure initial databases for pgbouncer:
+configure_pgbouncer
+# Configure Initial HAProxy:
+configure_haproxy
+# Configure Consul:
+configure_consul
+# Configure Consul Template:
+configure_consul_template
+
+while true 
+do sleep 15 # Ensure rdpg-agent is online?
+done

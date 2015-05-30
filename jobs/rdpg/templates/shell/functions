@@ -1,0 +1,353 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+fail() { 
+  echo "$*" >&2 
+  exit 1 
+}
+
+debug() {
+  if [[ ${DEBUG:-"false"} = "true" ]]
+  then echo "$*"
+  fi
+}
+
+user() {
+  local _action=$1 ; shift
+  case ${_action} in
+    (exec)  exec chpst -u "${userName}:${groupName}" "$@" ;;
+    (run)   chpst -u "${userName}:${groupName}" "$@"      ;;
+    (chown) chown -R "${userName}:${groupName}" "$@"      ;;
+  esac
+}
+
+set_pid() {
+  pid=0
+  if [[ -s ${pidFile} ]]
+  then pid=$(head -1 ${pidFile})
+  fi
+}
+
+send_signal() { 
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
+  fi
+}
+
+
+turn_debugging_on() {
+  echo "Turning Debugging On"
+  export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  export DEBUG="true" 
+  set -x
+}
+
+add_packages_to_path() { # Add all packages' /bin & /sbin into $PATH
+  for _path in $(ls -d /var/vcap/packages/*/*bin)
+  do PATH="${_path}:${PATH}"
+  done ; export PATH
+}
+
+configure_job_paths() {
+  paths=(
+    "${jobPath}"
+    "${runPath}"
+    "${logPath}"
+    "${tmpPath}"
+    "${storePath}"
+  )
+  if (( ${UID} == 0 ))
+  then
+    for _path in "${paths[@]}"
+    do
+      [[ -d ${_path} ]] || mkdir -p "${_path}"
+      chown -R ${userName}:${groupName} "${_path}"
+      chmod 0775 "${_path}"
+    done
+  fi
+}
+
+graceful_stop() {
+  rm -f ${pidFile}
+  exit 0 # Normal exit, return code 0
+}
+
+
+configure_consul() {
+  cat > ${storePath}/rdpg-services.json <<EOF
+{
+  "services": [
+  {
+    "id": "rdpg-haproxy",
+    "name": "haproxy",
+    "tags": ["haproxy"], 
+    "port": ${hapWritePort}
+  },
+  {
+    "id": "rdpg-pgbouncer",
+    "name": "pgbouncer",
+    "tags": ["pgbouncer"],
+    "port": ${pgbListenPort}
+  },
+    
+  {
+    "id": "rdpg-pgbdr",
+    "name": "postgres",
+    "tags": ["postgres"],
+    "port": 5432
+  }]
+}
+EOF
+}
+
+configure_consul_template() {
+  cat > ${ctConfigPath}/rdpg.json <<EOF
+consul = "127.0.0.1:${consulPort}"
+retry = "5s"
+// max-stale = "10m"
+//log-level = "warn"
+//pid-file = "${pidFile}"
+
+auth {
+  enabled = true
+  username = "${ctUser}"
+  password = "${ctPass}"
+}
+
+syslog {
+  enabled = true
+  facility = "LOCAL5"
+}
+
+template {
+  source = "/var/vcap/jobs/haproxy/config/haproxy.cfg.ctmpl"
+  destination = "/var/vcap/jobs/haproxy/config/haproxy.cfg"
+  command = "/var/vcap/jobs/haproxy/bin/haproxy reload"
+}
+EOF
+}
+
+register_write_master() {
+  if [[ $(curl http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
+  then # TODO: This isn't quite right being here, move to an 'rdpg' job.
+    curl -X PUT -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "Interval": "10s"}} '\
+      http://127.0.0.1:${consulPort}/v1/agent/service/register
+  fi
+}
+
+compute_write_master_ip() {
+  # TODO: Eventually this will be election out of Consul for failure.
+  writeMasterIP="${nodes[0]}"
+}
+
+configure_haproxy() {
+  # TODO: Add query to consul to determine write-master and adjust based on this.
+
+  compute_write_master_ip
+
+cat > ${hapConfigTmpl} <<EOF
+global
+  log 127.0.0.1 syslog info
+  daemon
+  user ${userName}
+  group ${groupName}
+  maxconn ${hapMaxConn}
+  spread-checks 4
+  stats socket ${runPath}/haproxy.sock mode 600 level admin
+  stats timeout 2m
+
+defaults
+  log global
+  timeout connect ${hapTimeoutConnect}
+  timeout client ${hapTimeoutClient}ms
+  timeout server ${hapTimeoutServer}ms
+  maxconn ${hapMaxConn}
+
+listen stats
+  bind 0.0.0.0:${hapStatsPort}
+  mode http
+
+  #This is the virtual URL to access the stats page
+  stats uri /haproxy/stats
+
+  #Authentication realm. This can be set to anything. Escape space characters with a backslash.
+  stats realm HAProxy\ Statistics 
+
+  #The user/pass you want to use. Change this password!
+  stats auth ${hapAdminUser}:${hapAdminPass}
+
+  #This allows you to take down and bring up back end servers.
+  #This will produce an error on older versions of HAProxy.
+  stats admin if TRUE
+
+EOF
+
+if ! [[ -s ${hapConfigFile} ]]
+then 
+  cp ${hapConfigTmpl} ${hapConfigFile}
+  cat >> ${hapConfigFile} <<EOF
+
+frontend pgbdr_write_port
+  bind 0.0.0.0:${hapWritePort}
+  mode tcp
+  default_backend pgbdr_write_master
+ 
+backend pgbdr_write_master
+  mode tcp
+  server master ${nodes[0]}
+
+frontend pgbdr_read_port
+  bind 0.0.0.0:${hapReadPort}
+  mode tcp
+  default_backend pgbdr_read_nodes
+
+backend pgbdr_read_nodes
+  mode tcp
+EOF
+
+for index in ${!nodes[@]}
+do
+  if [[ "${nodes[${index}]}" != "${writeMasterIP}" ]]
+  then
+    echo "  server read${index} ${nodes[${index}]}:${pgbPort} check inter 1000" \
+      >> ${hapConfigFile}
+  fi
+done
+fi
+
+cat >> ${hapConfigTmpl} <<EOF
+
+frontend pgbdr_write_port
+  bind 0.0.0.0:${hapWritePort}
+  mode tcp
+  default_backend pgbdr_write_master
+
+backend pgbdr_write_master
+  mode tcp {{range service "master"}}
+  server master {{.Address}}:{{.Port}} check {{end}}
+EOF
+
+cat >> ${hapConfigTmpl} <<EOF
+
+frontend pgbdr_read_port
+  bind 0.0.0.0:${hapReadPort}
+  mode tcp
+  default_backend pgbdr_read_nodes
+
+backend pgbdr_read_nodes
+  mode tcp
+EOF
+
+for index in ${!nodes[@]}
+do
+  if [[ "${nodes[${index}]}" != "${writeMasterIP}" ]]
+  then
+    echo "  server read${index} ${nodes[${index}]}:${pgbPort} check inter 1000" \
+      >> ${hapConfigTmpl}
+  fi
+done
+
+# TODO: Allow SSL frontend if haproxy.ssl_pem is set
+# bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${hapSSLCiphers}
+
+}
+
+configure_pgbouncer() {
+  mkdir -p ${jobPath}/config
+
+  cat > ${jobPath}/config/pgbouncer.ini <<EOF
+[pgbouncer]
+listen_port = ${pgbListenPort}
+listen_addr = ${pgbListenAddr}
+auth_type = ${pgbAuthType}
+auth_file = ${jobPath}/config/users
+logfile = ${logPath}/${jobName}.log
+pidfile = ${runPath}/${jobName}.pid
+admin_users = ${pgbAdminUser}
+unix_socket_dir = ${runPath}
+pool_mode = ${pgbPoolMode}
+ignore_startup_parameters = extra_float_digits
+
+[databases]
+template1 = host=${nodes[${vmIndex}]} port=5432 dbname=template1
+${rdpgDB} = host=${nodes[${vmIndex}]} port=5432 dbname=${rdpgDB}
+EOF
+
+  cat > ${jobPath}/config/users <<EOF
+"${pgbAdminUser}" "${pgbAdminPass}"
+"${rdpgUser}" "${rdpgPass}"
+EOF
+}
+
+psqlc() {
+  local _db=${1}  ; shift
+  debug "psqlc(): db=${_db} SQL=${*}"
+  if ! psql -U ${rdpgUser} ${_db} -c "${*}"
+  then echo "psqlc: ERROR: $*"
+  fi
+}
+
+join_node_ready() {
+  if psql -U ${rdpgUser} --host="${nodes[${1}]}" ${rdpgDB} -c "SELECT true;" &>/dev/null
+  then return 0
+  else return $?
+  fi
+}
+
+number_of_joined_nodes() {
+  psql --host="${nodes[0]}" -U postgres ${rdpgDB} -t -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
+}
+
+initialize_rdpg_db() {
+  while ! psql -U vcap postgres -c "SELECT true;" &>/dev/null
+  do sleep 1
+  done
+
+  if [[ -z $(psql -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='${rdpgUser}';" 2>/dev/null) ]]
+  then # Create the rdpg User
+    psql -U vcap postgres \
+      -c "CREATE USER ${rdpgUser} WITH SUPERUSER CREATEDB CREATEROLE INHERIT;" || true
+
+    psql -U vcap postgres \
+      -c "ALTER USER ${rdpgUser} ENCRYPTED PASSWORD '${rdpgPass}';" || true
+  fi
+
+  if [[ -z $(psql -U vcap postgres -t -c "SELECT datname FROM pg_database WHERE datname='${rdpgDB}';" 2>/dev/null) ]]
+  then  # Create the rdpg Database and Extensions
+    createdb -U vcap -O ${rdpgUser} -T template0 ${rdpgDB} || true
+    psqlc ${rdpgDB} "CREATE EXTENSION btree_gist;" || true
+    psqlc ${rdpgDB} "CREATE EXTENSION bdr;" || true
+  fi
+
+  # TODO: Move all of this into the rdpg-agent.
+  if (( ${vmIndex} == 0 ))
+  then # First Node
+    sql="SELECT bdr.bdr_group_create( 
+    local_node_name := '${vmName}${vmIndex}',
+    node_external_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
+    ); 
+    " # SELECT bdr.bdr_node_join_wait_for_ready();
+  else # Subsequent Nodes
+    sql="SELECT bdr.bdr_group_join( 
+    local_node_name := '${vmName}${vmIndex}',
+    node_external_dsn := 'host=${nodes[${vmIndex}]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}',
+    join_using_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
+    ); 
+    " # SELECT bdr.bdr_node_join_wait_for_ready();
+
+    while ! join_node_ready 0
+    do sleep 1
+    done
+  fi
+
+  while (( $(number_of_joined_nodes) < ${vmIndex} ))
+  do sleep 1
+  done
+
+  if (( $(number_of_joined_nodes) == ${vmIndex} ))
+  then
+    echo "${sql}" > ${logPath}/sql.sql
+    psqlc ${rdpgDB} "${sql}"
+  fi
+}
+
+

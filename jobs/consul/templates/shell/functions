@@ -82,29 +82,4 @@ configure_consul() {
   [[ -z ${consulSSLKey} ]] ||
     echo "${consulSSLKey}" > ${jobPath}/config/consul.key
 
-  cat > ${storePath}/Consul_Services.json <<EOF
-{
-  "services": [
-  {
-    "id": "rdpg-haproxy",
-    "name": "haproxy",
-    "tags": ["haproxy"], 
-    "port": ${haproxyWritePort}
-  },
-  {
-    "id": "rdpg-pgbouncer",
-    "name": "pgbouncer",
-    "tags": ["pgbouncer"],
-    "port": ${pgbListenPort}
-  },
-    
-  {
-    "id": "rdpg-pgbdr",
-    "name": "postgres",
-    "tags": ["postgres"],
-    "port": 5432
-  }]
-}
-EOF
-
 }

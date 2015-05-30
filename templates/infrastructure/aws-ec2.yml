@@ -24,12 +24,6 @@ jobs:
       pgbdr:
         #debug: "true"
         hba: ""
-        nodes:
-          - 10.10.1.10
-          - 10.10.1.11
-          - 10.10.1.12
-          - 10.10.1.13
-          - 10.10.1.14
         max_connections: "2000"
         shared_buffers: "512MB"
         effective_cache_size: "1536MB"
@@ -48,6 +42,13 @@ jobs:
         admin_user: rdpghaadmin
         admin_pass: Changeme123
         admin_port: 9999
+      rdpg:
+        nodes:
+          - 10.10.1.10
+          - 10.10.1.11
+          - 10.10.1.12
+          - 10.10.1.13
+          - 10.10.1.14
 
 compilation:
   cloud_properties:

@@ -9,13 +9,4 @@ source "$(dirname $(dirname ${0}))/shell/env"
 #       to process joins?
 sleep 3
 
-user run ${binary} join "${consulNodes[@]}"
-
-sleep 3
-
-if [[ $(curl http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
-then # TODO: This isn't quite right being here, move to an 'rdpg' job.
-  curl -X PUT -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${consulNodes[0]}'", "Port": '${haproxyWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "Interval": "10s"}} '\
-  http://127.0.0.1:${consulPort}/v1/agent/service/register
-fi
-
+user exec ${binary} join "${consulNodes[@]}"

@@ -26,7 +26,9 @@ tail -n 100 /var/vcap/sys/log/pgbdr/pgbdr.log # last 100 lines
 tail -f /var/vcap/sys/log/pgbdr/pgbdr.log # follow
 /var/vcap/bosh/bin/monit restart consul # restart consul : {start|stop|restart}
 
-psql -U vcap pgbdr
+/var/vcap/packages/pgbdr/bin/psql -U postgres rdpg -c 'SELECT * FROM bdr.bdr_nodes;'
+/var/vcap/bosh/bin/monit summary
+
 consul members
 
 ## In PostgreSQL
