@@ -129,7 +129,7 @@ EOF
 register_write_master() {
   if [[ $(curl http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
   then # TODO: This isn't quite right being here, move to an 'rdpg' job.
-    curl -X PUT -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pgb_pg", "Interval": "10s"}} '\
+    curl -X PUT -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pb_pg", "Interval": "10s"}} '\
       http://127.0.0.1:${consulPort}/v1/agent/service/register
   fi
 }

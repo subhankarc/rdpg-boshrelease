@@ -3,12 +3,12 @@
 source "$(dirname $(dirname ${0}))/shell/env"
 
 action=$1
-shift || fail "$0 {ha_pgb_pg}"
+shift || fail "$0 {ha_pb_pg}"
 
 case ${action} in
-  (ha_pgb_pg) 
+  (ha_pb_pg) 
     /var/vcap/packages/pgbdr/bin/psql \
-      -U postgres -h 127.0.0.1 -p 6432 ${rdpgDB} -t -c 'select true;'
+      -U postgres -h 127.0.0.1 -p 6432 ${rdpgDB} -t -c 'SELECT CURRENT_TIMESTAMP;'
     ;;
   (*)
     fail "Unknown check action ${action}"
