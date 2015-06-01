@@ -121,14 +121,19 @@ prepare_stemcell() {
   then
     pattern=$(basename ${stemcellURL} | sed -e 's/^bosh-/bosh-*/')
     stemcellFile=$(find stemcells -iname "${pattern}*" | head -1)
-    if [[ -s ${stemcellFile} ]]
+    if ! [[ -s ${stemcellFile} ]]
     then 
-      echo -e "\nUploading local stemcell ${stemcellFile}..."
-      bosh upload stemcell ${stemcellFile}
-    else
-      echo -e "\nUploading latest ${hypervisor}/${stemcellOS} stemcell..."
-      bosh upload stemcell ${stemcellURL}
+      echo -e "\nDownloading latest ${hypervisor}/${stemcellOS} stemcell..."
+      if ! curl -sL ${stemcellURL} -o stemcells/${stemcellURL//*\//}.tgz
+      then 
+        rm stemcells/${stemcellURL//*\//}.tgz
+        fail "Error downloading stemcell from ${stemcellURL} to stemcells/${stemcellURL//*\//}.tgz"
+      fi
+      stemcellFile="stemcells/${stemcellURL//*\//}.tgz"
     fi
+
+    echo -e "\nUploading local stemcell ${stemcellFile}..."
+    bosh upload stemcell ${stemcellFile}
     stemcell=$(latest_uploaded_stemcell)
   fi
 }
