@@ -81,7 +81,13 @@ configure_consul() {
     "id": "rdpg-haproxy",
     "name": "haproxy",
     "tags": ["haproxy"], 
-    "port": ${hapWritePort}
+    "port": ${hapWritePort},
+    "Check":
+    {
+      "script":
+      "/var/vcap/jobs/consul/bin/check ha_pb_pg",
+      "Interval": "10s"
+    }
   },
   {
     "id": "rdpg-pgbouncer",
@@ -89,7 +95,6 @@ configure_consul() {
     "tags": ["pgbouncer"],
     "port": ${pgbListenPort}
   },
-    
   {
     "id": "rdpg-pgbdr",
     "name": "postgres",
@@ -98,6 +103,24 @@ configure_consul() {
   }]
 }
 EOF
+
+  cat > ${storePath}/consul/rdpg-watches.json <<EOF
+{
+  "watches": [
+  {
+    "type": "service",
+    "service": "haproxy",
+    "handler": "echo triggered watch ha-${nodeName} >> /var/vcap/store/consul/watch_check_haproxy.txt"
+  },
+  {
+    "type": "service",
+    "service": "postgres",
+    "handler": "echo triggered watch pg-${nodeName} >> /var/vcap/store/consul/watch_check_postgres.txt"
+  }
+  ]
+}
+EOF
+
 user chown ${storePath}/consul
 }
 

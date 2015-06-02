@@ -14,6 +14,8 @@ configure_pgbouncer
 configure_haproxy
 # Configure Consul:
 configure_consul
+/var/vcap/bosh/bin/monit restart consul
+sleep 1
 # Configure Consul Template:
 configure_consul_template
 

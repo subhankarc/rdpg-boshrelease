@@ -108,6 +108,15 @@ listen stats
   #This will produce an error on older versions of HAProxy.
   stats admin if TRUE
 
+frontend pgbdr_write_port
+  bind 0.0.0.0:6432
+  mode tcp
+  default_backend pgbdr_write_master
+
+backend pgbdr_write_master
+  mode tcp
+  server master 127.0.0.1:6543 check
+
 EOF
 
 # TODO: Allow SSL frontend if haproxy.ssl_pem is set
