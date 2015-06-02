@@ -65,7 +65,9 @@ graceful_stop() {
 configure_consul() {
   ulimit -v unlimited
 
-  setcap cap_net_bind_service=+ep $(readlink -nf ${binary})
+  if (( $UID == 0 ))
+  then setcap cap_net_bind_service=+ep $(readlink -nf ${binary})
+  fi
 
   user chown ${storePath}
 
