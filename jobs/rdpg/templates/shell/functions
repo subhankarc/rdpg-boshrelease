@@ -73,7 +73,8 @@ graceful_stop() {
 
 
 configure_consul() {
-  cat > ${consulStorePath}/rdpg-services.json <<EOF
+  mkdir -p ${storePath}/consul
+  cat > ${storePath}/consul/rdpg-services.json <<EOF
 {
   "services": [
   {
@@ -97,6 +98,7 @@ configure_consul() {
   }]
 }
 EOF
+user chown ${storePath}/consul
 }
 
 configure_consul_template() {
@@ -124,6 +126,7 @@ template {
   command = "/var/vcap/jobs/haproxy/bin/haproxy reload"
 }
 EOF
+user chown ${ctConfigPath}
 }
 
 register_write_master() {
@@ -237,24 +240,26 @@ backend pgbdr_read_nodes
   mode tcp
 EOF
 
-for index in ${!nodes[@]}
-do
-  if [[ "${nodes[${index}]}" != "${writeMasterIP}" ]]
-  then
-    echo "  server read${index} ${nodes[${index}]}:${pgbPort} check inter 1000" \
-      >> ${hapConfigTmpl}
-  fi
-done
+  for index in ${!nodes[@]}
+  do
+    if [[ "${nodes[${index}]}" != "${writeMasterIP}" ]]
+    then
+      echo "  server read${index} ${nodes[${index}]}:${pgbPort} check inter 1000" \
+        >> ${hapConfigTmpl}
+    fi
+  done
 
 # TODO: Allow SSL frontend if haproxy.ssl_pem is set
 # bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${hapSSLCiphers}
 
+  user chown ${hapConfigTmpl}
+  user chown ${hapConfigFile}
 }
 
 configure_pgbouncer() {
-  mkdir -p ${jobPath}/config
+  mkdir -p ${pgbConfigPath}
 
-  cat > ${jobPath}/config/pgbouncer.ini <<EOF
+  cat > ${pgbConfigPath}/pgbouncer.ini <<EOF
 [pgbouncer]
 listen_port = ${pgbListenPort}
 listen_addr = ${pgbListenAddr}
@@ -272,10 +277,12 @@ template1 = host=${nodes[${vmIndex}]} port=5432 dbname=template1
 ${rdpgDB} = host=${nodes[${vmIndex}]} port=5432 dbname=${rdpgDB}
 EOF
 
-  cat > ${jobPath}/config/users <<EOF
+  cat > ${pgbConfigPath}/users <<EOF
 "${pgbAdminUser}" "${pgbAdminPass}"
 "${rdpgUser}" "${rdpgPass}"
 EOF
+
+  user chown ${pgbConfigPath}
 }
 
 psqlc() {
