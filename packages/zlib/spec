@@ -2,4 +2,4 @@
 name: zlib
 dependencies: []
 files:
-  - zlib/zlib-*
+  - zlib/zlib-*.tar.gz

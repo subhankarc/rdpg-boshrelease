@@ -2,4 +2,4 @@
 name: pcre
 dependencies: []
 files:
-  - pcre/pcre-*
+  - pcre/pcre-*.tar.gz

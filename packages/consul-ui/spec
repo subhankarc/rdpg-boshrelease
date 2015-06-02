@@ -2,4 +2,4 @@
 name: consul-ui
 dependencies: []
 files:
-  - consul-ui/consul-ui-*
+  - consul-ui/consul-ui-*.zip

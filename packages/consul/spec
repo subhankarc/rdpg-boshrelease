@@ -2,4 +2,4 @@
 name: consul
 dependencies: []
 files:
-  - consul/consul-*
+  - consul/consul-*.zip

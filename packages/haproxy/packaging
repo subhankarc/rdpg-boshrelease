@@ -5,9 +5,9 @@ package="haproxy"
 version="1.5.12"
 file="${package}-${version}.tar.gz"
 
-tar zxvf ${package}/${file}
+tar zxf ${package}/${file}
 
-cd ${file//.tar*}
+cd ${file//.tar.gz}
 
 make_flags=(
   TARGET="linux2628"

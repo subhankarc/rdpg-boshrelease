@@ -5,4 +5,4 @@ dependencies:
 - zlib
 - socat
 files:
-  - haproxy/haproxy-*
+  - haproxy/haproxy-*.tar.gz
