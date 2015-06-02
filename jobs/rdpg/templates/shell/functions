@@ -73,7 +73,7 @@ graceful_stop() {
 
 
 configure_consul() {
-  cat > ${storePath}/rdpg-services.json <<EOF
+  cat > ${consulStorePath}/rdpg-services.json <<EOF
 {
   "services": [
   {
