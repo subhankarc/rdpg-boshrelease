@@ -1,1 +1,65 @@
---- {}
+---
+autoconf/autoconf-2.69.tar.xz:
+  object_id: 6e2efb1c-570b-4ba1-b0f5-dae359d59344
+  sha: e891c3193029775e83e0534ac0ee0c4c711f6d23
+  size: 1214744
+bash/bash-4.3-patches.tar.gz:
+  object_id: 8f5c8298-6c86-43b0-991b-b77c3c130bc5
+  sha: 6ca8ad93c01d9c0341b8953af009df913f8beed2
+  size: 36825
+bash/bash-4.3.tar.gz:
+  object_id: c4a4e5ad-05ad-43f7-9607-82aa374d36aa
+  sha: 45ac3c5727e7262334f4dfadecdf601b39434e84
+  size: 7955839
+bind9/bind-9.10.2.tar.gz:
+  object_id: cc11b614-6d71-4867-85d6-654afe0bf916
+  sha: 4ddb2670976c06af7e86352616383958d82c51ce
+  size: 8481111
+consul/consul-0.5.0.zip:
+  object_id: d010c1d1-e638-4584-9879-ddd52e0889ea
+  sha: 00e4c6e9ff2fb326d3b586fd86c3037f3b7e0974
+  size: 4669655
+consul-template/consul-template-0.9.0.tar.gz:
+  object_id: a5e75f20-0ae1-449f-aada-88d134e9ae47
+  sha: a44e441f9347abe64956e5bb30c4d4b0464d1f73
+  size: 2460384
+consul-ui/consul-ui-0.5.0.zip:
+  object_id: 652d23b1-b798-467a-b47c-904263c82415
+  sha: 55ae1d1de29a3a50388956262cfcb2bb6f4c34f3
+  size: 252567
+haproxy/haproxy-1.5.12.tar.gz:
+  object_id: 50004e49-3d3c-4889-9486-a695fe92c695
+  sha: c488f7f108ddefb558bd86e7cbc1b71636ada856
+  size: 1344813
+json-c/json-c-0.12.tar.gz:
+  object_id: 04282bab-872c-48f3-a21a-16a7154edddf
+  sha: 5580aad884076c219d41160cbd8bc12213d12c37
+  size: 501419
+libevent/libevent-2.0.22.tar.gz:
+  object_id: 702be59c-5e9a-4baf-9851-da46fbc26c85
+  sha: a586882bc93a208318c70fc7077ed8fca9862864
+  size: 854987
+libjson/libjson-7.6.1.zip:
+  object_id: 670e3ec3-a48c-420f-a9d0-a66f305f8a0c
+  sha: 1bc01b8175dadf5ecde1ee0479c5cb2998a7b5f7
+  size: 759533
+libxml2/libxml2-2.9.2.tar.gz:
+  object_id: cc6a5c16-3a52-4240-a7cc-c9001f71b105
+  sha: f46a37ea6d869f702e03f393c376760f3cbee673
+  size: 5444991
+pcre/pcre-8.37.tar.gz:
+  object_id: c674bbb2-88ae-4aed-b44c-ad1a630f8990
+  sha: 4a24a20c61347d8da4edc86d5475aaf70ac146bb
+  size: 2041593
+pgbouncer/pgbouncer-1.5.5.tar.gz:
+  object_id: cf26cf6a-f485-4589-9df5-7793674966d4
+  sha: aea2999d46e6c87ea1dfd3e1282d64fe6569c04f
+  size: 336145
+socat/socat-2.0.0-b8.tar.gz:
+  object_id: 711f474c-0d50-4762-bf26-4c7f922cd6fa
+  sha: a83f7f4d62a892823ee788d29c0cd0ec9f54e4f2
+  size: 646180
+zlib/zlib-1.2.8.tar.gz:
+  object_id: 681a61b4-1f68-4463-975f-110ee4bbec48
+  sha: a4d316c404ff54ca545ea71a27af7dbc29817088
+  size: 571091
