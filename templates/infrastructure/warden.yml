@@ -50,12 +50,20 @@ jobs:
           - 10.244.2.14
           - 10.244.2.18
 
+  - name: acceptance_tests
+    networks:
+      - name: rdpg
+
 compilation:
   cloud_properties:
     name: random
 
 resource_pools:
   - name: pool_z1
+    cloud_properties:
+      name: random
+
+  - name: errand_z1
     cloud_properties:
       name: random
 
@@ -132,4 +140,10 @@ networks:
     range: 10.244.2.36/30
     reserved:
     - 10.244.2.37
+    static: []
+  - cloud_properties:
+      name: random
+    range: 10.244.2.40/30
+    reserved:
+    - 10.244.2.41
     static: []

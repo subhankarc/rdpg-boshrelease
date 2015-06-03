@@ -33,3 +33,8 @@ resource_pools:
     size: (( auto ))
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
+
+  - name: errand_z1
+    network: rdpg
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))

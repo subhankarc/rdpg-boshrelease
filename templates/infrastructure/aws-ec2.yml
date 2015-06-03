@@ -50,6 +50,12 @@ jobs:
           - 10.10.1.13
           - 10.10.1.14
 
+  - name: acceptance_tests
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+
+
 compilation:
   cloud_properties:
     instance_type: m1.small
@@ -59,6 +65,11 @@ resource_pools:
     cloud_properties:
       instance_type: m1.small
 
+  - name: errand_z1
+    cloud_properties:
+      instance_type: m1.small
+
+
 networks:
   - name: rdpg
     type: manual
@@ -67,10 +78,10 @@ networks:
       name: rdpg
       dns: [10.10.0.2]
       gateway: 10.10.1.1
-      reserved: 
+      reserved:
         - 10.10.1.2-10.10.1.5
         - 10.10.1.250-10.10.1.254
-      static: 
+      static:
         - 10.10.1.10-10.10.1.60
       cloud_properties:
         subnet_ids: (( meta.subnet_ids ))
@@ -83,4 +94,3 @@ networks:
       security_groups: (( meta.security_groups ))
 
 properties: {}
-
