@@ -8,7 +8,6 @@ meta:
 
 jobs:
   - name: rdpg
-
     networks:
       - name: rdpg
         default: [dns, gateway]
