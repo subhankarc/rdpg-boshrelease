@@ -82,10 +82,11 @@ configure_consul() {
     "name": "haproxy",
     "tags": ["haproxy"], 
     "port": ${hapWritePort},
+    "interval": "10s",
     "Check":
     {
       "script":
-      "/var/vcap/jobs/consul/bin/check ha_pb_pg",
+      "${consulCheckScript} ha_pb_pg",
       "Interval": "10s"
     }
   },
@@ -93,13 +94,27 @@ configure_consul() {
     "id": "rdpg-pgbouncer",
     "name": "pgbouncer",
     "tags": ["pgbouncer"],
-    "port": ${pgbListenPort}
+    "port": ${pgbListenPort},
+    "interval": "10s",
+    "Check":
+    {
+      "script":
+      "${consulCheckScript} pb",
+      "Interval": "10s"
+    }
   },
   {
     "id": "rdpg-pgbdr",
     "name": "postgres",
     "tags": ["postgres"],
-    "port": 5432
+    "port": ${pgbdrPort},
+    "interval": "10s",
+    "Check":
+    {
+      "script":
+      "${consulCheckScript} pg",
+      "Interval": "10s"
+    }
   }]
 }
 EOF
