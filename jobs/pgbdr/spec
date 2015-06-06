@@ -45,3 +45,30 @@ properties:
   pgbdr.default_statistics_target:
     description: "Default Statistics Target"
     default: "100"
+  pgbdr.max_worker_processes
+    description: "Max Worker Processes"
+    default: "200"
+  pgbdr.max_replication_slots
+    description: "Max Replication Slots"
+    default: "200"
+  pgbdr.max_wal_senders
+    description: "Max Wal Senders"
+    default: "50"
+  pgbdr.log_error_verbosity
+    description: "Log Error Verbosity"
+    default: "verbose"
+  pgbdr.log_line_prefix
+    description: "Log Line Prefix"
+    default: "d=%d p=%p a=%a%q "
+  pgbdr.log_min_messages
+    description: "Log Min Messages"
+    default: "debug1"
+  pgbdr.log_min_error_statement
+    description: "Log Min Error Statement"
+    default: "warning"
+  pgbdr.log_min_duration_statement
+    description: "Log Min Duration Statement"
+    default: "2000"
+  pgbdr.default_apply_delay
+    description: "Default Apply Delay"
+    default: "2000"
