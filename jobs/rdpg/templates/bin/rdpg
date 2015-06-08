@@ -31,7 +31,7 @@ done
 # Configure Consul Template:
 configure_consul_template
 
-while (( $(number_of_joined_nodes) < ${#nodes} ))
+while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
 do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
 done
 
