@@ -31,7 +31,7 @@ properties:
     default: "58888"
   rdpg.agent_admin_pg_uri:
     description: "RDPG Agent Admin Database PG URI"
-    default: "postgresql://postgres:admin@127.0.0.1:5432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpg-agent"
+    default: "postgresql://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpg-agent"
   rdpg.agent_sb_port:
     description: "RDPG Agent CF SB Port"
     default: "8888"
