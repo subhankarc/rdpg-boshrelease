@@ -10,4 +10,8 @@ configure_pgbdr
 
 ulimit -v unlimited
 
+cat ${storePath}/config/postgresql.conf > ${dataPath}/postgresql.conf
+cat ${storePath}/config/pg_hba.conf > ${dataPath}/pg_hba.conf
+chmod 0640 ${dataPath}/*.conf
+
 user exec ${binary} start ${binaryArgs[@]} -t 300

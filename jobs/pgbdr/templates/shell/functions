@@ -45,6 +45,7 @@ configure_job_paths() {
     "${logPath}"
     "${tmpPath}"
     "${storePath}"
+    "${storePath}/config"
   )
 
   for _path in "${_paths[@]}"
@@ -67,7 +68,7 @@ graceful_stop() {
 initialize_database() {
   if [[ ! -d ${dataPath} ]]
   then 
-    chown -R ${userName}:${groupName} ${storePath}
+    user chown ${storePath}
     pushd ${storePath}
     HOME=${storePath} chpst -u ${userName}:${groupName} ${pkgPath}/bin/initdb \
       -E UTF8 --local "en_US.UTF-8" -D ${dataPath}
@@ -76,12 +77,19 @@ initialize_database() {
 }
 
 configure_pgbdr() {
-  sed -i ${dataPath}/postgresql.conf \
+  set -x
+  set -v
+  if ! [[ -s ${storePath}/config/postgresql.conf.default  ]]
+  then 
+    mv ${dataPath}/postgresql.conf ${storePath}/config/postgresql.conf.default 
+    mv ${dataPath}/pg_hba.conf ${storePath}/config/pg_hba.conf.default
+  fi
+  sed ${storePath}/config/postgresql.conf.default \
     -e "s/^.*shared_preload_libraries.*\$/shared_preload_libraries = 'bdr'/" \
     -e "s/^.*wal_level.*\$/wal_level = 'logical'/" \
     -e "s/^.*track_commit_timestamp.*\$/track_commit_timestamp = on/" \
     -e "s/^.*bdr.log_conflicts_to_table.*\$/bdr.log_conflicts_to_table=on/" \
-    -e "s/^.*bdr.default_apply_delay.*\$/bdr.default_apply_delay=${pgbdrDefaultApplyDelay}   # milliseconds/" \
+    -e "s/^.*bdr.default_apply_delay.*\$/bdr.default_apply_delay=${pgbdrDefaultApplyDelay} # milliseconds/" \
     -e "s/^.*listen_addresses.*\$/listen_addresses = '*'/" \
     -e "s%^.*external_pid_file.*\$%external_pid_file = '${pidFile}'%" \
     -e "s/^.*port\$/port = '${pgPort}'/" \
@@ -91,19 +99,20 @@ configure_pgbdr() {
     -e "s/^.*log_error_verbosity.*\$/log_error_verbosity = ${pgbdrLogErrorVerbosity}/" \
     -e "s/^.*log_line_prefix.*\$/log_line_prefix = '${pgbdrLogLinePrefix}'/" \
     -e "s/^.*log_min_messages.*\$/log_min_messages = ${pgbdrLogMinMessages}/" \
-    -e "s/^.*log_min_error_statement*\$/log_min_error_statement = ${pgbdrLogMinErrorStatement}/" \
-    -e "s/^.*log_min_duration_statement*\$/log_min_duration_statement = ${pgbdrLogMinDurationStatement}/" \
-    -e "s/^.*max_connections*\$/max_connections = ${pgbdrMaxConnections}/" \
-    -e "s/^.*shared_buffers*\$/shared_buffers = ${pgbdrSharedBuffers}/" \
-    -e "s/^.*effective_cache_size*\$/effective_cache_size = ${pgbdrEffectiveCacheSize}/" \
-    -e "s/^.*work_mem*\$/work_mem = ${pgbdrWorkMem}/" \
-    -e "s/^.*maintenance_work_mem*\$/maintenance_work_mem = ${pgbdrMaintenanceWorkMem}/" \
-    -e "s/^.*checkpoint_segments*\$/checkpoint_segments = ${pgbdrCheckpointSegments}/" \
-    -e "s/^.*checkpoint_completion_target*\$/checkpoint_completion_target = ${pgbdrCheckpointSegments}/" \
-    -e "s/^.*wal_buffers*\$/wal_buffers = ${pgbdrWALBuffers}/" \
-    -e "s/^.*default_statistics_target*\$/default_statistics_target = ${pgbdrDefaultStatisticsTarget}/"
+    -e "s/^.*log_min_error_statement.*\$/log_min_error_statement = ${pgbdrLogMinErrorStatement}/" \
+    -e "s/^.*log_min_duration_statement.*\$/log_min_duration_statement = ${pgbdrLogMinDurationStatement}/" \
+    -e "s/^.*max_connections.*\$/max_connections = ${pgbdrMaxConnections}/" \
+    -e "s/^.*shared_buffers.*\$/shared_buffers = ${pgbdrSharedBuffers}/" \
+    -e "s/^.*effective_cache_size.*\$/effective_cache_size = ${pgbdrEffectiveCacheSize}/" \
+    -e "s/^.*work_mem.*\$/work_mem = ${pgbdrWorkMem}/" \
+    -e "s/^.*maintenance_work_mem.*\$/maintenance_work_mem = ${pgbdrMaintenanceWorkMem}/" \
+    -e "s/^.*checkpoint_segments.*\$/checkpoint_segments = ${pgbdrCheckpointSegments}/" \
+    -e "s/^.*checkpoint_completion_target.*\$/checkpoint_completion_target = ${pgbdrCheckpointCompletionTarget}/" \
+    -e "s/^.*wal_buffers.*\$/wal_buffers = ${pgbdrWALBuffers}/" \
+    -e "s/^.*default_statistics_target.*\$/default_statistics_target = ${pgbdrDefaultStatisticsTarget}/" \
+  > ${storePath}/config/postgresql.conf
 
-  cat > ${dataPath}/pg_hba.conf <<EOF
+  cat > ${storePath}/config/pg_hba.conf <<EOF
 # TYPE  DATABASE      USER        ADDRESS       METHOD
 local   replication   vcap                      trust
 host    replication   postgres    127.0.0.1/32  trust
@@ -121,13 +130,13 @@ EOF
     {
       echo "host    replication   ${rdpgUser} ${node}/32  trust"
       echo "host    all           ${rdpgUser} ${node}/32  trust"
-    } >> ${dataPath}/pg_hba.conf 
+    } >> ${storePath}/config/pg_hba.conf 
   done
 
   if [[ -n ${pgbdrHBA} ]]
-  then echo "${pgbdrHBA}" >> ${dataPath}/pg_hba.conf 
+  then echo "${pgbdrHBA}" >> ${storePath}/config/pg_hba.conf 
   fi
-  chown ${userName}:${groupName} ${dataPath}/*.conf
-  chmod 0644 ${dataPath}/*.conf
+
+  user chown ${storePath}
 }
 
