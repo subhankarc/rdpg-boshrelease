@@ -326,13 +326,13 @@ EOF
 psqlc() {
   local _db=${1}  ; shift
   debug "psqlc(): db=${_db} SQL=${*}"
-  if ! psql -U ${rdpgUser} ${_db} -c "${*}"
+  if ! psql --port ${pgPort} -U ${rdpgUser} ${_db} -c "${*}"
   then echo "psqlc: ERROR: $*"
   fi
 }
 
 join_node_ready() {
-  if psql -U ${rdpgUser} --host="${nodes[${1}]}" --port ${pgPort} ${rdpgDB} -c "SELECT true;" &>/dev/null
+  if psql --host="${nodes[${1}]}" --port ${pgPort} ${rdpgDB} -U ${rdpgUser} -c "SELECT true;" &>/dev/null
   then return 0
   else return $?
   fi
@@ -344,20 +344,20 @@ number_of_joined_nodes() {
 }
 
 initialize_rdpg_db() {
-  while ! psql -U vcap postgres -c "SELECT true;" &>/dev/null
+  while ! psql --port ${pgPort} -U vcap postgres -c "SELECT true;" &>/dev/null
   do sleep 1
   done
 
-  if [[ -z $(psql -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='${rdpgUser}';" 2>/dev/null) ]]
+  if [[ -z $(psql --port ${pgPort} -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='${rdpgUser}';" 2>/dev/null) ]]
   then # Create the rdpg User
-    psql -U vcap postgres \
+    psql --port ${pgPort} -U vcap postgres \
       -c "CREATE USER ${rdpgUser} WITH SUPERUSER CREATEDB CREATEROLE INHERIT;" || true
 
-    psql -U vcap postgres \
+    psql --port ${pgPort} -U vcap postgres \
       -c "ALTER USER ${rdpgUser} ENCRYPTED PASSWORD '${rdpgPass}';" || true
   fi
 
-  if [[ -z $(psql -U vcap postgres -t -c "SELECT datname FROM pg_database WHERE datname='${rdpgDB}';" 2>/dev/null) ]]
+  if [[ -z $(psql --port ${pgPort} -U vcap postgres -t -c "SELECT datname FROM pg_database WHERE datname='${rdpgDB}';" 2>/dev/null) ]]
   then  # Create the rdpg Database and Extensions
     createdb -U vcap -O ${rdpgUser} -T template0 ${rdpgDB} || true
     psqlc ${rdpgDB} "CREATE EXTENSION IF NOT EXISTS btree_gist;" || true
