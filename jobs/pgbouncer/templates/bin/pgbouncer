@@ -4,4 +4,20 @@ source "$(dirname $(dirname ${0}))/shell/env"
 
 ulimit -v unlimited
 
-user exec ${binary} "${binaryArgs[@]}"
+action=$1 ; shift 
+
+if [[ -z ${action:-} ]]
+then fail "$0 start|reload"
+fi
+
+case ${action} in
+  (start)
+    user exec ${binary} "${binaryArgs[@]}"
+    ;;
+  (reload)
+    user exec ${binary} -R "${binaryArgs[@]}"
+    ;;
+  (*)
+    fail "$0 ${action} :: unkown action"
+    ;;
+esac
