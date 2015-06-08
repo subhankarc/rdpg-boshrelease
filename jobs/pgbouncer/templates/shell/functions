@@ -44,6 +44,7 @@ configure_job_paths() {
     "${logPath}"
     "${tmpPath}"
     "${storePath}"
+    "${storePath}/config"
   )
   if (( ${UID} == 0 ))
   then
@@ -86,4 +87,8 @@ EOF
 "${pgbAdminUser}" "${pgbAdminPass}"
 "${rdpgUser}" "${rdpgPass}"
 EOF
+
+cp ${jobPath}/config/pgbouncer.ini ${storePath}/config/pgbouncer.ini
+cp ${jobPath}/config/users ${storePath}/config/users
+user chown ${storePath}
 }

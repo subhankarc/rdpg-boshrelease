@@ -38,11 +38,11 @@ properties:
     default: "3600s"
   haproxy.write_port:
     description: "pgbdr write port"
-    default: 6432
+    default: 5432
   haproxy.read_port:
     description: "pgbdr read port."
-    default: 7432
-  haproxy.stats_port:
+    default: 5433
+  haproxy.admin_port:
     description: "HAProxy Stats Port."
     default:  9999
   haproxy.admin_user:

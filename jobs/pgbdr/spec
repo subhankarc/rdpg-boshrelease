@@ -14,7 +14,7 @@ properties:
     default: false
   pgbdr.port:
     description: "pgbdr database port (Can be overridden in manifest)."
-    default: "5432"
+    default: "7432"
   pgbdr.hba:
     description: "Extra pg_hba lines (optional)."
     default: ""

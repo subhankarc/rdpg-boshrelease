@@ -92,7 +92,7 @@ defaults
   maxconn ${haproxyMaxConn}
 
 listen stats
-  bind 0.0.0.0:${haproxyStatsPort}
+  bind 0.0.0.0:${haproxyAdminPort}
   mode http
 
   #This is the virtual URL to access the stats page
@@ -109,13 +109,13 @@ listen stats
   stats admin if TRUE
 
 frontend pgbdr_write_port
-  bind 0.0.0.0:6432
+  bind 0.0.0.0:${haproxyWritePort}
   mode tcp
   default_backend pgbdr_write_master
 
 backend pgbdr_write_master
   mode tcp
-  server master 127.0.0.1:6543 check
+  server master 127.0.0.1:${haproxyWritePort} check
 
 EOF
 
