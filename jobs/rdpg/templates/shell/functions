@@ -339,7 +339,7 @@ join_node_ready() {
 }
 
 number_of_joined_nodes() {
-  count=$(psql --host="${nodes[0]}" --port ${pgPort} -U postgres ${rdpgDB} -t -c 'SELECT count(node_name) FROM bdr.bdr_nodes;' 2>&/dev/null)
+  count=$(psql --host="${nodes[0]}" --port ${pgPort} -U postgres ${rdpgDB} -t -c 'SELECT count(node_name) FROM bdr.bdr_nodes;' 2>/dev/null)
   echo ${count:-0}
 }
 
