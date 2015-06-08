@@ -42,6 +42,7 @@ jobs:
         admin_port: 9999
       rdpg:
         debug: "true"
+        agent_log_level: "trace"
         nodes:
           - 10.244.2.2
           - 10.244.2.6

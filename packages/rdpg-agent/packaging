@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+package="rdpg-agent"
+version="0.0.3"
+file="${package}-${version}.tar.gz"
+
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+
+tar zxvf ${package}/${file} --strip-components=1 -C ${BOSH_INSTALL_TARGET}/bin \
+  $(tar -tvf ${package}/${file} | awk '/rdpg-agent$/{print $NF}')
+
