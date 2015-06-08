@@ -56,6 +56,7 @@ haproxyAdminPort="<%=p('haproxy.admin_port').to_s %>"
 haproxyWritePort="<%=p('haproxy.write_port').to_s %>"
 haproxyReadPort="<%=p('haproxy.read_port').to_s %>"
 haproxyMaxConn="<%=p('haproxy.max_conn').to_s %>"
+pgbPort="<%=p('pgbouncer.listen_port').to_s %>"
 
 configure_haproxy
 

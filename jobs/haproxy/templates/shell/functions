@@ -115,7 +115,7 @@ frontend pgbdr_write_port
 
 backend pgbdr_write_master
   mode tcp
-  server master 127.0.0.1:${haproxyWritePort} check
+  server master 127.0.0.1:${pgbPort} check
 
 EOF
 
