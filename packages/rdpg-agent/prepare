@@ -2,7 +2,7 @@
 
 package="rdpg-agent"
 version="0.0.4"
-file="${package}-${version}_linux_amd64.tar.gz"
+file="${package}_${version}_linux_amd64.tar.gz"
 url="https://github.com/wayneeseguin/rdpg-agent/releases/download/${version}/rdpg-agent_${version}_linux_amd64.tar.gz"
 
 if [[ ! -s "${package}/${file}" ]]

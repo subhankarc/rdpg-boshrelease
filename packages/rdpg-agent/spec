@@ -2,4 +2,4 @@
 name: rdpg-agent
 dependencies: []
 files:
-  - rdpg-agent/rdpg-agent-*.tar.gz
+  - rdpg-agent/rdpg-agent*.tar.gz

@@ -79,11 +79,13 @@ initialize_database() {
 configure_pgbdr() {
   set -x
   set -v
+
   if ! [[ -s ${storePath}/config/postgresql.conf.default  ]]
   then 
-    mv ${dataPath}/postgresql.conf ${storePath}/config/postgresql.conf.default 
-    mv ${dataPath}/pg_hba.conf ${storePath}/config/pg_hba.conf.default
+    cp ${dataPath}/postgresql.conf ${storePath}/config/postgresql.conf.default 
+    cp ${dataPath}/pg_hba.conf ${storePath}/config/pg_hba.conf.default
   fi
+
   sed ${storePath}/config/postgresql.conf.default \
     -e "s/^.*shared_preload_libraries.*\$/shared_preload_libraries = 'bdr'/" \
     -e "s/^.*wal_level.*\$/wal_level = 'logical'/" \
