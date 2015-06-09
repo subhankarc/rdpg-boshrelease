@@ -70,7 +70,7 @@ configure_pgbouncer() {
 listen_port = ${pgbListenPort}
 listen_addr = ${pgbListenAddr}
 auth_type = ${pgbAuthType}
-auth_file = ${jobPath}/config/users
+auth_file = ${storePath}/config/users
 logfile = ${logPath}/${jobName}.log
 pidfile = ${runPath}/${jobName}.pid
 admin_users = ${pgbAdminUser}

@@ -12,10 +12,13 @@ fi
 
 case ${action} in
   (start)
-    user exec ${binary} "${binaryArgs[@]}"
+    user exec ${binary} -d "${binaryArgs[@]}"
     ;;
   (reload)
-    user exec ${binary} -R "${binaryArgs[@]}"
+    user exec ${binary} -R "${binaryArgs[@]}" &
+    ;;
+  (console)
+    exec /var/vcap/packages/pgbdr/bin/psql -U ${pgbAdminUser} --host 127.0.0.1 --port ${pgbListenPort} pgbouncer
     ;;
   (*)
     fail "$0 ${action} :: unkown action"
