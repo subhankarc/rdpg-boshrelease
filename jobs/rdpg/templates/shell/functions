@@ -80,7 +80,6 @@ configure_consul() {
   {
     "id": "rdpg-haproxy",
     "name": "haproxy",
-    "tags": ["haproxy"], 
     "port": ${hapWritePort},
     "interval": "10s",
     "Check":
@@ -93,7 +92,6 @@ configure_consul() {
   {
     "id": "rdpg-pgbouncer",
     "name": "pgbouncer",
-    "tags": ["pgbouncer"],
     "port": ${pgbListenPort},
     "interval": "10s",
     "Check":
@@ -106,7 +104,6 @@ configure_consul() {
   {
     "id": "rdpg-pgbdr",
     "name": "postgres",
-    "tags": ["postgres"],
     "port": ${pgbdrPort},
     "interval": "10s",
     "Check":
@@ -125,16 +122,25 @@ EOF
   {
     "type": "service",
     "service": "haproxy",
-    "handler": "echo triggered watch ha-${nodeName} >> /var/vcap/store/consul/watch_check_haproxy.txt"
+    "handler": "${storePath}/consul/watch_notification"
   },
   {
     "type": "service",
     "service": "postgres",
-    "handler": "echo triggered watch pg-${nodeName} >> /var/vcap/store/consul/watch_check_postgres.txt"
+    "handler": "${storePath}/consul/watch_notification"
   }
   ]
 }
 EOF
+
+cat > ${storePath}/consul/watch_notification <<EOF
+#!/var/vcap/packages/bash-4.3/bin/bash
+while IFS= read -r line; do
+/var/vcap/packages/pgbdr/bin/psql -U postgres -h 127.0.0.1 ${rdpgDB} -c "INSERT INTO rdpg.watch_notifications (node,raw) VALUES ( '${nodeName}', \\\$\\\$\${line}\\\$\\\$); "
+done
+EOF
+
+chmod +x ${storePath}/consul/watch_notification
 
 user chown ${storePath}/consul
 }
@@ -168,10 +174,10 @@ user chown ${ctConfigPath}
 }
 
 register_write_master() {
-  if [[ $(curl http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
+  if [[ $(curl -s http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
   then # TODO: This isn't quite right being here, move to an 'rdpg' job.
-    curl -X PUT -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pb_pg", "Interval": "10s"}} '\
-      http://127.0.0.1:${consulPort}/v1/agent/service/register
+    curl -X PUT http://${nodes[0]}:${consulPort}/v1/agent/service/register \
+      -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pb_pg", "Interval": "10s"}} '
   fi
 }
 
@@ -395,5 +401,4 @@ initialize_rdpg_db() {
     psqlc ${rdpgDB} "${sql}"
   fi
 }
-
 

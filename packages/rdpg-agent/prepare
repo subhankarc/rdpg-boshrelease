@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 package="rdpg-agent"
-version="0.0.6"
+version="0.0.7"
 file="${package}_${version}_linux_amd64.tar.gz"
 url="https://github.com/wayneeseguin/rdpg-agent/releases/download/${version}/rdpg-agent_${version}_linux_amd64.tar.gz"
 

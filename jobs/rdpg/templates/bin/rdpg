@@ -1,43 +1,53 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
+action=$1 ; shift
+
 source "$(dirname $(dirname ${0}))/shell/env"
 
-trap graceful_stop SIGTERM # Handle term signal sent by control script stop action.
+case ${action} in
+  (start)
+    # TODO: Move pg_hba.conf configuration into here?
+    initialize_rdpg_db
 
-echo $$ > ${pidFile} # Write the shell script's PID to the pidFile
+    # Configure initial databases for pgbouncer:
+    configure_pgbouncer
 
-# TODO: Move pg_hba.conf configuration into here?
-initialize_rdpg_db
+    # Configure Initial HAProxy:
+    configure_haproxy
 
-# Configure initial databases for pgbouncer:
-configure_pgbouncer
+    # Configure Consul:
+    configure_consul
 
-# Configure Initial HAProxy:
-configure_haproxy
+    while ! [[ -s ${storePath}/consul/rdpg-services.json ]]
+    do sleep 1 # Wait for consul service configuration file to drop
+    done
 
-# Configure Consul:
-configure_consul
+    /var/vcap/bosh/bin/monit restart consul
 
-while ! [[ -s ${storePath}/consul/rdpg-services.json ]]
-do sleep 1 # Wait for consul service configuration file to drop
-done
+    while ! [[ -s /var/vcap/jobs/consul-template/config/rdpg.json ]]
+    do sleep 1 # Wait for consul-template rdpg config file to drop.
+    done
 
-/var/vcap/bosh/bin/monit restart consul
+    # Configure Consul Template:
+    configure_consul_template
 
-while ! [[ -s /var/vcap/jobs/consul-template/config/rdpg.json ]]
-do sleep 1 # Wait for consul-template rdpg config file to drop.
-done
+    while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
+    do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
+    done
 
-# Configure Consul Template:
-configure_consul_template
+    register_write_master
 
-while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
-do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
-done
+    if (( ${vmIndex} == 0 ))
+    then ${binary} init
+    fi
 
-if (( ${vmIndex} == 0 ))
-then ${binary} init
-fi
-
-exec ${binary}
+    exec ${binary}
+    ;;
+  (init)
+    ${binary} init
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac
 
