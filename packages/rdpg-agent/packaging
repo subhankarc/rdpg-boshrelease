@@ -2,11 +2,11 @@
 set -e
 
 package="rdpg-agent"
-version="0.0.7"
+version="0.0.8"
 file="${package}_${version}_linux_amd64.tar.gz"
 
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 
-tar zxvf ${package}/${file} --strip-components=1 -C ${BOSH_INSTALL_TARGET}/bin \
+tar zxf ${package}/${file} --strip-components=1 -C ${BOSH_INSTALL_TARGET}/bin \
   $(tar -tvf ${package}/${file} | awk '/rdpg-agent$/{print $NF}')
 

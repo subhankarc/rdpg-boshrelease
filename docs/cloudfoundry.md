@@ -25,10 +25,8 @@ cf marketplace
 
 Now we can create a service instance,
 ```sh
-CF_TRACE=true cf create-service rdpg small rdpg-test-1
+cf create-service rdpg small rdpg-test-1
 cf services
-cf bind --help
-cf bind-service
 ```
 
 Now we deploy an application to our cloud foundry for testing,
