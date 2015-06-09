@@ -6,8 +6,7 @@ installed
 Make sure we are logged into an org/space in CF. 
 As an example, for develoment when targeting bosh-lite,
 ```sh
-cf login -u admin -p admin
-cf api --skip-ssl-validation https://api.10.244.0.34.xip.io
+cf login --skip-ssl-validation -u admin -p admin -a https://api.10.244.0.34.xip.io
 cf auth admin admin
 cf create-org $USER
 cf target -o $USER
