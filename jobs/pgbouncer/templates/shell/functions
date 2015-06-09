@@ -88,7 +88,11 @@ EOF
 "${rdpgUser}" "${rdpgPass}"
 EOF
 
-cp ${jobPath}/config/pgbouncer.ini ${storePath}/config/pgbouncer.ini
-cp ${jobPath}/config/users ${storePath}/config/users
-user chown ${storePath}
+  for file in pgbouncer.ini users
+  do
+    if ! [[ -s ${storePath}/config/${file} ]]
+    then cp ${jobPath}/config/${file} ${storePath}/config/${file}
+    fi
+  done
+  user chown ${storePath}
 }
