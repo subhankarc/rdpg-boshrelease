@@ -115,3 +115,7 @@ rdpg-agent/rdpg-agent_0.0.16_linux_amd64.tar.gz:
   object_id: 7dc190d1-6034-4f5e-af71-0ca25ef703ec
   sha: ac80cb5d1d2dae6d9eb87336d709e5c4b017f6da
   size: 2261986
+rdpg-agent/rdpg-agent_0.0.17_linux_amd64.tar.gz:
+  object_id: eee6fdd3-ee15-4236-91c6-e378eda48df3
+  sha: 8c7c7056b788435fdcb9556db9c9a3812cd29a71
+  size: 2263949

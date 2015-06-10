@@ -176,7 +176,7 @@ user chown ${ctConfigPath}
 register_write_master() {
   if [[ $(curl -s http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
   then # TODO: This isn't quite right being here, move to an 'rdpg' job.
-    curl -X PUT http://${nodes[0]}:${consulPort}/v1/agent/service/register \
+    curl -s -X PUT http://${nodes[0]}:${consulPort}/v1/agent/service/register \
       -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pb_pg", "Interval": "10s"}} '
   fi
 }
@@ -377,14 +377,14 @@ initialize_rdpg_db() {
     local_node_name := '${vmName}${vmIndex}',
     node_external_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
     ); 
-    " # SELECT bdr.bdr_node_join_wait_for_ready();
+    "
   else # Subsequent Nodes
     sql="SELECT bdr.bdr_group_join( 
     local_node_name := '${vmName}${vmIndex}',
     node_external_dsn := 'host=${nodes[${vmIndex}]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}',
     join_using_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
     ); 
-    " # SELECT bdr.bdr_node_join_wait_for_ready();
+    "
 
     while ! join_node_ready 0
     do sleep 1
@@ -399,6 +399,7 @@ initialize_rdpg_db() {
   then
     echo "${sql}" > ${logPath}/sql.sql
     psqlc ${rdpgDB} "${sql}"
+    psqlc ${rdpgDB} "SELECT bdr.bdr_node_join_wait_for_ready();"
   fi
 }
 
