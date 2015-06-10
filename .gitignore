@@ -22,3 +22,4 @@ src/*
 manifests/*
 stemcells/*
 tmp/
+releases/rdpg/*.tgz
