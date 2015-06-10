@@ -64,13 +64,13 @@ zlib/zlib-1.2.8.tar.gz:
   sha: a4d316c404ff54ca545ea71a27af7dbc29817088
   size: 571091
 pgbdr/pgbdr-extension.tar.xz:
-  object_id: f8cb280c-d9de-488f-9922-2c690b4761cf
-  sha: 661e71367e99e5b8cdd379db3d873d5fab45a70e
-  size: 398692
+  object_id: 1d0cec95-f018-41a0-a21d-06c832b3e9dc
+  sha: e94b80811099fb000467f4b50eb735ac1650ca98
+  size: 398636
 pgbdr/pgbdr.tar.xz:
-  object_id: 1b69e0cf-bb15-43e0-8f2b-670c016f2c79
-  sha: 98adc4af68446e239637a35cecb6b6eca3630b25
-  size: 10774080
+  object_id: f8d30aba-be0d-4c7c-aefb-e5190a8b9ccb
+  sha: be1e958cee214f4680fb566d95e8f561da282c9b
+  size: 10775960
 rdpg-agent/rdpg-agent_0.0.4_linux_amd64.tar.gz:
   object_id: 9cf037a6-bae5-4eb9-ad59-919dc5c44662
   sha: a7a5d1e2be06c370f1ce272e277905c8f09f838b
