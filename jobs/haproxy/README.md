@@ -1,5 +1,8 @@
 # haproxy BOSH Service Job
 
+This job is for running HAProxy with a minimal configuration with the intent 
+that another sytem will reconfigure it (eg. consul-template)
+
 [Official BOSH Release Documentation](http://bosh.io/docs/create-release.html)
 
 What follows is an explanation about the pieces contained within this BOSH job

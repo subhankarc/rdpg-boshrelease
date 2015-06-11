@@ -4,20 +4,20 @@ source "$(dirname $(dirname ${0}))/shell/env"
 
 action=${1:-""}
 case ${action} in
-  (reload)
-    if (( ${pid:-0} > 0 ))
-    then 
-      echo exec ${binary} "${binaryArgs[@]}" -sf ${pid}
-      exec ${binary} "${binaryArgs[@]}" -sf ${pid}
-    fi
-    ;;
   (start|*)
     if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
     then 
       echo "haproxy already running with pid ${pidFile}"
       exit 0
     fi
-    echo exec ${binary} "${binaryArgs[@]}" -D
-    exec ${binary} "${binaryArgs[@]}" -D
+    exec ${pkgPath}/bin/haproxy -f "${configFile}" -p "${pidFile}" -D
+    ;;
+  (stop)
+    send_signal TERM 
+    ;;
+  (reload)
+    if (( ${pid:-0} > 0 ))
+    then exec ${pkgPath}/bin/haproxy -f "${configFile}" -p "${pidFile}" -sf ${pid}
+    fi
     ;;
 esac

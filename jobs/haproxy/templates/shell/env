@@ -35,9 +35,6 @@ LANG="en_US.UTF-8"
 HOME="${HOME:-"/home/${userName}"}"
 pidFile="${runPath}/${jobName}.pid"
 
-binary="${pkgPath}/bin/${jobName}"
-binaryArgs=(-f "${configFile}" -p "${pidFile}" )
-
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
 export LANG HOME LD_LIBRARY_PATH
 
@@ -45,20 +42,15 @@ add_packages_to_path
 
 configure_job_paths
 
-haproxyTimeoutConnect="<%=p('haproxy.timeout_connect').to_s %>"
-haproxyTimeoutClient="<%= p('haproxy.timeout_client') %>"
-haproxyTimeoutServer="<%= p('haproxy.timeout_server') %>"
 haproxySSLPem="<%= p('haproxy.ssl_pem','') %>"
 haproxySSLCiphers="<%= p('ha_proxy.ssl_ciphers') %>"
-haproxyAdminUser="<%=p('haproxy.admin_user').to_s %>"
-haproxyAdminPass="<%=p('haproxy.admin_pass').to_s %>"
-haproxyAdminPort="<%=p('haproxy.admin_port').to_s %>"
-haproxyWritePort="<%=p('haproxy.write_port').to_s %>"
-haproxyReadPort="<%=p('haproxy.read_port').to_s %>"
-haproxyMaxConn="<%=p('haproxy.max_conn').to_s %>"
-pgbPort="<%=p('pgbouncer.listen_port').to_s %>"
 
-configure_haproxy
+if [[ -n "${haproxySSLPem}" ]]
+then 
+  echo "${haproxySSLPem}" > ${jobPath}/config/cert.pem
+  user chown ${jobPath}/config/cert.pem
+  chmod 0600 ${jobPath}/config/cert.pem
+fi
 
 set_pid
 
