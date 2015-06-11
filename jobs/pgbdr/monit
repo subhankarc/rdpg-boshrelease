@@ -1,5 +1,5 @@
 check process pgbdr
   with pidfile /var/vcap/store/pgbdr/data/postmaster.pid
-  start program "/var/vcap/jobs/pgbdr/bin/control start" with timeout 30 seconds
-  stop program "/var/vcap/jobs/pgbdr/bin/control stop"
+  start program "/var/vcap/jobs/pgbdr/bin/pgbdr start" with timeout 300 seconds
+  stop program "/var/vcap/jobs/pgbdr/bin/pgbdr stop"
   group vcap
