@@ -56,32 +56,3 @@ configure_job_paths() {
     done
   fi
 }
-
-graceful_stop() {
-  user exec ${binary} leave
-  exit 0 # Normal exit, return code 0
-}
-
-configure_consul() {
-  ulimit -v unlimited
-
-  if (( $UID == 0 ))
-  then setcap cap_net_bind_service=+ep $(readlink -nf ${binary})
-  fi
-
-  user chown ${storePath}
-
-  if ! grep -q 127.0.0.1 /etc/resolv.conf
-  then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
-  fi
-
-  [[ -z ${consulSSLCa} ]] ||
-    echo "${consulSSLCa}" > ${jobPath}/config/ca.cert
-
-  [[ -z ${consulSSLCert} ]] ||
-    echo "${consulSSLCert}" > ${jobPath}/config/consul.cert
-
-  [[ -z ${consulSSLKey} ]] ||
-    echo "${consulSSLKey}" > ${jobPath}/config/consul.key
-
-}

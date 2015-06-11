@@ -28,13 +28,13 @@
   }
 
   ssl_ca = p("consul.ssl_ca", nil)
-  ssl_cert = p("consul.ssl_cert", nil)
+  ssl_cert = p("consul.ssl_crt", nil)
   ssl_key = p("consul.ssl_key", nil)
   if ssl_ca and ssl_cert and ssl_key
     config[:verify_incoming] = true
     config[:verify_outgoing] = true
-    config[:ca_file] = '/var/vcap/jobs/consul/config/ca.cert'
-    config[:cert_file] = '/var/vcap/jobs/consul/config/consul.cert'
+    config[:ca_file] = '/var/vcap/jobs/consul/config/ca.crt'
+    config[:cert_file] = '/var/vcap/jobs/consul/config/consul.crt'
     config[:key_file] = '/var/vcap/jobs/consul/config/consul.key'
   end
 
