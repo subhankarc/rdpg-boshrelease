@@ -3,10 +3,10 @@ name: consul-template
 packages:
 - consul-template
 templates:
-  bin/control: bin/control
   bin/consul-template: bin/consul-template
   shell/env.erb: shell/env
   shell/functions: shell/functions
+  config/consul.json: config/consul.json
 properties:
   consul_template.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."

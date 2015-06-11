@@ -4,10 +4,11 @@ packages:
 - bash-4.3
 - pgbdr
 templates:
-  bin/control: bin/control
   bin/pgbdr: bin/pgbdr
   shell/env.erb: shell/env
   shell/functions: shell/functions
+  config/pg_hba.conf: config/pg_hba.conf
+  config/postgresql.conf: config/postgresql.conf
 properties:
   pgbdr.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."

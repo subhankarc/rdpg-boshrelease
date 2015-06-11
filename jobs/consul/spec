@@ -4,12 +4,13 @@ packages:
 - consul
 - consul-ui
 templates:
-  bin/control: bin/control
   bin/consul: bin/consul
-  bin/check: bin/check
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/agent.json.erb: config/agent.json
+  config/ca.crt: config/ca.crt
+  config/consul.crt: config/consul.crt
+  config/consul.key: config/consul.key
 properties:
   consul.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."

@@ -7,10 +7,10 @@ packages:
 - zlib
 - socat
 templates:
-  bin/control:        bin/control
   bin/haproxy:        bin/haproxy
   shell/env:          shell/env
   shell/functions:    shell/functions
+  config/haproxy.cfg: config/haproxy.cfg
 properties:
   haproxy.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."

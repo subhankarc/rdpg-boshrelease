@@ -5,10 +5,11 @@ packages:
 - libevent
 - pgbouncer
 templates:
-  bin/control: bin/control
   bin/pgbouncer: bin/pgbouncer
   shell/env.erb: shell/env
   shell/functions: shell/functions
+  config/pgbouncer.ini: config/pgbouncer.ini
+  config/users: config/users
 properties:
   pgbouncer.debug: 
     description: "Enable debug output, can be 'true' or 'false' (default)."
