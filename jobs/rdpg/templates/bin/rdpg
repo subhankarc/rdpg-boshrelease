@@ -1,9 +1,11 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
-action=$1 ; shift
-
 source "$(dirname $(dirname ${0}))/shell/env"
 
+set_pid
+if (( ${pid} == 0 )) ; then echo $$ > ${pidFile} ; fi
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
     # TODO: Move pg_hba.conf configuration into here?
@@ -38,13 +40,18 @@ case ${action} in
     register_write_master
 
     if (( ${vmIndex} == 0 ))
-    then ${binary} init
+    then # TODO: Also only need to run this the first time
+      ${pkgPath}-agent/bin/rdpg-agent init
     fi
 
-    exec ${binary}
+    exec ${pkgPath}-agent/bin/rdpg-agent
+    ;;
+  (stop)
+    send_signal TERM 
+    exit 0
     ;;
   (init)
-    ${binary} init
+    ${pkgPath}-agent/bin/rdpg-agent init
     ;;
   (*)
     fail "Unknown action ${action}"

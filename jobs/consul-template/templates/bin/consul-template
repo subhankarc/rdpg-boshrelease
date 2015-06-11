@@ -2,7 +2,7 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-action=$1 ; shift
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in 
   (start)
     echo $$ > ${pidFile}

@@ -1,0 +1,24 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+export PGPASSFILE="/home/vcap/.pgpass"
+
+if [[ -z ${1:-} ]] ; then fail "$0 <ha_pb_pg|pb|pg>" ; fi ; action=$1 ; shift 
+case ${action} in
+  (ha_pb_pg) 
+    psql -U postgres -h 127.0.0.1 -p ${hapWritePort} ${rdpgDB} -t \
+      -c 'SELECT CURRENT_TIMESTAMP;'
+    ;;
+  (pb)
+    psql -U postgres -h 127.0.0.1 -p ${pgbListenPort} ${rdpgDB} -t \
+      -c 'SELECT CURRENT_TIMESTAMP;'
+    ;;
+  (pg)
+    psql -U postgres -h 127.0.0.1 -p ${pgbdrPort} ${rdpgDB} -t \
+      -c 'SELECT CURRENT_TIMESTAMP;'
+    ;;
+  (*)
+    fail "Unknown check action ${action}"
+    ;;
+esac

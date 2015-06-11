@@ -1,0 +1,10 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+while IFS= read -r line
+do
+  /var/vcap/packages/pgbdr/bin/psql -U postgres -h 127.0.0.1 ${rdpgDB} \
+    -c "INSERT INTO rdpg.watch_notifications (node,raw) VALUES ( '${nodeName}', \$\$${line}\$\$); "
+done
+

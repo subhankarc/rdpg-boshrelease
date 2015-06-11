@@ -4,21 +4,9 @@ source "$(dirname $(dirname ${0}))/shell/env"
 
 ulimit -v unlimited
 
-action=$1 ; shift 
-
-if [[ -z ${action:-} ]]
-then fail "$0 start|reload"
-fi
-
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|reload|console" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
-    for file in pgbouncer.ini users
-    do
-      if ! [[ -s ${storePath}/config/${file} ]]
-      then cp ${jobPath}/config/${file} ${storePath}/config/${file}
-      fi
-    done
-    user chown ${storePath}
     user exec ${pkgPath}/bin/${jobName} -d ${storePath}/config/pgbouncer.ini
     ;;
   (stop)

@@ -19,7 +19,7 @@ properties:
   pgbouncer.listen_port:
     description: "pgbouncer administration listen port."
     default: "6432"
-  pgbouncer.admin_user:
+  pgbouncer.admin_users:
     description: "pgbouncer administration user name."
     default: "pgbadmin"
   pgbouncer.admin_pass:

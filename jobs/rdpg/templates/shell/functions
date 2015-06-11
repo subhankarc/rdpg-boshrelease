@@ -5,12 +5,6 @@ fail() {
   exit 1 
 }
 
-debug() {
-  if [[ ${DEBUG:-"false"} = "true" ]]
-  then echo "$*"
-  fi
-}
-
 user() {
   local _action=$1 ; shift
   case ${_action} in
@@ -32,7 +26,6 @@ send_signal() {
   then kill -${1} ${pid}
   fi
 }
-
 
 turn_debugging_on() {
   echo "Turning Debugging On"
@@ -66,173 +59,28 @@ configure_job_paths() {
   fi
 }
 
-graceful_stop() {
-  rm -f ${pidFile}
-  exit 0 # Normal exit, return code 0
-}
-
-
-configure_consul() {
-  mkdir -p ${storePath}/consul
-  cat > ${storePath}/consul/rdpg-services.json <<EOF
-{
-  "services": [
-  {
-    "id": "rdpg-haproxy",
-    "name": "haproxy",
-    "port": ${hapWritePort},
-    "interval": "10s",
-    "Check":
-    {
-      "script":
-      "${consulCheckScript} ha_pb_pg",
-      "Interval": "10s"
-    }
-  },
-  {
-    "id": "rdpg-pgbouncer",
-    "name": "pgbouncer",
-    "port": ${pgbListenPort},
-    "interval": "10s",
-    "Check":
-    {
-      "script":
-      "${consulCheckScript} pb",
-      "Interval": "10s"
-    }
-  },
-  {
-    "id": "rdpg-pgbdr",
-    "name": "postgres",
-    "port": ${pgbdrPort},
-    "interval": "10s",
-    "Check":
-    {
-      "script":
-      "${consulCheckScript} pg",
-      "Interval": "10s"
-    }
-  }]
-}
-EOF
-
-  cat > ${storePath}/consul/rdpg-watches.json <<EOF
-{
-  "watches": [
-  {
-    "type": "service",
-    "service": "haproxy",
-    "handler": "${storePath}/consul/watch_notification"
-  },
-  {
-    "type": "service",
-    "service": "postgres",
-    "handler": "${storePath}/consul/watch_notification"
-  }
-  ]
-}
-EOF
-
-cat > ${storePath}/consul/watch_notification <<EOF
-#!/var/vcap/packages/bash-4.3/bin/bash
-while IFS= read -r line; do
-/var/vcap/packages/pgbdr/bin/psql -U postgres -h 127.0.0.1 ${rdpgDB} -c "INSERT INTO rdpg.watch_notifications (node,raw) VALUES ( '${nodeName}', \\\$\\\$\${line}\\\$\\\$); "
-done
-EOF
-
-chmod +x ${storePath}/consul/watch_notification
-
-user chown ${storePath}/consul
-}
-
-configure_consul_template() {
-  cat > ${ctConfigPath}/rdpg.json <<EOF
-consul = "127.0.0.1:${consulPort}"
-retry = "5s"
-// max-stale = "10m"
-//log-level = "warn"
-//pid-file = "${pidFile}"
-
-auth {
-  enabled = true
-  username = "${ctUser}"
-  password = "${ctPass}"
-}
-
-syslog {
-  enabled = true
-  facility = "LOCAL5"
-}
-
-template {
-  source = "/var/vcap/jobs/haproxy/config/haproxy.cfg.ctmpl"
-  destination = "/var/vcap/jobs/haproxy/config/haproxy.cfg"
-  command = "/var/vcap/jobs/haproxy/bin/haproxy reload"
-}
-EOF
-user chown ${ctConfigPath}
-}
-
 register_write_master() {
   if [[ $(curl -s http://127.0.0.1:${consulPort}/v1/health/service/master) == "[]" ]]
   then # TODO: This isn't quite right being here, move to an 'rdpg' job.
     curl -s -X PUT http://${nodes[0]}:${consulPort}/v1/agent/service/register \
-      -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "/var/vcap/jobs/consul/bin/check ha_pb_pg", "Interval": "10s"}} '
+      -d '{ "ID": "pgbdrc", "Name": "master", "Address": "'${nodes[0]}'", "Port": '${hapWritePort}', "Check": { "script": "'${jobPath}'/bin/check ha_pb_pg", "Interval": "10s"}} '
   fi
 }
 
-compute_write_master_ip() {
-  # TODO: Eventually this will be election out of Consul for failure.
-  writeMasterIP="${nodes[0]}"
-}
-
 configure_haproxy() {
+  # TODO: Migrate this into rdpg-agent similar to pgbouncer
   # TODO: Add query to consul to determine write-master and adjust based on this.
+  writeMasterIP="${nodes[0]}"
 
-  compute_write_master_ip
+  hapConfigFile="/var/vcap/jobs/haproxy/config/haproxy.cfg"
+  hapConfigTmpl="/var/vcap/jobs/haproxy/config/haproxy.cfg.ctmpl"
 
-cat > ${hapConfigTmpl} <<EOF
-global
-  log 127.0.0.1 syslog info
-  daemon
-  user ${userName}
-  group ${groupName}
-  maxconn ${hapMaxConn}
-  spread-checks 4
-  stats socket ${runPath}/haproxy.sock mode 600 level admin
-  stats timeout 2m
+  cp ${jobPath}
 
-defaults
-  log global
-  timeout connect ${hapTimeoutConnect}
-  timeout client ${hapTimeoutClient}ms
-  timeout server ${hapTimeoutServer}ms
-  maxconn ${hapMaxConn}
-
-listen stats
-  bind 0.0.0.0:${hapAdminPort}
-  mode http
-
-  #This is the virtual URL to access the stats page
-  stats uri /haproxy/stats
-
-  #Authentication realm. This can be set to anything. Escape space characters with a backslash.
-  stats realm HAProxy\ Statistics 
-
-  #The user/pass you want to use. Change this password!
-  stats auth ${hapAdminUser}:${hapAdminPass}
-
-  #This allows you to take down and bring up back end servers.
-  #This will produce an error on older versions of HAProxy.
-  stats admin if TRUE
-
-EOF
-
-if ! [[ -s ${hapConfigFile} ]]
-then 
-  cp ${hapConfigTmpl} ${hapConfigFile}
-  cat >> ${hapConfigFile} <<EOF
-
+  if ! [[ -s ${hapConfigFile} ]]
+  then 
+    cp ${hapConfigTmpl} ${hapConfigFile}
+    cat >> ${hapConfigFile} <<EOF
 frontend pgbdr_write_port
   bind 0.0.0.0:${hapWritePort}
   mode tcp
@@ -293,45 +141,12 @@ EOF
     fi
   done
 
-# TODO: Allow SSL frontend if haproxy.ssl_pem is set
-# bind :4443 ssl crt ${jobPath}/config/cert.pem no-sslv3 ciphers ${hapSSLCiphers}
-
   user chown ${hapConfigTmpl}
   user chown ${hapConfigFile}
 }
 
-configure_pgbouncer() {
-  mkdir -p ${pgbConfigPath}
-
-  cat > ${pgbConfigPath}/pgbouncer.ini <<EOF
-[pgbouncer]
-listen_port = ${pgbListenPort}
-listen_addr = ${pgbListenAddr}
-auth_type = ${pgbAuthType}
-auth_file = ${jobPath}/config/users
-logfile = ${logPath}/${jobName}.log
-pidfile = ${runPath}/${jobName}.pid
-admin_users = ${pgbAdminUser}
-unix_socket_dir = ${runPath}
-pool_mode = ${pgbPoolMode}
-ignore_startup_parameters = extra_float_digits
-
-[databases]
-template1 = host=${nodes[${vmIndex}]} port=5432 dbname=template1
-${rdpgDB} = host=${nodes[${vmIndex}]} port=5432 dbname=${rdpgDB}
-EOF
-
-  cat > ${pgbConfigPath}/users <<EOF
-"${pgbAdminUser}" "${pgbAdminPass}"
-"${rdpgUser}" "${rdpgPass}"
-EOF
-
-  user chown ${pgbConfigPath}
-}
-
 psqlc() {
   local _db=${1}  ; shift
-  debug "psqlc(): db=${_db} SQL=${*}"
   if ! psql --port ${pgPort} -U ${rdpgUser} ${_db} -c "${*}"
   then echo "psqlc: ERROR: $*"
   fi

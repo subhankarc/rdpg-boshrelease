@@ -1,0 +1,2 @@
+"<%= p('pgbouncer.admin_user') %>" "<%= p('pgbouncer.admin_pass') %>"
+"<%= p('rdpg.db_user') %>" "<%= p('rdpg.db_pass') %>"
