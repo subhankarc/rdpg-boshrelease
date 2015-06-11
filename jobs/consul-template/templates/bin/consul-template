@@ -2,6 +2,19 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-echo $$ > ${pidFile}
-
-user exec ${binary} "${binaryArgs[@]}"
+action=$1 ; shift
+case ${action} in 
+  (start)
+    echo $$ > ${pidFile}
+    if ! [[ -s ${configPath}/consul.json ]]
+    then cp ${jobPath}/config/consul.json ${configPath}/consul.json
+    fi
+    user exec ${pkgPath}/bin/consul-template -config ${configPath} 
+    ;;
+  (stop)
+    send_signal TERM 
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac

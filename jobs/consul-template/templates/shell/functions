@@ -59,25 +59,3 @@ configure_job_paths() {
   fi
 }
 
-configure_consul_template() {
-  cat > ${configPath}/rdpg.json <<EOF
-consul = "127.0.0.1:${consulPort}"
-retry = "5s"
-// max-stale = "10m"
-//log-level = "warn"
-//pid-file = "${pidFile}"
-
-auth {
-  enabled = true
-  username = "${consulTemplUser}"
-  password = "${consulTemplPass}"
-}
-
-syslog {
-  enabled = true
-  facility = "LOCAL5"
-}
-EOF
-}
-
-
