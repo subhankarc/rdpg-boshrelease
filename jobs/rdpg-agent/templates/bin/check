@@ -11,15 +11,15 @@ if [[ -z ${1:-} ]] ; then fail "$0 <ha_pb_pg|pb|pg>" ; fi ; action=$1 ; shift
 case ${action} in
   (ha_pb_pg) 
     psql -U postgres -h 127.0.0.1 -p ${hapWritePort} ${rdpgDB} -t \
-      -c 'SELECT CURRENT_TIMESTAMP;'
+      -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (pb)
     psql -U postgres -h 127.0.0.1 -p ${pgbListenPort} ${rdpgDB} -t \
-      -c 'SELECT CURRENT_TIMESTAMP;'
+      -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (pg)
     psql -U postgres -h 127.0.0.1 -p ${pgPort} ${rdpgDB} -t \
-      -c 'SELECT CURRENT_TIMESTAMP;'
+      -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (*)
     fail "Unknown check action ${action}"

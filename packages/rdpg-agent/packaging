@@ -2,7 +2,7 @@
 set -e
 
 package="rdpg-agent"
-version="0.0.17"
+version="0.0.18"
 file="${package}_${version}_linux_amd64.tar.gz"
 
 mkdir -p ${BOSH_INSTALL_TARGET}/bin

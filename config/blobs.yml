@@ -123,3 +123,7 @@ consul/consul-0.5.2.zip:
   object_id: 0e1f0c12-cca3-4926-ba0f-43e5f4aa6b21
   sha: b3ae610c670fc3b81737d44724ebde969da66ebf
   size: 4803609
+rdpg-agent/rdpg-agent_0.0.18_linux_amd64.tar.gz:
+  object_id: 99143afb-4cf7-442c-bff2-af12d6f195e6
+  sha: eb38f918c6dac371e29929645eba1dcad6a3ab3f
+  size: 2264594
