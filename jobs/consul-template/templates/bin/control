@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+
 source "$(dirname $(dirname ${0}))/shell/env"
 
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in 
   (start)
     echo $$ > ${pidFile}

@@ -1,9 +1,10 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+
 # TODO: Investigate what monit_debugger was providing that we can't emit here
 source "$(dirname $(dirname ${0}))/shell/env"
 
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in 
   (start)
     if ! [[ -d ${databasePath}/base ]]

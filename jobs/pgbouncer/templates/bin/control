@@ -1,10 +1,11 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|reload|console" ; fi ; action=$1 ; shift 
+
 source "$(dirname $(dirname ${0}))/shell/env"
 
 ulimit -v unlimited
 
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop|reload|console" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
     user exec ${pkgPath}/bin/${jobName} -d ${storePath}/config/pgbouncer.ini

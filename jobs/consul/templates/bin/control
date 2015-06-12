@@ -1,5 +1,7 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+
 source "$(dirname $(dirname ${0}))/shell/env"
 
 ulimit -v unlimited
@@ -19,19 +21,16 @@ for _path in $(find $(dirname ${storePath}) -type d -name consul)
 do binaryArgs+=(-config-dir ${_path})
 done
 
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
     ( 
-    user exec ${pkgPath}/bin/${jobName} agent \
+    user exec ${pkgPath}/bin/consul agent \
       -server \
       -bootstrap-expect ${#consulNodes[@]} \
       -pid-file "${pidFile}" \
       -data-dir "${storePath}" \
       -config-dir "${jobPath}/config" ${binaryArgs[@]}
     ) &
-    sleep 1
-    cat ${pidFile}
     # TODO: Instead of using sleep, how do we test if the consul server is ready 
     #       to process joins?
     sleep 4
