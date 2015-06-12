@@ -1,0 +1,14 @@
+{
+  "watches": [
+  {
+    "type": "service",
+    "service": "haproxy",
+    "handler": "/var/vcap/jobs/rdpg-agent/bin/consul-watch-notification"
+  },
+  {
+    "type": "service",
+    "service": "postgres",
+    "handler": "/var/vcap/jobs/rdpg-agent/bin/consul-watch-notification"
+  }
+  ]
+}

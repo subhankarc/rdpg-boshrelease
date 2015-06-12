@@ -22,20 +22,19 @@ done
 if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
-    echo $$ > ${pidFile}
     ( 
-    user run ${pkgPath}/bin/${jobName} agent \
+    user exec ${pkgPath}/bin/${jobName} agent \
       -server \
       -bootstrap-expect ${#consulNodes[@]} \
       -pid-file "${pidFile}" \
       -data-dir "${storePath}" \
       -config-dir "${jobPath}/config" ${binaryArgs[@]}
     ) &
-
+    sleep 1
+    cat ${pidFile}
     # TODO: Instead of using sleep, how do we test if the consul server is ready 
     #       to process joins?
-    sleep 3
-
+    sleep 4
     user exec ${pkgPath}/bin/consul join "${consulNodes[@]}"
     ;;
   (stop)

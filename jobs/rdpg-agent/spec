@@ -1,5 +1,5 @@
 ---
-name: rdpg
+name: rdpg-agent
 packages:
 - bash-4.3
 - rdpg-agent
@@ -16,41 +16,41 @@ templates:
   config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
   config/pgbouncer/users: config/pgbouncer/users
 properties:
-  rdpg.debug:
+  rdpg_agent.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: "false"
-  rdpg.nodes:
+  rdpg_agent.nodes:
     description: "List of all BDR Node IP Addresses (must be set in manifest)."
-  rdpg.db_name:
+  rdpg_agent.db_name:
     description: "management databse name (Can be overridden in manifest)."
     default: "rdpg"
-  rdpg.db_user:
+  rdpg_agent.db_user:
     description: "management database user (Can be overridden in manifest)."
     default: "postgres"
-  rdpg.db_pass:
+  rdpg_agent.db_pass:
     description: "management database password. (Can be overridden in manifest)."
     default: "admin"
-  rdpg.agent_log_level:
+  rdpg_agent.log_level:
     description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
     default: "error"
-  rdpg.agent_admin_port:
+  rdpg_agent.admin_port:
     description: "RDPG Agent Admin Port"
     default: "58888"
-  rdpg.agent_admin_user:
+  rdpg_agent.admin_user:
     description: "RDPG Agent Admin User"
     default: "rdpg"
-  rdpg.agent_admin_pass:
+  rdpg_agent.admin_pass:
     description: "RDPG Agent Admin Pass"
     default: "admin"
-  rdpg.agent_admin_pg_uri:
+  rdpg_agent.admin_pg_uri:
     description: "RDPG Agent Admin Database PG URI"
     default: "postgresql://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpg-agent"
-  rdpg.agent_sb_port:
+  rdpg_agent.sb_port:
     description: "RDPG Agent CF SB Port"
     default: "8888"
-  rdpg.agent_sb_user:
+  rdpg_agent.sb_user:
     description: "RDPG Agent CF SB User"
     default: "cfadmin"
-  rdpg.agent_sb_pass:
+  rdpg_agent.sb_pass:
     description: "RDPG Agent CF SB Pass"
     default: "cfadmin"

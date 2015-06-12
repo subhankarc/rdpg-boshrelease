@@ -2,29 +2,25 @@
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-set_pid
-if (( ${pid} == 0 )) ; then echo $$ > ${pidFile} ; fi
-
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|init" ; fi ; action=$1 ; shift 
 case ${action} in
   (start)
-    # TODO: Move pg_hba.conf configuration into here?
-    initialize_rdpg_db
+    echo $$ > ${pidFile}
 
-    # Configure Initial HAProxy:
-    configure_haproxy
+    initialize_rdpg_db # TODO: Move pg_hba.conf configuration into here?
+
+    configure_initial_haproxy
 
     while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
     do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
     done
 
-    /var/vcap/bosh/bin/monit restart consul
+    kill -HUP $(</var/vcap/sys/run/consul/consul.pid)
 
     register_write_master
 
-    if (( ${vmIndex} == 0 ))
-    then # TODO: Also only need to run this the first time
-      ${pkgPath}-agent/bin/rdpg-agent init
+    if (( ${vmIndex} == 0 )) # TODO: Also only need to run this the first time
+    then ${pkgPath}-agent/bin/rdpg-agent init
     fi
 
     exec ${pkgPath}-agent/bin/rdpg-agent

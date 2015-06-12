@@ -40,7 +40,7 @@ jobs:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
-      rdpg:
+      rdpg_agent:
         debug: "true"
         agent_log_level: "trace"
         nodes:

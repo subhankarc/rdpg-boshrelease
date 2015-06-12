@@ -7,7 +7,7 @@
     "interval": "10s",
     "Check":
     {
-      "script": "/var/vcap/jobs/rdpg/bin/check ha_pb_pg",
+      "script": "/var/vcap/jobs/rdpg-agent/bin/check ha_pb_pg",
       "Interval": "10s"
     }
   },
@@ -18,7 +18,7 @@
     "interval": "10s",
     "Check":
     {
-      "script": "/var/vcap/jobs/rdpg/bin/check pb",
+      "script": "/var/vcap/jobs/rdpg-agent/bin/check pb",
       "Interval": "10s"
     }
   },
@@ -29,7 +29,7 @@
     "interval": "10s",
     "Check":
     {
-      "script": "/var/vcap/jobs/rdpg/bin/check pg",
+      "script": "/var/vcap/jobs/rdpg-agent/bin/check pg",
       "Interval": "10s"
     }
   }]

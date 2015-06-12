@@ -67,7 +67,7 @@ register_write_master() {
   fi
 }
 
-configure_haproxy() {
+configure_initial_haproxy() {
   # TODO: Migrate this into rdpg-agent similar to pgbouncer
   # TODO: Add query to consul to determine write-master and adjust based on this.
   writeMasterIP="${nodes[0]}"
