@@ -7,7 +7,7 @@ packages:
 - zlib
 - socat
 templates:
-  bin/haproxy:        bin/haproxy
+  bin/control:        bin/control
   shell/env:          shell/env
   shell/functions:    shell/functions
   config/haproxy.cfg: config/haproxy.cfg

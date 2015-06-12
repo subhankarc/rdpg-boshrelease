@@ -15,5 +15,5 @@ syslog {
 template {
 	source = "/var/vcap/jobs/haproxy/config/haproxy.cfg.ctmpl"
 	destination = "/var/vcap/jobs/haproxy/config/haproxy.cfg"
-	command = "/var/vcap/jobs/haproxy/bin/haproxy reload"
+	command = "/var/vcap/jobs/haproxy/bin/control reload"
 }

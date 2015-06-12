@@ -75,8 +75,6 @@ configure_haproxy() {
   hapConfigFile="/var/vcap/jobs/haproxy/config/haproxy.cfg"
   hapConfigTmpl="/var/vcap/jobs/haproxy/config/haproxy.cfg.ctmpl"
 
-  cp ${jobPath}
-
   if ! [[ -s ${hapConfigFile} ]]
   then 
     cp ${hapConfigTmpl} ${hapConfigFile}
@@ -190,14 +188,14 @@ initialize_rdpg_db() {
   then # First Node
     sql="SELECT bdr.bdr_group_create( 
     local_node_name := '${vmName}${vmIndex}',
-    node_external_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
+    node_external_dsn := 'host=${nodes[0]} port=${pgPort} user=${rdpgUser} dbname=${rdpgDB}'
     ); 
     "
   else # Subsequent Nodes
     sql="SELECT bdr.bdr_group_join( 
     local_node_name := '${vmName}${vmIndex}',
-    node_external_dsn := 'host=${nodes[${vmIndex}]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}',
-    join_using_dsn := 'host=${nodes[0]} port=${pgbdrPort} user=${rdpgUser} dbname=${rdpgDB}'
+    node_external_dsn := 'host=${nodes[${vmIndex}]} port=${pgPort} user=${rdpgUser} dbname=${rdpgDB}',
+    join_using_dsn := 'host=${nodes[0]} port=${pgPort} user=${rdpgUser} dbname=${rdpgDB}'
     ); 
     "
 

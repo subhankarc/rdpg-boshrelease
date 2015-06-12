@@ -20,7 +20,7 @@ jobs:
     properties:
       pgbdr:
         debug: "true"
-        hba: |
+        hba_config: |+
           host    replication   postgres 10.0.2.15/32  trust
           host    all           postgres 10.0.2.15/32  trust
         max_connections: "100"

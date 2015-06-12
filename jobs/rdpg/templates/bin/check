@@ -15,7 +15,7 @@ case ${action} in
       -c 'SELECT CURRENT_TIMESTAMP;'
     ;;
   (pg)
-    psql -U postgres -h 127.0.0.1 -p ${pgbdrPort} ${rdpgDB} -t \
+    psql -U postgres -h 127.0.0.1 -p ${pgPort} ${rdpgDB} -t \
       -c 'SELECT CURRENT_TIMESTAMP;'
     ;;
   (*)

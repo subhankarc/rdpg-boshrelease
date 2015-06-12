@@ -23,7 +23,8 @@ jobs:
     properties:
       pgbdr:
         #debug: "true"
-        hba: ""
+        hba_config: |+
+          # Any custom pg_hba.conf lines go here...
         max_connections: "2000"
         shared_buffers: "512MB"
         effective_cache_size: "1536MB"

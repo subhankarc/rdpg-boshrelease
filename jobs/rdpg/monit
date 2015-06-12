@@ -1,5 +1,5 @@
 check process rdpg
   with pidfile /var/vcap/sys/run/rdpg/rdpg.pid
-  start program "/var/vcap/jobs/rdpg/bin/rdpg start" with timeout 30 seconds
-  stop program "/var/vcap/jobs/rdpg/bin/rdpg stop"
+  start program "/var/vcap/jobs/rdpg/bin/control start" with timeout 30 seconds
+  stop program "/var/vcap/jobs/rdpg/bin/control stop"
   group vcap

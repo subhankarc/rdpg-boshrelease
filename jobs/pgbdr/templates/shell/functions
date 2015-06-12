@@ -44,7 +44,7 @@ configure_job_paths() {
     "${jobRunPath}"
     "${jobLogPath}"
     "${jobTmpPath}"
-    "${jobStorePath}"
+    "${storePath}"
   )
 
   for _path in "${_paths[@]}"

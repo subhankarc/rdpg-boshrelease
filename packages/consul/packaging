@@ -2,7 +2,7 @@
 set -e
 
 package="consul"
-version="0.5.0"
+version="0.5.2"
 file="${package}-${version}.zip"
 
 mkdir -p ${BOSH_INSTALL_TARGET}/bin

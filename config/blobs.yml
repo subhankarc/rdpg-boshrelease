@@ -119,3 +119,7 @@ rdpg-agent/rdpg-agent_0.0.17_linux_amd64.tar.gz:
   object_id: eee6fdd3-ee15-4236-91c6-e378eda48df3
   sha: 8c7c7056b788435fdcb9556db9c9a3812cd29a71
   size: 2263949
+consul/consul-0.5.2.zip:
+  object_id: 0e1f0c12-cca3-4926-ba0f-43e5f4aa6b21
+  sha: b3ae610c670fc3b81737d44724ebde969da66ebf
+  size: 4803609

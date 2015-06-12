@@ -3,7 +3,7 @@ name: consul-template
 packages:
 - consul-template
 templates:
-  bin/consul-template: bin/consul-template
+  bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/consul.json: config/consul.json

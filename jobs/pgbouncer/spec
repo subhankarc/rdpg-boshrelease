@@ -5,7 +5,7 @@ packages:
 - libevent
 - pgbouncer
 templates:
-  bin/pgbouncer: bin/pgbouncer
+  bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/pgbouncer.ini: config/pgbouncer.ini
@@ -20,7 +20,7 @@ properties:
   pgbouncer.listen_port:
     description: "pgbouncer administration listen port."
     default: "6432"
-  pgbouncer.admin_users:
+  pgbouncer.admin_user:
     description: "pgbouncer administration user name."
     default: "pgbadmin"
   pgbouncer.admin_pass:

@@ -1,5 +1,5 @@
 check process consul
   with pidfile /var/vcap/sys/run/consul/consul.pid
-  start program "/var/vcap/jobs/consul/bin/consul start" with timeout 30 seconds
-  stop program "/var/vcap/jobs/consul/bin/consul stop"
+  start program "/var/vcap/jobs/consul/bin/control start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/consul/bin/control stop"
   group vcap

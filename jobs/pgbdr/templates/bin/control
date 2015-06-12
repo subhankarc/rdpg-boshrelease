@@ -9,20 +9,21 @@ case ${action} in
     if ! [[ -d ${databasePath}/base ]]
     then # Initialize the database if it has not already been initialized
       rm -rf ${databasePath} # Clean up any previously failed attempts.
-      user chown ${jobStorePath}
-      pushd ${jobStorePath}
-      HOME=${jobStorePath} chpst -u ${userName}:${groupName} \"
-      ${pgbdrPkgPath}/bin/initdb -E UTF8 --local "en_US.UTF-8" -D ${databasePath}
+      user chown ${storePath}
+      pushd ${storePath}
+      HOME=${storePath} chpst -u ${userName}:${groupName} \
+        ${pgbdrPkgPath}/bin/initdb -E UTF8 --local "en_US.UTF-8" \
+        -D ${databasePath}
       popd
     fi
 
-    user chown ${jobStorePath}
+    user chown ${storePath}
 
     ulimit -v unlimited
 
     cat ${jobPath}/config/postgresql.conf > ${databasePath}/postgresql.conf
     cat ${jobPath}/config/pg_hba.conf > ${databasePath}/pg_hba.conf
-    user chown ${jobStorePath}
+    user chown ${storePath}
     chmod 0640 ${databasePath}/*.conf
 
     user exec ${pgbdrPkgPath}/bin/pg_ctl start -D ${databasePath} -s -t 300

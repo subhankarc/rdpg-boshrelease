@@ -4,7 +4,7 @@ packages:
 - consul
 - consul-ui
 templates:
-  bin/consul: bin/consul
+  bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/agent.json.erb: config/agent.json

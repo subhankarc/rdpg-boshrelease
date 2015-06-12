@@ -1,5 +1,5 @@
 check process pgbouncer
   with pidfile /var/vcap/sys/run/pgbouncer/pgbouncer.pid
-  start program "/var/vcap/jobs/pgbouncer/bin/pgbouncer start" with timeout 30 seconds
-  stop program "/var/vcap/jobs/pgbouncer/bin/pgbouncer stop"
+  start program "/var/vcap/jobs/pgbouncer/bin/control start" with timeout 30 seconds
+  stop program "/var/vcap/jobs/pgbouncer/bin/control stop"
   group vcap

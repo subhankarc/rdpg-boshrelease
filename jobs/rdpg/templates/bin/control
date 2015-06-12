@@ -11,31 +11,14 @@ case ${action} in
     # TODO: Move pg_hba.conf configuration into here?
     initialize_rdpg_db
 
-    # Configure initial databases for pgbouncer:
-    configure_pgbouncer
-
     # Configure Initial HAProxy:
     configure_haproxy
-
-    # Configure Consul:
-    configure_consul
-
-    while ! [[ -s ${storePath}/consul/rdpg-services.json ]]
-    do sleep 1 # Wait for consul service configuration file to drop
-    done
-
-    /var/vcap/bosh/bin/monit restart consul
-
-    while ! [[ -s /var/vcap/jobs/consul-template/config/rdpg.json ]]
-    do sleep 1 # Wait for consul-template rdpg config file to drop.
-    done
-
-    # Configure Consul Template:
-    configure_consul_template
 
     while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
     do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
     done
+
+    /var/vcap/bosh/bin/monit restart consul
 
     register_write_master
 
