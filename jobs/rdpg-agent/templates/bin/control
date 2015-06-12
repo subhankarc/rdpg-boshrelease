@@ -20,17 +20,17 @@ case ${action} in
     register_write_master
 
     if (( ${vmIndex} == 0 )) # TODO: Also only need to run this the first time
-    then ${pkgPath}-agent/bin/rdpg-agent init
+    then ${pkgPath}/bin/rdpg-agent init
     fi
 
-    exec ${pkgPath}-agent/bin/rdpg-agent
+    exec ${pkgPath}/bin/rdpg-agent
     ;;
   (stop)
     send_signal TERM 
     exit 0
     ;;
   (init)
-    ${pkgPath}-agent/bin/rdpg-agent init
+    ${pkgPath}/bin/rdpg-agent init
     ;;
   (*)
     fail "Unknown action ${action}"
