@@ -1,6 +1,7 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
-source "$(dirname $(dirname ${0}))/shell/env"
+rdpgDB="<%= p('rdpg_agent.db_name') %>"
+nodeName="${deploymentName}-${vmName}-${vmIndex}"
 
 while IFS= read -r line
 do

@@ -1,6 +1,9 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
-source "$(dirname $(dirname ${0}))/shell/env"
+pgPort="<%= p('pgbdr.port') %>"
+rdpgDB="<%= p('rdpg_agent.db_name') %>"
+pgbListenPort="<%= p('pgbouncer.listen_port').to_s %>"
+hapWritePort="<%= p('haproxy.write_port').to_s %>"
 
 export PGPASSFILE="/home/vcap/.pgpass"
 
