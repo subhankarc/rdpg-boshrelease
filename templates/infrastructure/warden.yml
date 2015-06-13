@@ -35,14 +35,15 @@ jobs:
       pgbouncer:
         debug: "true"
         admin_pass: "rdpgadmin"
-      consul: {}
+      consul:
+        debug: "true"
       haproxy:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
       rdpg_agent:
         debug: "true"
-        agent_log_level: "trace"
+        log_level: "trace"
         nodes:
           - 10.244.2.2
           - 10.244.2.6
@@ -59,11 +60,11 @@ compilation:
     name: random
 
 resource_pools:
-  - name: pool_z1
+  - name: cluster_a
     cloud_properties:
       name: random
 
-  - name: errand_z1
+  - name: errand_a
     cloud_properties:
       name: random
 

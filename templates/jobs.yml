@@ -1,19 +1,16 @@
 meta:
   environment: ~
 
-update:
-  canaries: 1
-  max_in_flight: 50
-  canary_watch_time: 1000-30000
-  update_watch_time: 1000-30000
-  serial: false
+networks: ((merge))
+
+properties: ((merge))
 
 jobs:
   - name: rdpg
 
     instances: 5
 
-    resource_pool: pool_z1
+    resource_pool: cluster_a
     networks: (( merge ))
     persistent_disk: 65536
     update:
@@ -40,9 +37,6 @@ jobs:
     - name: acceptance-tests
     instances: 1
     lifecycle: errand
-    resource_pool: errand_z1
+    resource_pool: errand_a
     networks: (( merge ))
 
-networks: ((merge))
-
-properties: ((merge))

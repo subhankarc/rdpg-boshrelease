@@ -7,7 +7,7 @@ source "$(dirname $(dirname ${0}))/shell/env"
 ulimit -v unlimited
 
 if (( $UID == 0 ))
-then setcap cap_net_bind_service=+ep $(readlink -nf ${pkgPath}/bin/${jobName})
+then setcap cap_net_bind_service=+ep $(readlink -nf ${pkgPath}/bin/consul)
 fi
 
 user chown ${storePath}
@@ -16,9 +16,9 @@ if ! grep -q 127.0.0.1 /etc/resolv.conf
 then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
 fi
 
-binaryArgs=()
+args=()
 for _path in $(find $(dirname ${storePath}) -type d -name consul)
-do binaryArgs+=(-config-dir ${_path})
+do args+=(-config-dir ${_path})
 done
 
 case ${action} in
@@ -26,15 +26,15 @@ case ${action} in
     ( 
     user exec ${pkgPath}/bin/consul agent \
       -server \
-      -bootstrap-expect ${#consulNodes[@]} \
+      -bootstrap-expect ${#nodes[@]} \
       -pid-file "${pidFile}" \
       -data-dir "${storePath}" \
-      -config-dir "${jobPath}/config" ${binaryArgs[@]}
+      -config-dir "${jobPath}/config" ${args[@]}
     ) &
     # TODO: Instead of using sleep, how do we test if the consul server is ready 
     #       to process joins?
     sleep 4
-    user exec ${pkgPath}/bin/consul join "${consulNodes[@]}"
+    user exec ${pkgPath}/bin/consul join "${nodes[@]}"
     ;;
   (stop)
     ${jobPath}/bin/consul leave

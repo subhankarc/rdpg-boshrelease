@@ -19,7 +19,7 @@ echo -e "$(date +'%Y-%m-%dT%H:%M:%S') $(whoami) > $0 $*"
 
 source /var/vcap/jobs/${jobName}/shell/functions
 
-<% if p('pgbdr.debug') == "true" %>turn_debugging_on<% end %>
+<% if p('haproxy.debug') == "true" %>turn_debugging_on<% end %>
 
 jobPath="/var/vcap/jobs/${jobName}"
 pkgPath="/var/vcap/packages/${jobName}"
@@ -39,16 +39,6 @@ export LANG HOME LD_LIBRARY_PATH
 add_packages_to_path
 
 configure_job_paths
-
-haproxySSLPem="<%= p('haproxy.ssl_pem','') %>"
-haproxySSLCiphers="<%= p('ha_proxy.ssl_ciphers') %>"
-
-if [[ -n "${haproxySSLPem}" ]]
-then 
-  echo "${haproxySSLPem}" > ${jobPath}/config/cert.pem
-  user chown ${jobPath}/config/cert.pem
-  chmod 0600 ${jobPath}/config/cert.pem
-fi
 
 set_pid
 

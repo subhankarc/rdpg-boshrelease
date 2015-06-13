@@ -11,6 +11,7 @@ templates:
   shell/env:          shell/env
   shell/functions:    shell/functions
   config/haproxy.cfg: config/haproxy.cfg
+  config/ssl.pem:     config/ssl.pem
 properties:
   haproxy.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."

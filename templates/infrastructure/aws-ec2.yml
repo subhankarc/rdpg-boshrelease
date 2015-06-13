@@ -12,7 +12,7 @@ meta:
 jobs:
   - name: rdpg
 
-    resource_pool: pool_z1
+    resource_pool: cluster_a
     persistent_disk: (( meta.persistent_disk ))
 
     networks:
@@ -22,9 +22,9 @@ jobs:
 
     properties:
       pgbdr:
-        #debug: "true"
+        debug: "false"
         hba_config: |+
-          # Any custom pg_hba.conf lines go here...
+        # Any custom pg_hba.conf lines go here...
         max_connections: "2000"
         shared_buffers: "512MB"
         effective_cache_size: "1536MB"
@@ -35,15 +35,17 @@ jobs:
         wal_buffers: "16MB"
         default_statistics_target: "100"
       pgbouncer:
-        #debug: "true"
+        debug: "false"
         admin_pass: "rdpgadmin"
-      consul: {}
-        #debug: "true"
+      consul:
+        debug: "false"
       haproxy:
-        admin_user: rdpghaadmin
-        admin_pass: Changeme123
+        admin_user: haproxyadmin
+        admin_pass: pleasechangethis
         admin_port: 9999
-      rdpg:
+      rdpg_agent:
+        debug: "false"
+        log_level: "info"
         nodes:
           - 10.10.1.10
           - 10.10.1.11
@@ -56,20 +58,18 @@ jobs:
       - name: rdpg
         default: [dns, gateway]
 
-
 compilation:
   cloud_properties:
     instance_type: m1.small
 
 resource_pools:
-  - name: pool_z1
+  - name: cluster_a
     cloud_properties:
-      instance_type: m1.small
+      instance_type: m3.medium
 
-  - name: errand_z1
+  - name: errand_a
     cloud_properties:
-      instance_type: m1.small
-
+      instance_type: m3.small
 
 networks:
   - name: rdpg
