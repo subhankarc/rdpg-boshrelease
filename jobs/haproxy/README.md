@@ -1,5 +1,8 @@
 # haproxy BOSH Service Job
 
+The haproxy BOSH Job is intended to get a basic configuration of 
+`haproxy` running on the host.
+
 This job is for running HAProxy with a minimal configuration with the intent 
 that another sytem will reconfigure it (eg. consul-template)
 

@@ -1,5 +1,8 @@
 # consul BOSH Service Job
 
+The consul BOSH Job is intended to get a basic configuration of 
+`consul` running on the host.
+
 [Official BOSH Release Documentation](http://bosh.io/docs/create-release.html)
 
 What follows is an explanation about the pieces contained within this BOSH job

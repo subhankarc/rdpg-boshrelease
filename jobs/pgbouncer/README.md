@@ -1,5 +1,8 @@
 # pgbouncer BOSH Service Job
 
+The pgbouncer BOSH Job is intended to get a basic configuration of 
+`pgbouncer` running on the host.
+
 [Official BOSH Release Documentation](http://bosh.io/docs/create-release.html)
 
 What follows is an explanation about the pieces contained within this BOSH job
