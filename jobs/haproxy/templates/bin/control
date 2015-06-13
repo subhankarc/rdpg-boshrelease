@@ -7,18 +7,18 @@ source "$(dirname $(dirname ${0}))/shell/env"
 case ${action} in
   (start)
     if (( ${pid:-0} > 0 )) && [[ -d /proc/${pid:-a} ]]
-    then 
-      echo "haproxy already running with pid ${pidFile}"
-      exit 0
+    then echo "haproxy already running with pid ${pidFile}" ; exit 0
     fi
-    exec ${pkgPath}/bin/haproxy -f "${configFile}" -p "${pidFile}" -D
+    exec ${pkgPath}/bin/haproxy \
+      -f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -D
     ;;
   (stop)
     send_signal TERM 
     ;;
   (reload)
     if (( ${pid:-0} > 0 ))
-    then exec ${pkgPath}/bin/haproxy -f "${configFile}" -p "${pidFile}" -sf ${pid}
+    then exec ${pkgPath}/bin/haproxy \
+      -f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -sf ${pid}
     fi
     ;;
   (*)

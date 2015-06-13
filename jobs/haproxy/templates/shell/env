@@ -26,8 +26,6 @@ pkgPath="/var/vcap/packages/${jobName}"
 runPath="/var/vcap/sys/run/${jobName}"
 tmpPath="/var/vcap/sys/tmp/${jobName}"
 storePath="/var/vcap/store/${jobName}"
-configFile="${jobPath}/config/haproxy.cfg"
-configTmpl="${jobPath}/config/haproxy.cfg.ctmpl"
 
 userName="root"
 groupName="root"
