@@ -17,10 +17,10 @@ then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
 fi
 
 args=()
-for _path in $(ls -ld /var/vcap/jobs/*/config/* | awk '/config\/consul$/')
+for _path in $(ls -d /var/vcap/jobs/*/config/* | awk '/config\/consul$/')
 do args+=(-config-dir ${_path})
 done
-for _path in $(ls -ld /var/vcap/store/*/config/* | awk '/config\/consul$/')
+for _path in $(ls -d /var/vcap/store/*/config/* | awk '/config\/consul$/')
 do args+=(-config-dir ${_path})
 done
 
