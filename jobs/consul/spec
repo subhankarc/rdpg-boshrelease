@@ -7,7 +7,7 @@ templates:
   bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
-  config/agent.json.erb: config/agent.json
+  config/agent.json: config/agent.json
   config/ca.crt: config/ca.crt
   config/consul.crt: config/consul.crt
   config/consul.key: config/consul.key

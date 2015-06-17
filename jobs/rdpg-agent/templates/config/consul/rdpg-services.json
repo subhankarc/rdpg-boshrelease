@@ -3,7 +3,7 @@
   {
     "id": "rdpg-haproxy",
     "name": "haproxy",
-    "port": "<%= p('haproxy.write_port') %>",
+    "port": <%= p('haproxy.write_port') %>,
     "interval": "10s",
     "Check":
     {
@@ -14,7 +14,7 @@
   {
     "id": "rdpg-pgbouncer",
     "name": "pgbouncer",
-    "port": "<%= p('pgbouncer.listen_port') %>",
+    "port": <%= p('pgbouncer.listen_port') %>,
     "interval": "10s",
     "Check":
     {
@@ -25,7 +25,7 @@
   {
     "id": "rdpg-pgbdr",
     "name": "postgres",
-    "port": "<%= p('pgbdr.port') %>",
+    "port": <%= p('pgbdr.port') %>,
     "interval": "10s",
     "Check":
     {
