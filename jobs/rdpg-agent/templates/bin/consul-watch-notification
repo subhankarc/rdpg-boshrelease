@@ -2,10 +2,11 @@
 
 nodeName="<%= spec.deployment %>-<%= name %>-<%= index %>"
 rdpgDB="<%= p('rdpg_agent.db_name') %>"
+pgbdrPort="<%= p('pgbdr.port') %>"
 
 while IFS= read -r line
 do
-  /var/vcap/packages/pgbdr/bin/psql -U postgres -h 127.0.0.1 ${rdpgDB} \
-    -c "INSERT INTO rdpg.watch_notifications (node,raw) VALUES ( '${nodeName}', \$\$${line}\$\$); "
+  /var/vcap/packages/pgbdr/bin/psql -U postgres -h 127.0.0.1 -p ${pgbdrPort} ${rdpgDB} \
+    -c "INSERT INTO rdpg.events (node,msg) VALUES ( '${nodeName}', \$\$${line}\$\$); "
 done
 
