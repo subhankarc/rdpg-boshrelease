@@ -40,7 +40,7 @@ case ${action} in
     user exec ${pkgPath}/bin/consul join "${nodes[@]}"
     ;;
   (stop)
-    ${jobPath}/bin/consul leave
+    ${pkgPath}/bin/consul leave
     send_signal TERM
     ;;
   (*)
