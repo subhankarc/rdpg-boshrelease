@@ -10,8 +10,6 @@
   client_addr = p('consul.client_addr', '0.0.0.0')
 
   config = {
-  	<%= (name == "manager" && index == 0) ? "bootstrap: true," : "bootstrap: false," %>
-  	<%= if (name != "manager" || index > 0) %>start_join: ["<%= p('consul.join_node') %>"]<% end %>
     server: true,
     data_dir: '/var/vcap/store/consul',
     ui_dir: '/var/vcap/packages/consul-ui',
@@ -30,6 +28,8 @@
       dns: 53
     }
   }
+	(name == "manager" && index == 0)  ?  config["bootstrap"] = true : config["bootstrap"] = false
+	config["tart_join"] = p('consul.join_node') if (name != "manager" || index > 0) 
 
   ssl_ca = p("consul.ssl_ca", nil)
   ssl_cert = p("consul.ssl_crt", nil)

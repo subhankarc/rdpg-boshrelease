@@ -5,22 +5,12 @@ packages:
 - rdpgd
 templates:
   bin/control: bin/control
-  bin/check: bin/check
-  bin/consul-watch-notification: bin/consul-watch-notification
   shell/env.erb: shell/env
   shell/functions: shell/functions
-  config/consul/rdpg-services.json: config/consul/rdpg-services.json
-  config/consul/rdpg-watches.json: config/consul/rdpg-watches.json
-  config/haproxy/haproxy.cfg: config/haproxy/haproxy.cfg
-  config/haproxy/haproxy.cfg.header: config/haproxy/haproxy.cfg.header
-  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
-  config/pgbouncer/users: config/pgbouncer/users
 properties:
   rdpg_manager.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: "false"
-  rdpg_manager.nodes:
-    description: "List of all BDR Node IP Addresses (must be set in manifest)."
   rdpg_manager.db_name:
     description: "management databse name (Can be overridden in manifest)."
     default: "rdpg"

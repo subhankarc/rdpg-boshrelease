@@ -21,7 +21,7 @@ compilation:
   cloud_properties: (( merge ))
 
 update:
-  canaries: 1
+  canaries: 2
   max_in_flight: 4
   canary_watch_time: 3000-120000
   update_watch_time: 3000-120000

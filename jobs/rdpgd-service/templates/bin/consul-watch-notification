@@ -1,7 +1,7 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
 nodeName="<%= spec.deployment %>-<%= name %>-<%= index %>"
-rdpgDB="<%= p('rdpg_agent.db_name') %>"
+rdpgDB="<%= p('rdpg_service.db_name') %>"
 pgbdrPort="<%= p('pgbdr.port') %>"
 
 while IFS= read -r line

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 package="rdpgd"
-version="0.0.20"
+version="0.1.1"
 file="${package}_${version}_linux_amd64.tar.gz"
 url="https://github.com/wayneeseguin/rdpgd/releases/download/${version}/rdpgd_${version}_linux_amd64.tar.gz"
 
