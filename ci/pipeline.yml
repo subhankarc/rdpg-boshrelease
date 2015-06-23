@@ -1,10 +1,26 @@
 jobs:
+- name: rc
+  public: true
+  plan:
+  - get: boshrelease
+    resource: git-rdpg-boshrelease
+    trigger: true
+  - get: version
+    trigger: true
+    params: {bump: patch, pre: rc}
+  - put: version
+    params: {file: version/number}
+
 - name: deploy
   public: true
   serial: true
   plan:
+  - get: version
+    passed: [rc]
+    trigger: true
   - get: boshrelease
     resource: git-rdpg-boshrelease
+    passed: [rc]
     trigger: true
   - task: create-release-and-deploy
     config:
@@ -35,6 +51,15 @@ jobs:
         bosh_password: {{bosh-lite-build-password}}
 
 resources:
+- name: version
+  type: semver
+  source:
+    key: current-version
+    bucket: {{aws-pipeline-bucket}}
+    access_key_id: {{aws-access-key-id}}
+    secret_access_key: {{aws-secret-access-key}}
+    initial_version: 0.1.0
+
 - name: git-rdpg-boshrelease
   type: git
   source:
