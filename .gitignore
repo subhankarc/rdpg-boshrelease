@@ -23,3 +23,4 @@ manifests/*
 stemcells/*
 tmp/
 releases/rdpg/*.tgz
+credentials.yml
