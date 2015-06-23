@@ -27,8 +27,12 @@ jobs:
       inputs:
         - {name: create-release-and-deploy, path: .}
       run:
-        path: bosh
-        args: [-t, {{bosh-lite-build-target}}, -u, {{bosh-lite-build-username}}, -p, {{bosh-lite-build-password}}, -d, "rdpg-boshrelease/manifests/rdpg-build-manifest.yml", run, errand, acceptance_tests]
+        path: ./rdpg-boshrelease/ci/scripts/acceptance_tests.sh
+        args: []
+      params:
+        bosh_target: {{bosh-lite-build-target}}
+        bosh_username: {{bosh-lite-build-username}}
+        bosh_password: {{bosh-lite-build-password}}
 
 resources:
 - name: git-rdpg-boshrelease
