@@ -19,7 +19,9 @@ dev_releases/
 my*.yml
 releases/*.tgz
 src/*
+!src/.gitkeep
 manifests/*
 stemcells/*
 tmp/
 releases/rdpg/*.tgz
+credentials.yml

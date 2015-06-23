@@ -10,4 +10,10 @@ builds:
     version: 0.0.6
   710f9283-62e5-4c21-b05e-f480c8ce4340:
     version: 0.0.7
+  d2722dfb-3e50-44f2-9b1f-a566e49a17e5:
+    version: 0.1.1-rc.7
+  d99765cf-988e-4505-b84b-b76159bb34ca:
+    version: 0.1.1-rc.8
+  a6620788-f5f5-4521-a5fd-1e7e80d772fd:
+    version: 0.1.1
 format-version: '2'

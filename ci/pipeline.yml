@@ -1,0 +1,124 @@
+jobs:
+- name: rc
+  public: true
+  plan:
+  - aggregate:
+    - get: boshrelease
+      resource: git-rdpg-boshrelease
+      trigger: true
+    - get: version
+      trigger: true
+      params: {bump: patch, pre: rc}
+  - put: version
+    params: {file: version/number}
+
+- name: deploy
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: version
+      passed: [rc]
+      trigger: true
+    - get: boshrelease
+      resource: git-rdpg-boshrelease
+      passed: [rc]
+      trigger: true
+  - task: create-release-and-deploy
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+      - {name: boshrelease, path: rdpg-boshrelease}
+      run:
+        path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy.sh
+        args: []
+      params:
+        bosh_target: {{bosh-lite-build-target}}
+        bosh_username: {{bosh-lite-build-username}}
+        bosh_password: {{bosh-lite-build-password}}
+        bosh_deployment_name: {{bosh-lite-build-deployment-name}}
+  - task: bosh-run-errand-acceptance-tests
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+        - {name: create-release-and-deploy, path: .}
+      run:
+        path: ./rdpg-boshrelease/ci/scripts/acceptance_tests.sh
+        args: []
+      params:
+        bosh_target: {{bosh-lite-build-target}}
+        bosh_username: {{bosh-lite-build-username}}
+        bosh_password: {{bosh-lite-build-password}}
+
+- name: shipit
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: version
+      passed: [deploy]
+      params: {bump: final}
+    - get: boshrelease
+      resource: git-rdpg-boshrelease
+      passed: [deploy]
+  - task: create-final-release
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+      - {name: boshrelease, path: rdpg-boshrelease}
+      - {name: version}
+      run:
+        path: ./rdpg-boshrelease/ci/scripts/shipit.sh
+        args: []
+      params:
+        bosh_target: {{bosh-lite-build-target}}
+        bosh_username: {{bosh-lite-build-username}}
+        bosh_password: {{bosh-lite-build-password}}
+        bosh_deployment_name: {{bosh-lite-build-deployment-name}}
+        aws_access_key_id: {{boshrelease-aws-access-key-id}}
+        aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
+        promotion_branch: {{pipeline-branch}}
+  - aggregate:
+    - put: version
+      params: {file: version/number}
+    - put: git-rdpg-boshrelease-master
+      params:
+        repository: create-final-release/rdpg-boshrelease
+        tag: version/number
+        tag_prefix: v
+    - put: final-release
+      params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
+
+resources:
+- name: version
+  type: semver
+  source:
+    key: current-version
+    bucket: {{pipeline-aws-bucket}}
+    access_key_id: {{pipeline-aws-access-key-id}}
+    secret_access_key: {{pipeline-aws-secret-access-key}}
+    initial_version: 0.1.0
+
+- name: git-rdpg-boshrelease
+  type: git
+  source:
+    uri: {{pipeline-git-repo}}
+    branch: {{pipeline-branch}}
+    private_key: {{github-private-key}}
+- name: git-rdpg-boshrelease-master
+  type: git
+  source:
+    uri: {{pipeline-git-repo}}
+    branch: {{pipeline-branch}}
+    private_key: {{github-private-key}}
+
+- name: final-release
+  type: s3
+  source:
+    bucket: {{boshrelease-aws-bucket}}
+    regexp: rdpg-(.*).tgz
+    access_key_id: {{boshrelease-aws-access-key-id}}
+    secret_access_key: {{boshrelease-aws-secret-access-key}}
