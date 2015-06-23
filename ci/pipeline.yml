@@ -11,9 +11,9 @@ jobs:
       platform: linux
       image: {{docker-hub-task-image}}
       inputs:
-      - {name: boshrelease, path: .}
+      - {name: boshrelease, path: rdpg-boshrelease}
       run:
-        path: ./ci/scripts/create_release_and_deploy.sh
+        path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy.sh
         args: []
       params:
         bosh_target: {{bosh-lite-build-target}}
