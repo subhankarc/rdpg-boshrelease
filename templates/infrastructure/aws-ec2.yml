@@ -12,13 +12,13 @@ meta:
 jobs:
   - name: rdpg_manager
 
-    resource_pool: cluster_a
+  resource_pool: manager_cluster
     persistent_disk: (( meta.persistent_disk ))
 
     networks:
       - name: rdpg
         default: [ dns, gateway ]
-        static_ips: [ 10.10.1.10-10.10.1.11 ]
+        static_ips: [ 10.10.1.10-10.10.1.12 ]
 
     properties:
       pgbdr:
@@ -49,15 +49,15 @@ jobs:
         debug: "false"
         log_level: "info"
 
-  - name: rdpg_cluster_a
+  - name: rdpg_cluster_1
 
-    resource_pool: cluster_a
+    resource_pool: service_cluster_a
     persistent_disk: (( meta.persistent_disk ))
 
     networks:
       - name: rdpg
         default: [ dns, gateway ]
-        static_ips: [ 10.10.1.12-10.10.1.13 ]
+        static_ips: [ 10.10.1.13-10.10.1.14 ]
 
     properties:
       pgbdr:
@@ -98,7 +98,11 @@ compilation:
     instance_type: m1.small
 
 resource_pools:
-  - name: cluster_a
+  - name: manager_cluster
+    cloud_properties:
+      instance_type: m3.medium
+
+  - name: service_cluster_a
     cloud_properties:
       instance_type: m3.medium
 

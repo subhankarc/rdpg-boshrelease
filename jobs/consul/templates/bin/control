@@ -16,6 +16,7 @@ if ! grep -q 127.0.0.1 /etc/resolv.conf
 then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
 fi
 
+declare -a args
 args=()
 for _path in $(ls -d /var/vcap/jobs/*/config/* | awk '/config\/consul$/')
 do args+=(-config-dir ${_path})
@@ -26,20 +27,15 @@ done
 
 case ${action} in
   (start)
-    ( 
     user exec ${pkgPath}/bin/consul agent \
       -server \
       -pid-file "${pidFile}" \
       -data-dir "${storePath}" \
       -config-dir "${jobPath}/config" ${args[@]}
-    ) &
-    # TODO: Instead of using sleep, how do we test if the consul server is ready 
-    #       to process joins?
-    sleep 4
-    user exec ${pkgPath}/bin/consul join "${joinNode}"
     ;;
   (stop)
     ${pkgPath}/bin/consul leave
+    sleep 1
     send_signal TERM
     ;;
   (*)

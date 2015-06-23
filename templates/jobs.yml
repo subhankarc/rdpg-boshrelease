@@ -7,9 +7,9 @@ properties: ((merge))
 
 jobs:
   - name: rdpg_manager
-    instances: 2
+    instances: 3
 
-    resource_pool: cluster_a
+    resource_pool: manager_cluster
     networks: (( merge ))
     persistent_disk: 65536
     update:
@@ -31,11 +31,11 @@ jobs:
 
     properties: ((merge))
 
-  - name: rdpg_cluster_a
+  - name: rdpg_cluster_1
 
     instances: 2
 
-    resource_pool: cluster_a
+    resource_pool: service_cluster_a
     networks: (( merge ))
     persistent_disk: 65536
     update:

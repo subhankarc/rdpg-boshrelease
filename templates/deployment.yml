@@ -28,7 +28,13 @@ update:
   serial: false
 
 resource_pools:
-  - name: cluster_a
+  - name: manager_cluster
+    network: rdpg
+    size: (( auto ))
+    stemcell: (( meta.stemcell ))
+    cloud_properties: (( merge ))
+
+  - name: service_cluster_a
     network: rdpg
     size: (( auto ))
     stemcell: (( meta.stemcell ))

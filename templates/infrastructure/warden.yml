@@ -14,6 +14,7 @@ jobs:
         static_ips:
           - 10.244.2.2
           - 10.244.2.6
+          - 10.244.2.10
     properties:
       pgbdr:
         debug: "true"
@@ -44,13 +45,13 @@ jobs:
         debug: "true"
         log_level: "trace"
 
-  - name: rdpg_cluster_a
+  - name: rdpg_cluster_1
     networks:
       - name: rdpg
         default: [dns, gateway]
         static_ips:
-          - 10.244.2.10
           - 10.244.2.14
+          - 10.244.2.18
     properties:
       pgbdr:
         debug: "true"
@@ -90,7 +91,11 @@ compilation:
     name: random
 
 resource_pools:
-  - name: cluster_a
+  - name: manager_cluster
+    cloud_properties:
+      name: random
+
+  - name: service_cluster_a
     cloud_properties:
       name: random
 

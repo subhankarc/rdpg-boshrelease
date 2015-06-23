@@ -29,7 +29,10 @@
     }
   }
 	(name == "manager" && index == 0)  ?  config["bootstrap"] = true : config["bootstrap"] = false
-	config["tart_join"] = p('consul.join_node') if (name != "manager" || index > 0) 
+
+	if (name != "manager" || index > 0) 
+	  config["start_join"] = p('consul.join_node') 
+  end
 
   ssl_ca = p("consul.ssl_ca", nil)
   ssl_cert = p("consul.ssl_crt", nil)
