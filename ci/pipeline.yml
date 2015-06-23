@@ -15,6 +15,10 @@ jobs:
       run:
         path: ./ci/scripts/delete_existing_deployment.sh
         args: []
+      params:
+        bosh_target: {{bosh-lite-build-target}}
+        bosh_username: {{bosh-lite-build-username}}
+        bosh_password: {{bosh-lite-build-password}}
 
 
 resources:
