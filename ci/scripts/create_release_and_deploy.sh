@@ -8,7 +8,9 @@ set -e
 
 _bosh delete deployment ${bosh_deployment_name} --force || echo "Continuing..."
 _bosh create release
+set +e
 _bosh upload release --rebase || echo "Continuing..."
+set -e
 
 ./rdpg-dev manifest warden
 
