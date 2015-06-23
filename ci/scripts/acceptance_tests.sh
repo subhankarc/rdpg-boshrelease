@@ -22,4 +22,4 @@ _bosh() {
 
 set -e
 
-_bosh -d rdpg-boshrelease/manifests/*.yml run errand acceptance_tests
+_bosh -d manifests/*.yml run errand acceptance_tests
