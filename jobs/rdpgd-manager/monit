@@ -1,5 +1,5 @@
-check process rdpgd
-  with pidfile /var/vcap/sys/run/rdpgd/rdpgd.pid
-  start program "/var/vcap/jobs/rdpgd/bin/control start" with timeout 120 seconds
-  stop program "/var/vcap/jobs/rdpgd/bin/control stop"
+check process rdpgd-manager
+  with pidfile /var/vcap/sys/run/rdpgd-manager/rdpgd.pid
+  start program "/var/vcap/jobs/rdpgd-manager/bin/control start" with timeout 120 seconds
+  stop program "/var/vcap/jobs/rdpgd-manager/bin/control stop"
   group vcap

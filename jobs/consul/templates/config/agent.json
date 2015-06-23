@@ -12,6 +12,7 @@
   config = {
   	<%= (name == "manager" && index == 0) ? "bootstrap: true," : "bootstrap: false," %>
   	<%= if (name != "manager" || index > 0) %>start_join: ["<%= p('consul.join_node') %>"]<% end %>
+    server: true,
     data_dir: '/var/vcap/store/consul',
     ui_dir: '/var/vcap/packages/consul-ui',
     node_name: "#{spec.deployment}-#{name}-#{index}",

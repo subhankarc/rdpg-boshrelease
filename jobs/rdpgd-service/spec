@@ -1,5 +1,5 @@
 ---
-name: rdpgd
+name: rdpgd-service
 packages:
 - bash-4.3
 - rdpgd
