@@ -1,4 +1,4 @@
 #!/bin/bash
 
 bosh -t ${bosh_target} -u ${bosh_username} -p ${bosh_password} \
-  deployments
+  delete deployment ${bosh_deployment_name} --force
