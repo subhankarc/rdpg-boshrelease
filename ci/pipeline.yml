@@ -28,7 +28,7 @@ jobs:
         - {name: create-release-and-deploy, path: .}
       run:
         path: bosh
-        args: [-t, {{bosh-lite-build-target}}, -u, {{bosh-lite-build-username}}, -p, {{bosh-lite-build-password}}, -d, "manifests/*.yml", run, errand, acceptance_tests]
+        args: [-t, {{bosh-lite-build-target}}, -u, {{bosh-lite-build-username}}, -p, {{bosh-lite-build-password}}, -d, "rdpg-boshrelease/manifests/rdpg-build-manifest.yml", run, errand, acceptance_tests]
 
 resources:
 - name: git-rdpg-boshrelease
