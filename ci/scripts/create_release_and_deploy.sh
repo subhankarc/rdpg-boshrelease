@@ -1,7 +1,19 @@
 #!/bin/bash
 
+cat ~/.bosh_config << EOF
+---
+aliases:
+  target:
+    bosh-lite: ${bosh_target}
+auth:
+  ${bosh_target}:
+    username: ${bosh_username}
+    password: ${bosh_password}
+EOF
+bosh target ${bosh_target}
+
 _bosh() {
-  bosh -n -t ${bosh_target} -u ${bosh_username} -p ${bosh_password} $@
+  bosh -n $@
 }
 
 set -e
