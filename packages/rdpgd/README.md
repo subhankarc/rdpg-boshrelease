@@ -1,4 +1,4 @@
-# rdpg-agent BOSH package
+# rdpgd BOSH package
 
 ## packaging
 

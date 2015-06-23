@@ -1,0 +1,5 @@
+---
+name: rdpgd
+dependencies: []
+files:
+  - rdpgd/rdpgd*.tar.gz

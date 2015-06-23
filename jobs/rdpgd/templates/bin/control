@@ -22,17 +22,17 @@ case ${action} in
     $(dirname ${jobPath})/haproxy/bin/control reload
 
     if (( ${vmIndex} == 0 )) # TODO: Also only need to run this the first time
-    then ${pkgPath}/bin/rdpg-agent init
+    then ${pkgPath}/bin/rdpgd init
     fi
 
-    exec ${pkgPath}/bin/rdpg-agent
+    exec ${pkgPath}/bin/rdpgd
     ;;
   (stop)
     send_signal TERM 
     exit 0
     ;;
   (init)
-    ${pkgPath}/bin/rdpg-agent init
+    ${pkgPath}/bin/rdpgd init
     ;;
   (*)
     fail "Unknown action ${action}"

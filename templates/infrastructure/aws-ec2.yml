@@ -18,7 +18,7 @@ jobs:
     networks:
       - name: rdpg
         default: [ dns, gateway ]
-        static_ips: [ 10.10.1.10-10.10.1.14 ]
+        static_ips: [ 10.10.1.10-10.10.1.13 ]
 
     properties:
       pgbdr:
@@ -51,7 +51,6 @@ jobs:
           - 10.10.1.11
           - 10.10.1.12
           - 10.10.1.13
-          - 10.10.1.14
 
   - name: acceptance_tests
     networks:

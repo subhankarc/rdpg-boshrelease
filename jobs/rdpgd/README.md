@@ -1,7 +1,7 @@
-# rdpg-agent BOSH Service Job
+# rdpgd BOSH Service Job
 
-This rdpg-agent BOSH job is for bootstrapping the rdpg cluster and then exec-ing 
-the rdpg-agent.
+This rdpgd BOSH job is for bootstrapping the rdpg cluster and then exec-ing 
+the rdpgd.
 
 [Official BOSH Release Documentation](http://bosh.io/docs/create-release.html)
 

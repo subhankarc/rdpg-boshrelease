@@ -8,7 +8,7 @@ properties: ((merge))
 jobs:
   - name: rdpg
 
-    instances: 5
+    instances: 4
 
     resource_pool: cluster_a
     networks: (( merge ))
@@ -27,7 +27,7 @@ jobs:
       release: rdpg
     - name: haproxy
       release: rdpg
-    - name: rdpg-agent
+    - name: rdpgd
       release: rdpg
 
     properties: ((merge))
