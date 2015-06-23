@@ -1,0 +1,25 @@
+jobs:
+- name: deploy
+  public: true
+  serial: true
+  plan:
+  - get: boshrelease
+    resource: git-rdpg-boshrelease
+    trigger: true
+  - task: delete-existing
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+      - {name: boshrelease, path: .}
+      run:
+        path: ./ci/scripts/delete_existing_deployment.sh
+        args: []
+
+
+resources:
+- name: git-rdpg-boshrelease
+  type: git
+  source:
+    uri: {{pipeline-git-repo}}
+    branch: {{pipeline-branch}}
