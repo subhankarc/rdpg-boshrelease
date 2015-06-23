@@ -59,11 +59,10 @@ jobs:
   - aggregate:
     - get: version
       passed: [deploy]
-      trigger: true
+      params: {bump: final}
     - get: boshrelease
       resource: git-rdpg-boshrelease
       passed: [deploy]
-      trigger: true
   - task: create-final-release
     config:
       platform: linux
