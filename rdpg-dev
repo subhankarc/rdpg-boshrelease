@@ -159,7 +159,7 @@ prepare_manifest() {
 
   sed \
     -e "s/DIRECTOR-UUID/${directorUUID}/g" \
-    -e "s/NAME/${releaseName}/g" \
+    -e "s/NAME/${deploymentName}/g" \
     -e "s/STEMCELL/${stemcell}/g" \
     -e "s/ENVIRONMENT/${releaseName}-${ENVIRONMENT:-"dev"}/g" \
     "${templatesPath}/stub.yml" > "${tmpPath}/targeted-director-stub.yml"
