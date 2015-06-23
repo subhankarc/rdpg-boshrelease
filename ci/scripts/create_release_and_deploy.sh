@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat ~/.bosh_config << EOF
+cat > ~/.bosh_config << EOF
 ---
 aliases:
   target:
