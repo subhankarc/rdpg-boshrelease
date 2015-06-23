@@ -70,6 +70,7 @@ jobs:
       image: {{docker-hub-task-image}}
       inputs:
       - {name: boshrelease, path: rdpg-boshrelease}
+      - {name: version}
       run:
         path: ./rdpg-boshrelease/ci/scripts/shipit.sh
         args: []

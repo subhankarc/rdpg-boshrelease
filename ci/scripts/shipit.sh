@@ -32,7 +32,7 @@ _bosh() {
 
 set -e
 
-VERSION=$(cat ./version/number)
+VERSION=$(cat ../version/number)
 if [ -z "$VERSION" ]; then
   echo "missing version number"
   exit 1
