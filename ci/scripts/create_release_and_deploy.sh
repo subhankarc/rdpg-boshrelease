@@ -12,6 +12,7 @@ set +e
 _bosh upload release --rebase || echo "Continuing..."
 set -e
 
-./rdpg-dev manifest warden
+echo "running: rdpg-dev manifest warden"
+DEBUG=true ./rdpg-dev manifest warden
 
 _bosh deploy
