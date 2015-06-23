@@ -27,5 +27,5 @@ properties:
   consul.ssl_key:
     description: "SSL Key for Consul Service."
     default:
-  consul.nodes:
-    description: "List of all consul Node IP Addresses."
+  consul.join_node:
+    description: "IP Address of node to join, this should be set to the first node of the manager cluster."

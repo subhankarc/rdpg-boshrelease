@@ -21,11 +21,9 @@ case ${action} in
     cat ${jobPath}/config/haproxy/haproxy.cfg > $(dirname ${jobPath})/haproxy/config/haproxy.cfg
     $(dirname ${jobPath})/haproxy/bin/control reload
 
-    if (( ${vmIndex} == 0 )) # TODO: Also only need to run this the first time
-    then ${pkgPath}/bin/rdpgd init
-    fi
+    ${pkgPath}/bin/rdpgd bootstrap
 
-    exec ${pkgPath}/bin/rdpgd
+    exec ${pkgPath}/bin/rdpgd service
     ;;
   (stop)
     send_signal TERM 

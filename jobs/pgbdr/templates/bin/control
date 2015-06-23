@@ -34,6 +34,9 @@ case ${action} in
     rm -f ${pidFile}
     exit 0 # Normal exit, return code 0
     ;;
+  (reload)
+    user exec ${pgbdrPkgPath}/bin/pg_ctl reload -D ${databasePath}
+    ;;
   (*)
     fail "usage: $0 <start|stop>"
     ;;

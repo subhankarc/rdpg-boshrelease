@@ -1,0 +1,45 @@
+---
+name: rdpgd
+packages:
+- bash-4.3
+- rdpgd
+templates:
+  bin/control: bin/control
+  bin/check: bin/check
+  bin/consul-watch-notification: bin/consul-watch-notification
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+  config/consul/rdpg-services.json: config/consul/rdpg-services.json
+  config/consul/rdpg-watches.json: config/consul/rdpg-watches.json
+  config/haproxy/haproxy.cfg: config/haproxy/haproxy.cfg
+  config/haproxy/haproxy.cfg.header: config/haproxy/haproxy.cfg.header
+  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
+  config/pgbouncer/users: config/pgbouncer/users
+properties:
+  rdpg_service.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpg_service.db_name:
+    description: "management databse name (Can be overridden in manifest)."
+    default: "rdpg"
+  rdpg_service.db_user:
+    description: "management database user (Can be overridden in manifest)."
+    default: "postgres"
+  rdpg_service.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+    default: "admin"
+  rdpg_service.log_level:
+    description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
+    default: "error"
+  rdpg_service.admin_port:
+    description: "RDPG Agent Admin Port"
+    default: "58888"
+  rdpg_service.admin_user:
+    description: "RDPG Agent Admin User"
+    default: "rdpg"
+  rdpg_service.admin_pass:
+    description: "RDPG Agent Admin Pass"
+    default: "admin"
+  rdpg_service.admin_pg_uri:
+    description: "RDPG Agent Admin Database PG URI"
+    default: "postgresql://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpgd"

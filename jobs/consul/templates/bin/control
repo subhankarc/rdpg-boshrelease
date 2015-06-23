@@ -29,7 +29,6 @@ case ${action} in
     ( 
     user exec ${pkgPath}/bin/consul agent \
       -server \
-      -bootstrap-expect ${#nodes[@]} \
       -pid-file "${pidFile}" \
       -data-dir "${storePath}" \
       -config-dir "${jobPath}/config" ${args[@]}
@@ -37,7 +36,7 @@ case ${action} in
     # TODO: Instead of using sleep, how do we test if the consul server is ready 
     #       to process joins?
     sleep 4
-    user exec ${pkgPath}/bin/consul join "${nodes[@]}"
+    user exec ${pkgPath}/bin/consul join "${joinNode}"
     ;;
   (stop)
     ${pkgPath}/bin/consul leave

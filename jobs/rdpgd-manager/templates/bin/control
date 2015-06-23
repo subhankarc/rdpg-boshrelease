@@ -1,0 +1,39 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop|init" ; fi ; action=$1 ; shift 
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+case ${action} in
+  (start)
+    echo $$ > ${pidFile}
+
+    initialize_rdpg_db # TODO: Move pg_hba.conf configuration into here?
+
+    while (( $(number_of_joined_nodes) < ${#nodes[@]} ))
+    do sleep 1 # Wait for the bdr cluster to be online before starting the agent.
+    done
+
+    kill -HUP $(</var/vcap/sys/run/consul/consul.pid)
+
+    register_write_master
+
+    cat ${jobPath}/config/haproxy/haproxy.cfg > $(dirname ${jobPath})/haproxy/config/haproxy.cfg
+    $(dirname ${jobPath})/haproxy/bin/control reload
+
+    ${pkgPath}/bin/rdpgd bootstrap
+
+    exec ${pkgPath}/bin/rdpgd manager
+    ;;
+  (stop)
+    send_signal TERM 
+    exit 0
+    ;;
+  (init)
+    ${pkgPath}/bin/rdpgd init
+    ;;
+  (*)
+    fail "Unknown action ${action}"
+    ;;
+esac
+

@@ -10,6 +10,8 @@
   client_addr = p('consul.client_addr', '0.0.0.0')
 
   config = {
+  	<%= (name == "manager" && index == 0) ? "bootstrap: true," : "bootstrap: false," %>
+  	<%= if (name != "manager" || index > 0) %>start_join: ["<%= p('consul.join_node') %>"]<% end %>
     data_dir: '/var/vcap/store/consul',
     ui_dir: '/var/vcap/packages/consul-ui',
     node_name: "#{spec.deployment}-#{name}-#{index}",
@@ -21,6 +23,7 @@
     log_level: 'INFO',
     domain: p('consul.domain', 'consul'),
     server: p('consul.server', true),
+    datacenter: p('consul.datacenter', true),
     rejoin_after_leave: true,
     ports: {
       dns: 53

@@ -7,13 +7,48 @@ meta:
     version: latest
 
 jobs:
-  - name: rdpg
+  - name: rdpg_manager
     networks:
       - name: rdpg
         default: [dns, gateway]
         static_ips:
           - 10.244.2.2
           - 10.244.2.6
+    properties:
+      pgbdr:
+        debug: "true"
+        hba_config: |+
+          host    replication   postgres 10.0.2.15/32  trust
+          host    all           postgres 10.0.2.15/32  trust
+        max_connections: "100"
+        shared_buffers: "128MB"
+        effective_cache_size: "256MB"
+        work_mem: "2MB"
+        maintenance_work_mem: "16MB"
+        checkpoint_segments: "16"
+        checkpoint_completion_target: "0.7"
+        wal_buffers: "1MB"
+        default_statistics_target: "100"
+      pgbouncer:
+        debug: "true"
+        admin_pass: "rdpgadmin"
+      consul:
+        debug: "true"
+        datacenter: "manager"
+        join_node: 10.244.2.2
+      haproxy:
+        admin_user: admin
+        admin_pass: admin
+        admin_port: 9999
+      rdpg_manager:
+        debug: "true"
+        log_level: "trace"
+
+  - name: rdpg_cluster_a
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+        static_ips:
           - 10.244.2.10
           - 10.244.2.14
     properties:
@@ -36,18 +71,15 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
+        datacenter: "service_cluster_a"
+        join_node: 10.244.2.2
       haproxy:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
-      rdpg_agent:
+      rdpg_service:
         debug: "true"
         log_level: "trace"
-        nodes:
-          - 10.244.2.2
-          - 10.244.2.6
-          - 10.244.2.10
-          - 10.244.2.14
 
   - name: acceptance_tests
     networks:
