@@ -6,14 +6,14 @@ jobs:
   - get: boshrelease
     resource: git-rdpg-boshrelease
     trigger: true
-  - task: delete-existing
+  - task: create-release-and-deploy
     config:
       platform: linux
       image: {{docker-hub-task-image}}
       inputs:
       - {name: boshrelease, path: .}
       run:
-        path: ./ci/scripts/delete_existing_deployment.sh
+        path: ./ci/scripts/create_release_and_deploy.sh
         args: []
       params:
         bosh_target: {{bosh-lite-build-target}}
