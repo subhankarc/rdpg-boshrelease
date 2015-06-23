@@ -15,11 +15,20 @@ jobs:
       image: docker:///busybox
       inputs:
       - {name: pipeline, path: .}
-      - {name: cf-cli, path: ci_image/cf-cli}
+      - {name: cf-cli, path: ci/ci_image/cf-cli}
       run: {path: echo}
+  - task: ls
+    config:
+      platform: linux
+      image: docker:///ubuntu#14.04
+      inputs:
+      - name: combined
+      run:
+        path: ls
+        args: ["-opR", "."]
   - put: docker-image
     params:
-      build: combined/ci_image
+      build: combined/ci/ci_image
 
 resources:
 - name: git-pipeline-docker-image
@@ -27,7 +36,8 @@ resources:
   source:
     uri: {{pipeline-git-repo}}
     branch: {{pipeline-branch}}
-    paths: [ci_image/*]
+    private_key: {{github-private-key}}
+    paths: [ci/ci_image/*]
 
 - name: cf-cli
   type: s3
