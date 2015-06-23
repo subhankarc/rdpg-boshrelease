@@ -84,7 +84,7 @@ jobs:
   - aggregate:
     - put: version
       params: {file: version/number}
-    - put: boshrelease-master
+    - put: git-rdpg-boshrelease-master
       params:
         repository: create-final-release/rdpg-boshrelease
         tag: version/number
@@ -97,7 +97,7 @@ resources:
   type: semver
   source:
     key: current-version
-    bucket: {{aws-pipeline-bucket}}
+    bucket: {{pipeline-aws-bucket}}
     access_key_id: {{pipeline-aws-access-key-id}}
     secret_access_key: {{pipeline-aws-secret-access-key}}
     initial_version: 0.1.0
@@ -108,11 +108,17 @@ resources:
     uri: {{pipeline-git-repo}}
     branch: {{pipeline-branch}}
     private_key: {{github-private-key}}
+- name: git-rdpg-boshrelease-master
+  type: git
+  source:
+    uri: {{pipeline-git-repo}}
+    branch: {{pipeline-branch}}
+    private_key: {{github-private-key}}
 
 - name: final-release
   type: s3
   source:
-    bucket: {{boshrelease-aws-pipeline-bucket}}
+    bucket: {{boshrelease-aws-bucket}}
     regexp: rdpg-(.*).tgz
     access_key_id: {{boshrelease-aws-access-key-id}}
     secret_access_key: {{boshrelease-aws-secret-access-key}}
