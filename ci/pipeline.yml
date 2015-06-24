@@ -85,11 +85,6 @@ jobs:
   - aggregate:
     - put: version
       params: {file: version/number}
-    - put: git-rdpg-boshrelease-master
-      params:
-        repository: create-final-release/rdpg-boshrelease
-        tag: version/number
-        tag_prefix: v
     - put: final-release
       params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
     - put: github-final-release
@@ -97,7 +92,7 @@ jobs:
         name: create-final-release/rdpg-boshrelease/release/name
         tag: create-final-release/rdpg-boshrelease/release/tag
         body: create-final-release/rdpg-boshrelease/release/notes.md
-        globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz]
+        globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-*.tgz]
 
 resources:
 - name: version
@@ -110,12 +105,6 @@ resources:
     initial_version: 0.1.0
 
 - name: git-rdpg-boshrelease
-  type: git
-  source:
-    uri: {{pipeline-git-repo}}
-    branch: {{pipeline-branch}}
-    private_key: {{github-private-key}}
-- name: git-rdpg-boshrelease-master
   type: git
   source:
     uri: {{pipeline-git-repo}}
