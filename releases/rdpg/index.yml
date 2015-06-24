@@ -16,4 +16,6 @@ builds:
     version: 0.1.1-rc.8
   a6620788-f5f5-4521-a5fd-1e7e80d772fd:
     version: 0.1.1
+  be393439-0631-4275-b6c9-7fb3810f78a1:
+    version: 0.1.2
 format-version: '2'
