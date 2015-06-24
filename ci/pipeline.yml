@@ -74,6 +74,7 @@ jobs:
         path: ./rdpg-boshrelease/ci/scripts/shipit.sh
         args: []
       params:
+        release_name: "Reliable Distributed PostgreSQL"
         bosh_target: {{bosh-lite-build-target}}
         bosh_username: {{bosh-lite-build-username}}
         bosh_password: {{bosh-lite-build-password}}
@@ -91,6 +92,12 @@ jobs:
         tag_prefix: v
     - put: final-release
       params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
+    - put: github-final-release
+      params:
+        name: create-final-release/rdpg-boshrelease/release/name
+        tag: create-final-release/rdpg-boshrelease/release/tag
+        body: create-final-release/rdpg-boshrelease/release/notes.md
+        globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz]
 
 resources:
 - name: version
@@ -114,6 +121,13 @@ resources:
     uri: {{pipeline-git-repo}}
     branch: {{pipeline-branch}}
     private_key: {{github-private-key}}
+
+- name: github-final-release
+  type: github-release
+  source:
+    user: starkandwayne
+    repository: rdpg-boshrelease
+    access_token: {{github-access-token}}
 
 - name: final-release
   type: s3
