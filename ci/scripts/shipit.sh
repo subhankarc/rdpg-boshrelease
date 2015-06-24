@@ -42,6 +42,13 @@ if [[ "${release_name}X" == "X" ]]; then
   exit 1
 fi
 
+echo Prepare github release information
+set -x
+mkdir -p release
+cp ci/release_notes.md release/notes.md
+echo "${release_name} v${version}" > release/name
+echo "v${version}" > release/tag
+
 git config --global user.email "ci@localhost"
 git config --global user.name "CI Bot"
 
@@ -53,10 +60,3 @@ bosh -n create release --final --with-tarball --version "$version"
 
 git add -A
 git commit -m "release v${version}"
-
-echo Prepare github release information
-set -x
-mkdir -p release
-cp ci/release_notes.md release/notes.md
-echo "${release_name} v${version}" > release/name
-echo "v${version}" > release/tag
