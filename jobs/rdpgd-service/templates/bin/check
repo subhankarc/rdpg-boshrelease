@@ -1,7 +1,6 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
 pgPort="<%= p('pgbdr.port') %>"
-rdpgDB="<%= p('rdpg_service.db_name') %>"
 pgbListenPort="<%= p('pgbouncer.listen_port').to_s %>"
 hapWritePort="<%= p('haproxy.write_port').to_s %>"
 
@@ -10,15 +9,15 @@ export PGPASSFILE="/home/vcap/.pgpass"
 if [[ -z ${1:-} ]] ; then fail "$0 <ha_pb_pg|pb|pg>" ; fi ; action=$1 ; shift 
 case ${action} in
   (ha_pb_pg) 
-    psql -U postgres -h 127.0.0.1 -p ${hapWritePort} ${rdpgDB} -t \
+    psql -U postgres -h 127.0.0.1 -p ${hapWritePort} rdpg -t \
       -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (pb)
-    psql -U postgres -h 127.0.0.1 -p ${pgbListenPort} ${rdpgDB} -t \
+    psql -U postgres -h 127.0.0.1 -p ${pgbListenPort} rdpg -t \
       -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (pg)
-    psql -U postgres -h 127.0.0.1 -p ${pgPort} ${rdpgDB} -t \
+    psql -U postgres -h 127.0.0.1 -p ${pgPort} rdpg -t \
       -c 'SELECT count(node_name) FROM bdr.bdr_nodes;'
     ;;
   (*)

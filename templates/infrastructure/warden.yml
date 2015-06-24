@@ -35,7 +35,7 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
-        datacenter: "manager"
+        cluster_name: "manager"
         join_node: 10.244.2.2
       haproxy:
         admin_user: admin
@@ -72,7 +72,7 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
-        datacenter: "service_cluster_a"
+        cluster_name: "service_cluster_a"
         join_node: 10.244.2.2
       haproxy:
         admin_user: admin

@@ -22,7 +22,7 @@
     log_level: 'INFO',
     domain: p('consul.domain', 'consul'),
     server: p('consul.server', true),
-    datacenter: p('consul.datacenter', true),
+    datacenter: p('consul.cluster_name'),
     rejoin_after_leave: true,
     ports: {
       dns: 53
@@ -31,7 +31,7 @@
 	(name == "manager" && index == 0)  ?  config["bootstrap"] = true : config["bootstrap"] = false
 
 	if (name != "manager" || index > 0) 
-	  config["start_join"] = p('consul.join_node') 
+	  config["start_join"] = [p('consul.join_node')]
   end
 
   ssl_ca = p("consul.ssl_ca", nil)

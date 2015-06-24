@@ -19,12 +19,6 @@ properties:
   rdpg_service.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: "false"
-  rdpg_service.db_name:
-    description: "management databse name (Can be overridden in manifest)."
-    default: "rdpg"
-  rdpg_service.db_user:
-    description: "management database user (Can be overridden in manifest)."
-    default: "postgres"
   rdpg_service.db_pass:
     description: "management database password. (Can be overridden in manifest)."
     default: "admin"

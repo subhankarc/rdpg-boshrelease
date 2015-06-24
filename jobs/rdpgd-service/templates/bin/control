@@ -6,17 +6,8 @@ source "$(dirname $(dirname ${0}))/shell/env"
 
 case ${action} in
   (start)
-    echo $$ > ${pidFile}
-
-    initialize_rdpg_db # TODO: Move pg_hba.conf configuration into here?
-
-    kill -HUP $(</var/vcap/sys/run/consul/consul.pid)
-
-    cat ${jobPath}/config/haproxy/haproxy.cfg > $(dirname ${jobPath})/haproxy/config/haproxy.cfg
-    $(dirname ${jobPath})/haproxy/bin/control reload
-
-    ${pkgPath}/bin/rdpgd bootstrap
-
+    ensure_consul_is_available
+    ensure_postgres_user_exists
     exec ${pkgPath}/bin/rdpgd service
     ;;
   (stop)
@@ -24,7 +15,9 @@ case ${action} in
     exit 0
     ;;
   (bootstrap)
-    ${pkgPath}/bin/rdpgd bootstrap
+    ensure_consul_is_available
+    ensure_postgres_user_exists
+    exec ${pkgPath}/bin/rdpgd bootstrap
     ;;
   (*)
     fail "Unknown action ${action}"
