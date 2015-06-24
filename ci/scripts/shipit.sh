@@ -54,7 +54,8 @@ bosh -n create release --final --with-tarball --version "$version"
 git add -A
 git commit -m "release v${version}"
 
-# prepare github release information
+echo Prepare github release information
+set -x
 mkdir -p release
 cp ci/release_notes.md release/notes.md
 echo "${release_name} v${version}" > release/name
