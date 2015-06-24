@@ -64,7 +64,7 @@ ensure_consul_is_available() {
 }
 
 ensure_postgres_user_exists() {
-  // Wait until we can connect to PostgreSQL...
+  # Wait until we can connect to PostgreSQL...
   while ! psql --port ${PG_PORT} -U vcap postgres -t -c "SELECT CURRENT_TIMESTAMP;"
   do sleep 2
   done
