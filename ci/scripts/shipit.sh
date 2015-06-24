@@ -32,11 +32,22 @@ _bosh() {
 
 set -e
 
-VERSION=$(cat ../version/number)
-if [ -z "$VERSION" ]; then
+version=$(cat ../version/number)
+if [ -z "$version" ]; then
   echo "missing version number"
   exit 1
 fi
+if [[ "${release_name}X" == "X" ]]; then
+  echo "missing \$release_name"
+  exit 1
+fi
+
+echo Prepare github release information
+set -x
+mkdir -p release
+cp ci/release_notes.md release/notes.md
+echo "${release_name} v${version}" > release/name
+echo "v${version}" > release/tag
 
 git config --global user.email "ci@localhost"
 git config --global user.name "CI Bot"
@@ -45,7 +56,7 @@ git merge --no-edit ${promotion_branch}
 
 bosh target ${BOSH_TARGET}
 
-bosh -n create release --final --with-tarball --version "$VERSION"
+bosh -n create release --final --with-tarball --version "$version"
 
 git add -A
-git commit -m "release v${VERSION}"
+git commit -m "release v${version}"

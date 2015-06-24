@@ -25,3 +25,4 @@ stemcells/*
 tmp/
 releases/rdpg/*.tgz
 credentials.yml
+release

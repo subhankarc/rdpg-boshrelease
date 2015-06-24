@@ -31,7 +31,7 @@ usage() {
   echo "
   Usage: $0 <prepare|blobs|manifest|stemcell|release|destroy> [options]
 
-  Where [options] for 'manifest', 'stemcell' and 'prepare' actions are: aws-ec2, warden
+  Where [options] for 'manifest', 'stemcell' and 'prepare' actions are: aws, warden
   "
 }
 
@@ -75,7 +75,7 @@ prepare_stemcell() {
   directorCPI=$(bosh status | awk '/CPI/{print $2}')
   [[ -d ${tmpPath} ]] || mkdir -p ${tmpPath}
   case ${infrastructure} in
-    (aws-ec2)
+    (aws)
       if [[ ${directorCPI} != aws ]]
       then fail "No AWS BOSH Director targeted. Please use 'bosh target' first."
       fi
@@ -147,7 +147,7 @@ prepare_manifest() {
   select_infrastructure $*
   prepare_stemcell $*
 
-  shift # remove the warden|aws-ec2 to allow params passing to spiff below.
+  shift # remove the warden|aws to allow params passing to spiff below.
   releaseName=$(basename $PWD | sed -e 's/-boshrelease//')
   directorCPI=$(bosh status | awk '/CPI/{print $2}')
   directorUUID=$(awk -F: '/target_uuid/{print $2}' ~/.bosh_config | tr -d ' ')

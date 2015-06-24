@@ -35,8 +35,8 @@ jobs:
   - name: acceptance_tests
     templates:
     - name: acceptance-tests
+      release: rdpg
     instances: 1
     lifecycle: errand
     resource_pool: errand_a
     networks: (( merge ))
-
