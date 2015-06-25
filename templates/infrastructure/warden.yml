@@ -35,8 +35,8 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
-        cluster_name: "manager"
         join_node: 10.244.2.2
+        server: true
       haproxy:
         admin_user: admin
         admin_pass: admin
@@ -44,6 +44,7 @@ jobs:
       rdpg_manager:
         debug: "true"
         log_level: "trace"
+        cluster_name: "rdpgmc"
 
   - name: rdpg_cluster_1
     networks:
@@ -72,8 +73,8 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
-        cluster_name: "service-cluster-1"
         join_node: 10.244.2.2
+        server: false
       haproxy:
         admin_user: admin
         admin_pass: admin
@@ -81,6 +82,7 @@ jobs:
       rdpg_service:
         debug: "true"
         log_level: "trace"
+        cluster_name: "rdpgsc1"
 
   - name: acceptance_tests
     networks:

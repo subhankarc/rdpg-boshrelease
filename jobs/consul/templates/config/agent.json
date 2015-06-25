@@ -10,6 +10,7 @@
   client_addr = p('consul.client_addr', '0.0.0.0')
 
   config = {
+    datacenter: "rdpg",
     data_dir: '/var/vcap/store/consul',
     ui_dir: '/var/vcap/packages/consul-ui',
     node_name: "#{spec.deployment}-#{name}-#{index}",
@@ -21,15 +22,15 @@
     log_level: 'INFO',
     domain: p('consul.domain', 'consul'),
     server: p('consul.server', true),
-    datacenter: p('consul.cluster_name'),
     rejoin_after_leave: true,
     ports: {
       dns: 53
     }
   }
-	(p('consul.cluster_name') == "manager" ) ?  config["server"] = true : config["server"] = false
-	if (p('consul.cluster_name') == "manager" && index == 0)  
+	(p('consul.server') == true ) ?  config["server"] = true : config["server"] = false
+	if (p('consul.server') == true && index == 0)  
 		config["bootstrap"] = true 
+		config["bootstrap_expect"] = 3 
 		config["start_join"] = [p('consul.join_node')] if index > 0
 	else
 		config["bootstrap"] = false

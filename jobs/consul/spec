@@ -29,5 +29,5 @@ properties:
     default:
   consul.join_node:
     description: "IP Address of node to join, this should be set to the first node of the manager cluster."
-  consul.cluster_name:
-    description: "Consul Cluster Name (eg. manager/service1/service2/...)."
+  consul.server:
+    description: "Run in server mode (true) or agent mdoe (false)."

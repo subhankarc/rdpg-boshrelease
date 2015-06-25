@@ -13,7 +13,7 @@ jobs:
     networks: (( merge ))
     persistent_disk: 65536
     update:
-      canaries: 1
+      canaries: 3
 
     templates:
     - name: consul
@@ -39,7 +39,7 @@ jobs:
     networks: (( merge ))
     persistent_disk: 65536
     update:
-      canaries: 1
+      canaries: 2
 
     templates:
     - name: consul

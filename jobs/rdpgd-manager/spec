@@ -38,3 +38,5 @@ properties:
   rdpg_manager.sb_pass:
     description: "RDPG Agent CF SB Pass"
     default: "cfadmin"
+  rdpg_manager.cluster_name:
+    description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"
