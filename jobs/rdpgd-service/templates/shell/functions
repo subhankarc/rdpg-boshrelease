@@ -60,7 +60,9 @@ configure_job_paths() {
 }
 
 ensure_consul_is_available() {
-  true # How do we check if consul is available yet?
+  while [[ -z $(curl http://127.0.0.1:8500/v1/status/leader | tr -d '"') ]]
+  do sleep 5
+  done
 }
 
 ensure_postgres_user_exists() {
