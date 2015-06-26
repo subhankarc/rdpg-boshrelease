@@ -29,11 +29,9 @@
   }
 	(p('consul.server') == true ) ?  config["server"] = true : config["server"] = false
 	if (p('consul.server') == true && index == 0)  
-		config["bootstrap"] = true 
 		config["bootstrap_expect"] = 3 
 		config["start_join"] = [p('consul.join_node')] if index > 0
 	else
-		config["bootstrap"] = false
 		config["start_join"] = [p('consul.join_node')]
 	end
 
