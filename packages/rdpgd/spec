@@ -1,5 +1,6 @@
 ---
 name: rdpgd
-dependencies: []
+dependencies:
+- golang1.4
 files:
-  - rdpgd/rdpgd*.tar.gz
+- rdpgd/**/*.go
