@@ -3,10 +3,10 @@
 
   my_ip = spec.networks.send(spec.networks.methods(false).first).ip
   my_host = spec.networks.send(spec.networks.methods(false).first).dns_record_name
-  join_hosts = p('consul.cluster.join_hosts', nil)
-  join_host = p('consul.cluster.join_host', nil)
-  cluster_size = p('consul.cluster.size', nil)
-  is_inital_leader = join_host && (join_host == my_host || join_host == my_ip)
+  join_nodes = p('consul.join_nodes', nil)
+  join_node = p('consul.join_node', nil)
+  cluster_size = join_nodes != nil ? join_nodes.size : nil
+  is_inital_leader = join_node && (join_node == my_host || join_node == my_ip)
   client_addr = p('consul.client_addr', '0.0.0.0')
 
   config = {
@@ -27,6 +27,7 @@
       dns: 53
     }
   }
+
 	(p('consul.server') == true ) ?  config["server"] = true : config["server"] = false
 	if (p('consul.server') == true && index == 0)  
 		config["bootstrap_expect"] = 3 
@@ -55,14 +56,14 @@
   else
     config[:recursor] = '8.8.8.8'
   end
-
-  if join_hosts
-    config[:start_join] = join_hosts
-    config[:retry_join] = join_hosts
+	
+  if join_nodes
+    config[:start_join] = join_nodes
+    config[:retry_join] = join_nodes
     config[:bootstrap_expect] = cluster_size
-  elsif join_host and cluster_size
-    config[:start_join] = [join_host] unless is_inital_leader
-    config[:retry_join] = [join_host] unless is_inital_leader
+  elsif join_node and cluster_size
+    config[:start_join] = [join_node] unless is_inital_leader
+    config[:retry_join] = [join_node] unless is_inital_leader
     config[:bootstrap_expect] = cluster_size
   end
 %>

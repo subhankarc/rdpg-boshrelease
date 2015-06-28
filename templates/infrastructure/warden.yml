@@ -35,8 +35,12 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
-        join_node: 10.244.2.2
         server: true
+        join_node: 10.244.2.2
+        join_nodes:
+          - 10.244.2.2
+          - 10.244.2.6
+          - 10.244.2.10
       haproxy:
         admin_user: admin
         admin_pass: admin

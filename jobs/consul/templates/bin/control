@@ -26,11 +26,8 @@ done
 
 case ${action} in
   (start)
-    user run ${pkgPath}/bin/consul agent -server \
-      -pid-file "${pidFile}" \
+    user run ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
       -config-dir "${jobPath}/config" ${args}
-    sleep 1
-    user exec ${pkgPath}/bin/consul join ${joinNode}
     ;;
   (stop)
     ${pkgPath}/bin/consul leave
