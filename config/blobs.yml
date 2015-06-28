@@ -1,137 +1,61 @@
 ---
-autoconf/autoconf-2.69.tar.xz:
-  object_id: 6e2efb1c-570b-4ba1-b0f5-dae359d59344
-  sha: e891c3193029775e83e0534ac0ee0c4c711f6d23
-  size: 1214744
 bash/bash-4.3-patches.tar.gz:
-  object_id: 8f5c8298-6c86-43b0-991b-b77c3c130bc5
-  sha: 6ca8ad93c01d9c0341b8953af009df913f8beed2
-  size: 36825
+  object_id: a20885d7-2051-4791-aba3-d4a008abc2bc
+  sha: 0b063388da75306d3b068f96330d8e0e8f2f4608
+  size: 37752
 bash/bash-4.3.tar.gz:
-  object_id: c4a4e5ad-05ad-43f7-9607-82aa374d36aa
+  object_id: 7d87113a-e8ef-430f-8a36-994e7059b265
   sha: 45ac3c5727e7262334f4dfadecdf601b39434e84
   size: 7955839
-bind9/bind-9.10.2.tar.gz:
-  object_id: cc11b614-6d71-4867-85d6-654afe0bf916
-  sha: 4ddb2670976c06af7e86352616383958d82c51ce
-  size: 8481111
-consul/consul-0.5.0.zip:
-  object_id: d010c1d1-e638-4584-9879-ddd52e0889ea
-  sha: 00e4c6e9ff2fb326d3b586fd86c3037f3b7e0974
-  size: 4669655
+consul/consul-0.5.2.zip:
+  object_id: d4b1d420-b215-4be1-8842-866928c02d32
+  sha: b3ae610c670fc3b81737d44724ebde969da66ebf
+  size: 4803609
 consul-template/consul-template-0.9.0.tar.gz:
-  object_id: a5e75f20-0ae1-449f-aada-88d134e9ae47
+  object_id: ffee4ffc-baa4-4b8a-b599-96f65ed9fa47
   sha: a44e441f9347abe64956e5bb30c4d4b0464d1f73
   size: 2460384
 consul-ui/consul-ui-0.5.0.zip:
-  object_id: 652d23b1-b798-467a-b47c-904263c82415
+  object_id: 405d27a0-b44a-42fe-9f5e-14853cc7a5d8
   sha: 55ae1d1de29a3a50388956262cfcb2bb6f4c34f3
   size: 252567
+golang/go1.4.2.linux-amd64.tar.gz:
+  object_id: db6aba58-3b45-439a-a5b5-93074efea91e
+  sha: 5020af94b52b65cc9b6f11d50a67e4bae07b0aff
+  size: 62442704
 haproxy/haproxy-1.5.12.tar.gz:
-  object_id: 50004e49-3d3c-4889-9486-a695fe92c695
+  object_id: e31b6d41-968c-4fea-80bc-fcc8a0c1d3ba
   sha: c488f7f108ddefb558bd86e7cbc1b71636ada856
   size: 1344813
-json-c/json-c-0.12.tar.gz:
-  object_id: 04282bab-872c-48f3-a21a-16a7154edddf
-  sha: 5580aad884076c219d41160cbd8bc12213d12c37
-  size: 501419
 libevent/libevent-2.0.22.tar.gz:
-  object_id: 702be59c-5e9a-4baf-9851-da46fbc26c85
+  object_id: df666015-64c4-4211-880c-b2d58e4d5a14
   sha: a586882bc93a208318c70fc7077ed8fca9862864
   size: 854987
-libjson/libjson-7.6.1.zip:
-  object_id: 670e3ec3-a48c-420f-a9d0-a66f305f8a0c
-  sha: 1bc01b8175dadf5ecde1ee0479c5cb2998a7b5f7
-  size: 759533
-libxml2/libxml2-2.9.2.tar.gz:
-  object_id: cc6a5c16-3a52-4240-a7cc-c9001f71b105
-  sha: f46a37ea6d869f702e03f393c376760f3cbee673
-  size: 5444991
 pcre/pcre-8.37.tar.gz:
-  object_id: c674bbb2-88ae-4aed-b44c-ad1a630f8990
+  object_id: d1e48692-455e-41fc-aed5-32dcb78e4ced
   sha: 4a24a20c61347d8da4edc86d5475aaf70ac146bb
   size: 2041593
+pgbdr/pgbdr-extension.tar.xz:
+  object_id: 18b7cb84-d285-4c09-980d-0377b2a37e71
+  sha: 316dd1bf47397522c59794db46d13f6f5088e1a2
+  size: 394888
+pgbdr/pgbdr.tar.xz:
+  object_id: 5f5551e2-7218-4ebe-a1c4-056d3432971b
+  sha: a13967e589256d41ef1a5be7545aaa9272a9577c
+  size: 10695772
 pgbouncer/pgbouncer-1.5.5.tar.gz:
-  object_id: cf26cf6a-f485-4589-9df5-7793674966d4
+  object_id: 43314897-30bb-4dda-87e7-e144816968b6
   sha: aea2999d46e6c87ea1dfd3e1282d64fe6569c04f
   size: 336145
+rdpgd/rdpgd_0.1.1_linux_amd64.tar.gz:
+  object_id: 3260a10d-bd05-4f8c-82d1-f6f6edb6491d
+  sha: e4a6a34c2c740090f4c6882849e3a38d5d8cf0ad
+  size: 21
 socat/socat-2.0.0-b8.tar.gz:
-  object_id: 711f474c-0d50-4762-bf26-4c7f922cd6fa
+  object_id: 190320f5-4cfd-4bf4-b935-fdb174cd7960
   sha: a83f7f4d62a892823ee788d29c0cd0ec9f54e4f2
   size: 646180
 zlib/zlib-1.2.8.tar.gz:
-  object_id: 681a61b4-1f68-4463-975f-110ee4bbec48
+  object_id: 0feeb462-4b9d-404a-9f70-db06179d697b
   sha: a4d316c404ff54ca545ea71a27af7dbc29817088
   size: 571091
-pgbdr/pgbdr-extension.tar.xz:
-  object_id: 1d0cec95-f018-41a0-a21d-06c832b3e9dc
-  sha: e94b80811099fb000467f4b50eb735ac1650ca98
-  size: 398636
-pgbdr/pgbdr.tar.xz:
-  object_id: f8d30aba-be0d-4c7c-aefb-e5190a8b9ccb
-  sha: be1e958cee214f4680fb566d95e8f561da282c9b
-  size: 10775960
-rdpg-agent/rdpg-agent_0.0.4_linux_amd64.tar.gz:
-  object_id: 9cf037a6-bae5-4eb9-ad59-919dc5c44662
-  sha: a7a5d1e2be06c370f1ce272e277905c8f09f838b
-  size: 2207553
-rdpg-agent/rdpg-agent_0.0.6_linux_amd64.tar.gz:
-  object_id: 58279825-ec40-47af-9b6d-04083cf5ea9c
-  sha: 8d6a73cc18025f6453d1ad6114a21d03d23317d8
-  size: 2261349
-rdpg-agent/rdpg-agent_0.0.7_linux_amd64.tar.gz:
-  object_id: caa979c8-15fc-4b02-9b17-bef632008cf4
-  sha: 041ac35d9aab4a4ed370b024423ba0f6d967b514
-  size: 2261457
-rdpg-agent/rdpg-agent_0.0.8_linux_amd64.tar.gz:
-  object_id: 8459358d-ad9a-423c-8689-046bb7262ff8
-  sha: ffd6e84b9c41ce60727dc92a9c490d020d28e771
-  size: 2261349
-rdpg-agent/rdpg-agent_0.0.9_linux_amd64.tar.gz:
-  object_id: c381dcca-ccac-4824-a8d7-26a6cdc6bc87
-  sha: d3caca9f446236d275d735eeda291eece0668759
-  size: 2261427
-rdpg-agent/rdpg-agent_0.0.10_linux_amd64.tar.gz:
-  object_id: f4acd734-1b81-4d45-84f9-da99d81f00b9
-  sha: faf18c2363ec13f46664dbf0d91e6ab00bbe1d78
-  size: 2261437
-rdpg-agent/rdpg-agent_0.0.11_linux_amd64.tar.gz:
-  object_id: 3be3ccc4-8cd4-4d14-8901-5d1e8f446312
-  sha: d5e656c93f70a0e2c763d362fb118e55c7ee9fcd
-  size: 2261436
-rdpg-agent/rdpg-agent_0.0.13_linux_amd64.tar.gz:
-  object_id: 70a021a5-6b7b-4b98-95e9-32507126ce8f
-  sha: 528a17b56d896be1717884b16d85855a225ab162
-  size: 2261989
-rdpg-agent/rdpg-agent_0.0.14_linux_amd64.tar.gz:
-  object_id: 6ee30849-bd30-4d68-9a8f-0114d2a691f4
-  sha: dc52f312f2f8f88a6b06eb96b06064afc1ace94a
-  size: 2261991
-rdpg-agent/rdpg-agent_0.0.15_linux_amd64.tar.gz:
-  object_id: 61802c9c-0867-4ab4-9a75-94dae82c6478
-  sha: bbb87c9c8ba13f7356150ef92555142733c4f9b1
-  size: 2261985
-rdpg-agent/rdpg-agent_0.0.16_linux_amd64.tar.gz:
-  object_id: 7dc190d1-6034-4f5e-af71-0ca25ef703ec
-  sha: ac80cb5d1d2dae6d9eb87336d709e5c4b017f6da
-  size: 2261986
-rdpg-agent/rdpg-agent_0.0.17_linux_amd64.tar.gz:
-  object_id: eee6fdd3-ee15-4236-91c6-e378eda48df3
-  sha: 8c7c7056b788435fdcb9556db9c9a3812cd29a71
-  size: 2263949
-consul/consul-0.5.2.zip:
-  object_id: 0e1f0c12-cca3-4926-ba0f-43e5f4aa6b21
-  sha: b3ae610c670fc3b81737d44724ebde969da66ebf
-  size: 4803609
-rdpg-agent/rdpg-agent_0.0.18_linux_amd64.tar.gz:
-  object_id: 99143afb-4cf7-442c-bff2-af12d6f195e6
-  sha: eb38f918c6dac371e29929645eba1dcad6a3ab3f
-  size: 2264594
-rdpg-agent/rdpg-agent_0.0.19_linux_amd64.tar.gz:
-  object_id: f715baee-2608-4df3-8258-ed0f0affa217
-  sha: a1efafb2b811f0c2b0bfd04412d9bde014e6f42c
-  size: 2265225
-rdpg-agent/rdpg-agent_0.0.20_linux_amd64.tar.gz:
-  object_id: 72b059d1-263b-40a2-a185-5f8e24c69f83
-  sha: 767599a99cec07dacd5fa48a7cc577af4a408b0a
-  size: 2265441
