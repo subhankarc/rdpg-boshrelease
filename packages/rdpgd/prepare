@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e -x
+
+mkdir -p src
+
+cd src
+
+git clone git://github.com/starkandwayne/rdpgd.git src/rdpgd
+
