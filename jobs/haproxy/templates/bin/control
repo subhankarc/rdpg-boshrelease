@@ -13,7 +13,7 @@ case ${action} in
       -f "${jobPath}/config/haproxy.cfg" -p "${pidFile}" -D
     ;;
   (stop)
-    send_signal TERM 
+    send_signal SIGTERM 
     ;;
   (reload)
     if (( ${pid:-0} > 0 ))

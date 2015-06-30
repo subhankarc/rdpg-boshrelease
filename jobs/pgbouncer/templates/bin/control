@@ -11,7 +11,7 @@ case ${action} in
     user exec ${pkgPath}/bin/${jobName} -d ${storePath}/config/pgbouncer.ini
     ;;
   (stop)
-    send_signal TERM 
+    send_signal SIGTERM 
     ;;
   (reload)
     user exec ${pkgPath}/bin/${jobName} -R ${storePath}/config/pgbouncer.ini &

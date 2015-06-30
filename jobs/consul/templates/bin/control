@@ -32,7 +32,7 @@ case ${action} in
   (stop)
     ${pkgPath}/bin/consul leave
     sleep 1
-    send_signal TERM
+    send_signal SIGTERM
     ;;
   (*)
     fail "Unknown action ${action}"

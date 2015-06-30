@@ -11,8 +11,11 @@ case ${action} in
     exec ${pkgPath}/bin/rdpgd manager
     ;;
   (stop)
-    send_signal TERM 
-    sleep 1
+    send_signal SIGTERM 
+    sleep 3
+    if [[ -d /proc/${pid} ]]
+    then send_signal SIGQUIT
+    fi
     exit 0
     ;;
   (bootstrap)

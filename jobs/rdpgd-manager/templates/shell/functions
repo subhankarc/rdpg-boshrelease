@@ -22,6 +22,7 @@ set_pid() {
 }
 
 send_signal() { 
+  set_pid
   if (( ${pid:-0} > 0 ))
   then kill -${1} ${pid}
   fi
