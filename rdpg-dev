@@ -139,7 +139,7 @@ prepare_stemcell() {
 }
 
 prepare_dev_release() {
-  bosh create release --with-tarball --force
+  bosh create release --force
   bosh -n upload release
 }
 
