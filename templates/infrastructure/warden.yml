@@ -19,8 +19,10 @@ jobs:
       pgbdr:
         debug: "true"
         hba_config: |+
-          host    replication   postgres 10.0.2.15/32  trust
-          host    all           postgres 10.0.2.15/32  trust
+          host    replication   postgres 10.0.0.0/8  trust
+          host    all           postgres 10.0.0.0/8  trust
+          host    replication   rdpg 10.0.0.0/8  trust
+          host    all           rdpg 10.0.0.0/8  trust
         max_connections: "100"
         shared_buffers: "128MB"
         effective_cache_size: "256MB"
