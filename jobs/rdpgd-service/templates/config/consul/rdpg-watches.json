@@ -3,12 +3,12 @@
   {
     "type": "service",
     "service": "haproxy",
-    "handler": "/var/vcap/jobs/rdpgd/bin/consul-watch-notification"
+    "handler": "/var/vcap/jobs/rdpgd-service/bin/consul-watch-notification"
   },
   {
     "type": "service",
     "service": "postgres",
-    "handler": "/var/vcap/jobs/rdpgd/bin/consul-watch-notification"
+    "handler": "/var/vcap/jobs/rdpgd-service/bin/consul-watch-notification"
   }
   ]
 }
