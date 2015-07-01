@@ -36,13 +36,13 @@ pcre/pcre-8.37.tar.gz:
   sha: 4a24a20c61347d8da4edc86d5475aaf70ac146bb
   size: 2041593
 pgbdr/pgbdr-extension.tar.xz:
-  object_id: 18b7cb84-d285-4c09-980d-0377b2a37e71
-  sha: 316dd1bf47397522c59794db46d13f6f5088e1a2
-  size: 394888
+  object_id: c1e3dd00-e8f9-47ce-b186-318fefdf15ff
+  sha: ef60fd4835a24770e63125a0ebc00d6427453037
+  size: 399064
 pgbdr/pgbdr.tar.xz:
-  object_id: 5f5551e2-7218-4ebe-a1c4-056d3432971b
-  sha: a13967e589256d41ef1a5be7545aaa9272a9577c
-  size: 10695772
+  object_id: 3b41f016-1403-455c-a9cf-c355a4a4860b
+  sha: a3140c40dab0422a093720078f1593d36a817443
+  size: 10785748
 pgbouncer/pgbouncer-1.5.5.tar.gz:
   object_id: 43314897-30bb-4dda-87e7-e144816968b6
   sha: aea2999d46e6c87ea1dfd3e1282d64fe6569c04f
