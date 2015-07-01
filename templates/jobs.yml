@@ -18,13 +18,7 @@ jobs:
     templates:
     - name: consul
       release: rdpg
-    - name: consul-template
-      release: rdpg
     - name: pgbdr
-      release: rdpg
-    - name: pgbouncer
-      release: rdpg
-    - name: haproxy
       release: rdpg
     - name: rdpgd-manager
       release: rdpg
@@ -43,8 +37,6 @@ jobs:
 
     templates:
     - name: consul
-      release: rdpg
-    - name: consul-template
       release: rdpg
     - name: pgbdr
       release: rdpg
