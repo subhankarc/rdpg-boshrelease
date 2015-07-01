@@ -9,8 +9,6 @@ templates:
   bin/consul-watch-notification: bin/consul-watch-notification
   shell/env.erb: shell/env
   shell/functions: shell/functions
-  config/consul/rdpg-services.json: config/consul/rdpg-services.json
-  config/consul/rdpg-watches.json: config/consul/rdpg-watches.json
   config/haproxy/haproxy.cfg: config/haproxy/haproxy.cfg
   config/haproxy/haproxy.cfg.header: config/haproxy/haproxy.cfg.header
   config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
