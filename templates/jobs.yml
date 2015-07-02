@@ -6,20 +6,30 @@ networks: ((merge))
 properties: ((merge))
 
 jobs:
-  - name: rdpg
-
-    instances: 5
-
-    resource_pool: cluster_a
+  - name: rdpgmc
     networks: (( merge ))
-    persistent_disk: 65536
+    properties: (( merge ))
+    resource_pool: rdpg
+    instances: 3
     update:
-      canaries: 10
-
+      canaries: 3
     templates:
     - name: consul
       release: rdpg
-    - name: consul-template
+    - name: pgbdr
+      release: rdpg
+    - name: rdpgd-manager
+      release: rdpg
+
+  - name: rdpgsc1
+    networks: (( merge ))
+    properties: (( merge ))
+    resource_pool: rdpg
+    instances: 2
+    update:
+      canaries: 2
+    templates:
+    - name: consul
       release: rdpg
     - name: pgbdr
       release: rdpg
@@ -27,16 +37,14 @@ jobs:
       release: rdpg
     - name: haproxy
       release: rdpg
-    - name: rdpg-agent
+    - name: rdpgd-service
       release: rdpg
 
-    properties: ((merge))
-
   - name: acceptance_tests
+    resource_pool: errand_a
+    networks: (( merge ))
     templates:
     - name: acceptance-tests
       release: rdpg
     instances: 1
     lifecycle: errand
-    resource_pool: errand_a
-    networks: (( merge ))

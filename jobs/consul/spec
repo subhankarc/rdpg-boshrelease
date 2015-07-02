@@ -27,5 +27,9 @@ properties:
   consul.ssl_key:
     description: "SSL Key for Consul Service."
     default:
-  consul.nodes:
+  consul.join_nodes:
     description: "List of all consul Node IP Addresses."
+  consul.join_node:
+    description: "IP Address of node to join."
+  consul.server:
+    description: "Run in server mode (true) or agent mdoe (false)."

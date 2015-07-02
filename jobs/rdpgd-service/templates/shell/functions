@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/var/vcap/packages/bash-4.3/bin/bash
 
 fail() { 
   echo "$*" >&2 
@@ -14,13 +14,16 @@ user() {
   esac
 }
 
-send_signal() { 
+set_pid() {
+  pid=0
   if [[ -s ${pidFile} ]]
-  then
-    pid=$(head -1 ${pidFile})
-    if (( ${pid:-0} > 0 ))
-    then kill -${1} ${pid}
-    fi
+  then pid=$(head -1 ${pidFile})
+  fi
+}
+
+send_signal() { 
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
   fi
 }
 
@@ -29,7 +32,6 @@ turn_debugging_on() {
   export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   export DEBUG="true" 
   set -x
-  set -v
 }
 
 add_packages_to_path() { # Add all packages' /bin & /sbin into $PATH
@@ -57,11 +59,25 @@ configure_job_paths() {
   fi
 }
 
-wait_for_server_cluster_ready() {
-  if [[ ${server} == "false" ]]
-  then # If we are an agent, wait until the server cluster is ready.
-    while [[ -z $(curl http://${joinNode}:8500/v1/status/leader | tr -d '"') ]]
-    do sleep 1
-    done
+ensure_consul_is_available() {
+  _while [[ -z $(curl http://127.0.0.1:8500/v1/status/leader | tr -d '"') ]]
+  do sleep 5
+  done
+}
+
+ensure_postgres_user_exists() {
+  # Wait until we can connect to PostgreSQL...
+  while ! psql --port ${PG_PORT} -U vcap postgres -t -c "SELECT CURRENT_TIMESTAMP;"
+  do sleep 2
+  done
+
+  if [[ -z $(psql --port ${PG_PORT} -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='postgres';" 2>/dev/null) ]]
+  then # Create the rdpg User
+    psql --port ${PG_PORT} -U vcap postgres \
+      -c "CREATE USER postgres WITH SUPERUSER CREATEDB CREATEROLE INHERIT;" || true
+
+    psql --port ${PG_PORT} -U vcap postgres \
+      -c "ALTER USER postgres ENCRYPTED PASSWORD '${RDPGD_PG_PASS}';" || true
   fi
+
 }

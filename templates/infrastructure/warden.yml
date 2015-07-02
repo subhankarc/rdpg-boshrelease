@@ -1,13 +1,15 @@
 ---
 meta:
   environment: rdpg-warden
-
   stemcell:
     name: bosh-warden-boshlite-centos-7-go_agent
     version: latest
 
 jobs:
-  - name: rdpg
+  - name: rdpgmc
+    resource_pool: rdpg
+    instances: 3
+    persistent_disk: 65536
     networks:
       - name: rdpg
         default: [dns, gateway]
@@ -15,14 +17,14 @@ jobs:
           - 10.244.2.2
           - 10.244.2.6
           - 10.244.2.10
-          - 10.244.2.14
-          - 10.244.2.18
     properties:
       pgbdr:
         debug: "true"
         hba_config: |+
           host    replication   postgres 10.0.0.0/8  trust
           host    all           postgres 10.0.0.0/8  trust
+          host    replication   rdpg 10.0.0.0/8  trust
+          host    all           rdpg 10.0.0.0/8  trust
         max_connections: "100"
         shared_buffers: "128MB"
         effective_cache_size: "256MB"
@@ -37,21 +39,67 @@ jobs:
         admin_pass: "rdpgadmin"
       consul:
         debug: "true"
+        server: true
+        join_node: 10.244.2.2
+        join_nodes:
+          - 10.244.2.2
+          - 10.244.2.6
+          - 10.244.2.10
       haproxy:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
-      rdpg_agent:
+      rdpgd_manager:
         debug: "true"
         log_level: "trace"
-        nodes:
-          - 10.244.2.2
-          - 10.244.2.6
-          - 10.244.2.10
+        cluster_name: "rdpgmc"
+
+  - name: rdpgsc1
+    resource_pool: rdpg
+    instances: 2
+    persistent_disk: 65536
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+        static_ips:
           - 10.244.2.14
           - 10.244.2.18
+    properties:
+      pgbdr:
+        debug: "true"
+        hba_config: |+
+          host    replication   postgres 10.0.0.0/8  trust
+          host    all           postgres 10.0.0.0/8  trust
+          host    replication   rdpg 10.0.0.0/8  trust
+          host    all           rdpg 10.0.0.0/8  trust
+        max_connections: "100"
+        shared_buffers: "128MB"
+        effective_cache_size: "256MB"
+        work_mem: "2MB"
+        maintenance_work_mem: "16MB"
+        checkpoint_segments: "16"
+        checkpoint_completion_target: "0.7"
+        wal_buffers: "1MB"
+        default_statistics_target: "100"
+      pgbouncer:
+        debug: "true"
+        admin_pass: "rdpgadmin"
+      consul:
+        debug: "true"
+        join_node: 10.244.2.2
+        server: false
+      haproxy:
+        admin_user: admin
+        admin_pass: admin
+        admin_port: 9999
+      rdpgd_service:
+        debug: "true"
+        log_level: "trace"
+        cluster_name: "rdpgsc1"
+        pool_size: 20
 
   - name: acceptance_tests
+    resource_pool: errand_a
     networks:
       - name: rdpg
 
@@ -60,7 +108,7 @@ compilation:
     name: random
 
 resource_pools:
-  - name: cluster_a
+  - name: rdpg
     cloud_properties:
       name: random
 
@@ -148,3 +196,17 @@ networks:
     reserved:
     - 10.244.2.41
     static: []
+  - cloud_properties:
+      name: random
+    range: 10.244.2.44/30
+    reserved:
+    - 10.244.2.45
+    static:
+    - 10.244.2.46
+  - cloud_properties:
+      name: random
+    range: 10.244.2.48/30
+    reserved:
+    - 10.244.2.49
+    static:
+    - 10.244.2.50

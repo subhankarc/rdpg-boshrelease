@@ -1,5 +1,0 @@
-check process rdpg-agent
-  with pidfile /var/vcap/sys/run/rdpg-agent/rdpg-agent.pid
-  start program "/var/vcap/jobs/rdpg-agent/bin/control start" with timeout 120 seconds
-  stop program "/var/vcap/jobs/rdpg-agent/bin/control stop"
-  group vcap

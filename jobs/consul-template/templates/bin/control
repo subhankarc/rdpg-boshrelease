@@ -13,7 +13,7 @@ case ${action} in
     user exec ${pkgPath}/bin/consul-template -config ${configPath} 
     ;;
   (stop)
-    send_signal TERM 
+    send_signal SIGTERM 
     ;;
   (*)
     fail "Unknown action ${action}"
