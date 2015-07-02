@@ -97,6 +97,50 @@ jobs:
         cluster_name: "rdpgsc1"
         pool_size: 20
 
+  - name: rdpgsc2
+    resource_pool: rdpg
+    instances: 2
+    persistent_disk: 65536
+    networks:
+      - name: rdpg
+        default: [dns, gateway]
+        static_ips:
+          - 10.244.2.22
+          - 10.244.2.26
+    properties:
+      pgbdr:
+        debug: "true"
+        hba_config: |+
+          host    replication   postgres 10.0.0.0/8  trust
+          host    all           postgres 10.0.0.0/8  trust
+          host    replication   rdpg 10.0.0.0/8  trust
+          host    all           rdpg 10.0.0.0/8  trust
+        max_connections: "100"
+        shared_buffers: "128MB"
+        effective_cache_size: "256MB"
+        work_mem: "2MB"
+        maintenance_work_mem: "16MB"
+        checkpoint_segments: "16"
+        checkpoint_completion_target: "0.7"
+        wal_buffers: "1MB"
+        default_statistics_target: "100"
+      pgbouncer:
+        debug: "true"
+        admin_pass: "rdpgadmin"
+      consul:
+        debug: "true"
+        join_node: 10.244.2.2
+        server: false
+      haproxy:
+        admin_user: admin
+        admin_pass: admin
+        admin_port: 9999
+      rdpgd_service:
+        debug: "true"
+        log_level: "trace"
+        cluster_name: "rdpgsc2"
+        pool_size: 20
+
   - name: acceptance_tests
     resource_pool: errand_a
     networks:
@@ -217,7 +261,13 @@ networks:
     static: []
   - cloud_properties:
       name: random
-    range: 10.244.2.52/30
+    range: 10.244.2.56/30
     reserved:
-    - 10.244.2.53
+    - 10.244.2.57
+    static: []
+  - cloud_properties:
+      name: random
+    range: 10.244.2.60/30
+    reserved:
+    - 10.244.2.61
     static: []
