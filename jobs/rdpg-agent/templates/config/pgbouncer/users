@@ -1,2 +1,0 @@
-"<%= p('pgbouncer.admin_user') %>" "<%= p('pgbouncer.admin_pass') %>"
-"<%= p('rdpg_agent.db_user') %>" "<%= p('rdpg_agent.db_pass') %>"

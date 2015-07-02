@@ -1,0 +1,42 @@
+---
+name: rdpgd-manager
+packages:
+- bash-4.3
+- rdpgd
+templates:
+  bin/control: bin/control
+  shell/env.erb: shell/env
+  shell/functions: shell/functions
+properties:
+  rdpgd_manager.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  rdpgd_manager.db_pass:
+    description: "management database password. (Can be overridden in manifest)."
+    default: "admin"
+  rdpgd_manager.log_level:
+    description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
+    default: "error"
+  rdpgd_manager.admin_port:
+    description: "RDPG Agent Admin Port"
+    default: "58888"
+  rdpgd_manager.admin_user:
+    description: "RDPG Agent Admin User"
+    default: "rdpg"
+  rdpgd_manager.admin_pass:
+    description: "RDPG Agent Admin Pass"
+    default: "admin"
+  rdpgd_manager.admin_pg_uri:
+    description: "RDPG Agent Admin Database PG URI"
+    default: "postgres://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpgd"
+  rdpgd_manager.sb_port:
+    description: "RDPG Agent CF SB Port"
+    default: "8888"
+  rdpgd_manager.sb_user:
+    description: "RDPG Agent CF SB User"
+    default: "cfadmin"
+  rdpgd_manager.sb_pass:
+    description: "RDPG Agent CF SB Pass"
+    default: "cfadmin"
+  rdpgd_manager.cluster_name:
+    description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"

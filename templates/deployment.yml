@@ -15,20 +15,20 @@ jobs: (( merge ))
 properties: (( merge ))
 
 compilation:
-  workers: 2
+  workers: 1
   network: rdpg
   reuse_compilation_vms: true
   cloud_properties: (( merge ))
 
 update:
-  canaries: 1
-  max_in_flight: 4
+  canaries: 6
+  max_in_flight: 6
   canary_watch_time: 3000-120000
   update_watch_time: 3000-120000
   serial: false
 
 resource_pools:
-  - name: cluster_a
+  - name: rdpg
     network: rdpg
     size: (( auto ))
     stemcell: (( meta.stemcell ))
