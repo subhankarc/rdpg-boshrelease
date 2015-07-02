@@ -14,26 +14,28 @@ templates:
   config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
   config/pgbouncer/users: config/pgbouncer/users
 properties:
-  rdpg_service.debug:
+  rdpgd_service.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
     default: "false"
-  rdpg_service.db_pass:
+  rdpgd_service.db_pass:
     description: "management database password. (Can be overridden in manifest)."
     default: "admin"
-  rdpg_service.log_level:
+  rdpgd_service.log_level:
     description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
     default: "error"
-  rdpg_service.admin_port:
+  rdpgd_service.admin_port:
     description: "RDPG Agent Admin Port"
     default: "58888"
-  rdpg_service.admin_user:
+  rdpgd_service.admin_user:
     description: "RDPG Agent Admin User"
     default: "rdpg"
-  rdpg_service.admin_pass:
+  rdpgd_service.admin_pass:
     description: "RDPG Agent Admin Pass"
     default: "admin"
-  rdpg_service.admin_pg_uri:
+  rdpgd_service.admin_pg_uri:
     description: "RDPG Agent Admin Database PG URI"
     default: "postgres://postgres:admin@127.0.0.1:7432/rdpg?sslmode=disable&connect_timeout=5&fallback_application_name=rdpgd"
-  rdpg_service.cluster_name:
+  rdpgd_service.cluster_name:
     description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"
+  rdpgd_service.pool_size:
+    description: "Size of the pool of precreated available databases to maintain."
