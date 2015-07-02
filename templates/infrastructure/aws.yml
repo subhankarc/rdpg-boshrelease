@@ -49,7 +49,6 @@ jobs:
       rdpgd_manager:
         debug: "false"
         log_level: "info"
-        cluster_name: "rdpgmc"
 
   - name: rdpgsc1
     resource_pool: service_cluster_1

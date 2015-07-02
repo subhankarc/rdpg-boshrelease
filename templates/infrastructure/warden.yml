@@ -52,7 +52,6 @@ jobs:
       rdpgd_manager:
         debug: "true"
         log_level: "trace"
-        cluster_name: "rdpgmc"
 
   - name: rdpgsc1
     resource_pool: rdpg
