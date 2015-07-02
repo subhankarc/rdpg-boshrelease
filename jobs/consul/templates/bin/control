@@ -26,7 +26,9 @@ done
 
 case ${action} in
   (start)
-    user run ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
+    wait_for_server_cluster_ready
+
+    user exec ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
       -config-dir "${jobPath}/config" ${args}
     ;;
   (stop)
