@@ -10,10 +10,10 @@ meta:
     version: latest
 
 jobs:
-  - name: rdpg_manager
+  - name: rdpgmc
 
   resource_pool: manager_cluster
-    persistent_disk: (( meta.persistent_disk ))
+    persistent_disk: 512_000
 
     networks:
       - name: rdpg
@@ -51,15 +51,13 @@ jobs:
         log_level: "info"
         cluster_name: "rdpgmc"
 
-  - name: rdpg_cluster_1
-    resource_pool: service_cluster_a
-    persistent_disk: (( meta.persistent_disk ))
-
+  - name: rdpgsc1
+    resource_pool: service_cluster_1
+    persistent_disk: 1_024_000
     networks:
       - name: rdpg
         default: [ dns, gateway ]
         static_ips: [ 10.10.1.13-10.10.1.14 ]
-
     properties:
       pgbdr:
         debug: "false"
@@ -90,6 +88,44 @@ jobs:
         log_level: "info"
         cluster_name: "rdpgsc1"
         pool_size: 20
+
+  - name: rdpgsc2
+    resource_pool: service_cluster_2
+    persistent_disk: 1_024_000
+    networks:
+      - name: rdpg
+        default: [ dns, gateway ]
+        static_ips: [ 10.10.1.13-15.10.1.16 ]
+    properties:
+      pgbdr:
+        debug: "false"
+        hba_config: |+
+        # Any custom pg_hba.conf lines go here...
+        max_connections: "2000"
+        shared_buffers: "512MB"
+        effective_cache_size: "1536MB"
+        work_mem: "262kB"
+        maintenance_work_mem: "128MB"
+        checkpoint_segments: "32"
+        checkpoint_completion_target: "0.7"
+        wal_buffers: "16MB"
+        default_statistics_target: "100"
+      pgbouncer:
+        debug: "false"
+        admin_pass: "rdpgadmin"
+      consul:
+        debug: "false"
+        server: false
+        join_node: 10.244.2.2
+      haproxy:
+        admin_user: haproxyadmin
+        admin_pass: pleasechangethis
+        admin_port: 9999
+      rdpgd_service:
+        debug: "false"
+        log_level: "info"
+        cluster_name: "rdpgsc2"
+        pool_size: 20
   - name: acceptance_tests
     networks:
       - name: rdpg
@@ -97,16 +133,20 @@ jobs:
 
 compilation:
   cloud_properties:
-    instance_type: m1.small
+    instance_type: m3.small
 
 resource_pools:
-  - name: manager_cluster
+  - name: rdpgmc
     cloud_properties:
       instance_type: m3.medium
 
-  - name: service_cluster_a
+  - name: rdpgsc1
     cloud_properties:
-      instance_type: m3.medium
+      instance_type: m3.xlarge
+
+  - name: rdpgsc2
+    cloud_properties:
+      instance_type: m3.xlarge
 
   - name: errand_a
     cloud_properties:

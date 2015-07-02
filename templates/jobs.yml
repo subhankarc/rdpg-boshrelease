@@ -6,15 +6,13 @@ networks: ((merge))
 properties: ((merge))
 
 jobs:
-  - name: rdpg_manager
-    instances: 3
-
-    resource_pool: manager_cluster
+  - name: rdpgmc
     networks: (( merge ))
-    persistent_disk: 65536
+    properties: (( merge ))
+    resource_pool: rdpg
+    instances: 3
     update:
       canaries: 3
-
     templates:
     - name: consul
       release: rdpg
@@ -23,18 +21,13 @@ jobs:
     - name: rdpgd-manager
       release: rdpg
 
-    properties: ((merge))
-
-  - name: rdpg_cluster_1
-
-    instances: 2
-
-    resource_pool: service_cluster_a
+  - name: rdpgsc1
     networks: (( merge ))
-    persistent_disk: 65536
+    properties: (( merge ))
+    resource_pool: rdpg
+    instances: 2
     update:
       canaries: 2
-
     templates:
     - name: consul
       release: rdpg
@@ -47,13 +40,10 @@ jobs:
     - name: rdpgd-service
       release: rdpg
 
-    properties: ((merge))
-
   - name: acceptance_tests
+    resource_pool: errand_a
+    networks: (( merge ))
     templates:
     - name: acceptance-tests
     instances: 1
     lifecycle: errand
-    resource_pool: errand_a
-    networks: (( merge ))
-
