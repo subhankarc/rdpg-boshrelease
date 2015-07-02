@@ -60,7 +60,7 @@ configure_job_paths() {
 }
 
 ensure_consul_is_available() {
-  _while [[ -z $(curl http://127.0.0.1:8500/v1/status/leader | tr -d '"') ]]
+  while [[ -z $(curl http://127.0.0.1:8500/v1/status/leader | tr -d '"') ]]
   do sleep 5
   done
 }
