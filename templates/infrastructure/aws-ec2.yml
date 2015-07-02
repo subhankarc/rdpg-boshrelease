@@ -46,7 +46,7 @@ jobs:
         admin_user: haproxyadmin
         admin_pass: pleasechangethis
         admin_port: 9999
-      rdpg_manager:
+      rdpgd_manager:
         debug: "false"
         log_level: "info"
         cluster_name: "rdpgmc"
@@ -85,10 +85,11 @@ jobs:
         admin_user: haproxyadmin
         admin_pass: pleasechangethis
         admin_port: 9999
-      rdpg_service:
+      rdpgd_service:
         debug: "false"
         log_level: "info"
         cluster_name: "rdpgsc1"
+        pool_size: 20
   - name: acceptance_tests
     networks:
       - name: rdpg

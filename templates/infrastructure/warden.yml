@@ -47,7 +47,7 @@ jobs:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
-      rdpg_manager:
+      rdpgd_manager:
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgmc"
@@ -87,10 +87,11 @@ jobs:
         admin_user: admin
         admin_pass: admin
         admin_port: 9999
-      rdpg_service:
+      rdpgd_service:
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgsc1"
+        pool_size: 20
 
   - name: acceptance_tests
     networks:
