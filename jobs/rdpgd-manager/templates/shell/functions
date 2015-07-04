@@ -68,16 +68,16 @@ ensure_consul_is_available() {
 
 ensure_postgres_user_exists() {
   # Wait until we can connect to PostgreSQL...
-  while ! psql --port ${PG_PORT} -U vcap postgres -t -c "SELECT CURRENT_TIMESTAMP;"
+  while ! psql --port ${RDPGD_PG_PORT} -U vcap postgres -t -c "SELECT CURRENT_TIMESTAMP;"
   do sleep 2
   done
 
-  if [[ -z $(psql --port ${PG_PORT} -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='postgres';" 2>/dev/null) ]]
+  if [[ -z $(psql --port ${RDPGD_PG_PORT} -U vcap postgres -t -c "SELECT rolname FROM pg_roles WHERE rolname='postgres';" 2>/dev/null) ]]
   then # Create the rdpg User
-    psql --port ${PG_PORT} -U vcap postgres \
+    psql --port ${RDPGD_PG_PORT} -U vcap postgres \
       -c "CREATE USER postgres WITH SUPERUSER CREATEDB CREATEROLE INHERIT;" || true
 
-    psql --port ${PG_PORT} -U vcap postgres \
+    psql --port ${RDPGD_PG_PORT} -U vcap postgres \
       -c "ALTER USER postgres ENCRYPTED PASSWORD '${RDPGD_PG_PASS}';" || true
   fi
 }
