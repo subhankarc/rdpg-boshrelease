@@ -3,6 +3,9 @@ name: rdpgd-service
 packages:
 - bash-4.3
 - rdpgd
+- pgbdr
+- pgbouncer
+- haproxy
 templates:
   bin/control: bin/control
   bin/check: bin/check

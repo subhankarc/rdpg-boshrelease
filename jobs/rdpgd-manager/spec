@@ -3,6 +3,8 @@ name: rdpgd-manager
 packages:
 - bash-4.3
 - rdpgd
+- pgbouncer
+- pgbdr
 templates:
   bin/control: bin/control
   shell/env.erb: shell/env
