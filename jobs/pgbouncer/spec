@@ -22,10 +22,8 @@ properties:
     default: "6432"
   pgbouncer.admin_user:
     description: "pgbouncer administration user name."
-    default: "pgbadmin"
   pgbouncer.admin_pass:
     description: "pgbouncer administration user password."
-    default: "Changeme123"
   pgbouncer.auth_type:
     description: "pgbouncer administration authorization type."
     default: "md5"

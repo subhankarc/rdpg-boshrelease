@@ -36,7 +36,8 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "false"
-        admin_pass: "rdpgadmin"
+        admin_user: "rdpgpbadmin"
+        admin_pass: "CHANGEME@1ce12345!!!"
       consul:
         debug: "false"
         server: true
@@ -49,6 +50,7 @@ jobs:
       rdpgd_manager:
         debug: "false"
         log_level: "info"
+        db_pass: "CHANGEME@1ce12345!!!"
 
   - name: rdpgsc1
     resource_pool: service_cluster_1
@@ -73,7 +75,8 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "false"
-        admin_pass: "rdpgadmin"
+        admin_user: "rdpgpbadmin"
+        admin_pass: "CHANGEME@1ce12345!!!"
       consul:
         debug: "false"
         server: false
@@ -111,7 +114,8 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "false"
-        admin_pass: "rdpgadmin"
+        admin_user: "rdpgpbadmin"
+        admin_pass: "CHANGEME@1ce12345!!!"
       consul:
         debug: "false"
         server: false
@@ -125,6 +129,8 @@ jobs:
         log_level: "info"
         cluster_name: "rdpgsc2"
         pool_size: 20
+        db_pass: "CHANGEME12345!!!@1ce"
+
   - name: acceptance_tests
     networks:
       - name: rdpg

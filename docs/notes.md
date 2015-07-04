@@ -70,3 +70,33 @@ Any persistant data storage for a job will be located within:
 ls /var/vcap/store/*/
 ```
 
+## PG Bouncer
+
+[PG Bouncer Usage Documentation](https://pgbouncer.github.io/usage.html)
+
+```sh
+/var/vcap/packages/pgbdr/bin/psql  -p 6432 --host 127.0.0.1 -U rdpgpbadmin pgbouncer
+```
+
+On development (bosh-lite w/warden) this the password will default to 'admin', 
+for any other environments this password must be set in the manifest to something
+more secure.
+
+Possible commands are,
+
+```sh
+pgbouncer=# show help;
+NOTICE:  Console usage
+DETAIL:
+        SHOW HELP|CONFIG|DATABASES|POOLS|CLIENTS|SERVERS|VERSION
+        SHOW STATS|FDS|SOCKETS|ACTIVE_SOCKETS|LISTS|MEM
+        SHOW DNS_HOSTS|DNS_ZONES
+        SET key = arg
+        RELOAD
+        PAUSE [<db>]
+        RESUME [<db>]
+        KILL <db>
+        SUSPEND
+        SHUTDOWN
+```
+

@@ -79,5 +79,15 @@ ensure_postgres_user_exists() {
     psql --port ${RDPGD_PG_PORT} -U vcap postgres \
       -c "ALTER USER postgres ENCRYPTED PASSWORD '${RDPGD_PG_PASS}';" || true
   fi
+}
 
+configure_pgbouncer() {
+  if ! grep -q rdpg /var/vcap/store/pgbouncer/config/users 
+  then
+    while ! [[ -d /var/vcap/store/pgbouncer/config ]]
+    do sleep 1
+    done
+    cp ${jobPath}/config/pgbouncer/* /var/vcap/store/pgbouncer/config/
+    /var/vcap/jobs/pgbouncer/bin/control reload
+  fi
 }

@@ -17,7 +17,6 @@ properties:
     default: "false"
   rdpgd_manager.db_pass:
     description: "management database password. (Can be overridden in manifest)."
-    default: "admin"
   rdpgd_manager.log_level:
     description: "RDPG Agent Logging Level (lowercase) {trace,debug,error,...}"
     default: "error"
