@@ -9,6 +9,8 @@ templates:
   bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
+  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.init
+  config/pgbouncer/users: config/pgbouncer/users
 properties:
   rdpgd_manager.debug:
     description: "Enable debug output, can be 'true' or 'false' (default)."
