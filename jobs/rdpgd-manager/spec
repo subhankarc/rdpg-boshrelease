@@ -9,7 +9,7 @@ templates:
   bin/control: bin/control
   shell/env.erb: shell/env
   shell/functions: shell/functions
-  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.init
+  config/pgbouncer/pgbouncer.ini: config/pgbouncer/pgbouncer.ini
   config/pgbouncer/users: config/pgbouncer/users
 properties:
   rdpgd_manager.debug:
