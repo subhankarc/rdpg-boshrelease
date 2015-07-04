@@ -1,0 +1,23 @@
+#!/var/vcap/packages/bash-4.3/bin/bash
+
+source "$(dirname $(dirname ${0}))/shell/env"
+
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+case ${action} in
+  (start)
+    enable_rsyslog
+
+    user exec ${pkgPath}/bin/remote_syslog \
+        --configfile="${jobPath}/config/remote_syslog.yml" \
+        --pid-file="${pidFile}" --hostname="${hostname}" \
+        --new-file-check-interval="${checkInterval}" \
+        ${debugFile:-}
+    ;;
+  (stop)  
+    send_signal TERM
+    ;;
+  (*)
+    fail "Unknown action "
+    ;;
+esac
+

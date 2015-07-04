@@ -22,6 +22,8 @@ jobs:
       release: rdpg
     - name: rdpgd-manager
       release: rdpg
+    - name: remote_syslog
+      release: rdpg
 
   - name: rdpgsc1
     networks: (( merge ))
@@ -41,6 +43,8 @@ jobs:
       release: rdpg
     - name: rdpgd-service
       release: rdpg
+    - name: remote_syslog
+      release: rdpg
 
   - name: rdpgsc2
     networks: (( merge ))
@@ -59,6 +63,8 @@ jobs:
     - name: haproxy
       release: rdpg
     - name: rdpgd-service
+      release: rdpg
+    - name: remote_syslog
       release: rdpg
 
   - name: acceptance_tests

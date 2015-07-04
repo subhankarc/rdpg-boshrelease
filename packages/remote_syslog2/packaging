@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+tar xvf remote_syslog2/remote_syslog_linux_amd64.tar.gz
+
+mkdir -p ${BOSH_INSTALL_TARGET}/{bin,config}
+
+cp -a remote_syslog/example_config.yml "${BOSH_INSTALL_TARGET}"/config/
+cp -a remote_syslog/README.md "${BOSH_INSTALL_TARGET}"/
+cp -a remote_syslog/remote_syslog "${BOSH_INSTALL_TARGET}"/bin/
+

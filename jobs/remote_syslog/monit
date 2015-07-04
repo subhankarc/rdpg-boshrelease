@@ -1,0 +1,5 @@
+check process remote_syslog
+  with pidfile /var/vcap/sys/run/remote_syslog/remote_syslog.pid
+  start program "/var/vcap/jobs/remote_syslog/bin/control start" with timeout 30 seconds
+  stop program "/var/vcap/jobs/remote_syslog/bin/control stop"
+  group vcap
