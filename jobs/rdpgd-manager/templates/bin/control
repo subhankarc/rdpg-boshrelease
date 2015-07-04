@@ -8,6 +8,7 @@ case ${action} in
   (start)
     ensure_consul_is_available
     ensure_postgres_user_exists
+    configure_pgbouncer
     exec ${pkgPath}/bin/rdpgd manager
     ;;
   (stop)
@@ -21,6 +22,7 @@ case ${action} in
   (bootstrap)
     ensure_consul_is_available
     ensure_postgres_user_exists
+    configure_pgbouncer
     exec ${pkgPath}/bin/rdpgd bootstrap
     ;;
   (*)
