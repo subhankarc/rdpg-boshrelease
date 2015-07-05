@@ -58,7 +58,7 @@ configure_job_paths() {
 }
 
 wait_for_server_cluster_ready() {
-  if [[ ${server} == "false" ]]
+  if [[ ${server} != "true" ]]
   then # If we are an agent, wait until the server cluster is ready.
     while [[ -z $(curl http://${joinNode}:8500/v1/status/leader | tr -d '"') ]]
     do sleep 1
