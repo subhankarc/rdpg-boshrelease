@@ -15,14 +15,14 @@ jobs: (( merge ))
 properties: (( merge ))
 
 compilation:
-  workers: 1
+  workers: 2
   network: rdpg
   reuse_compilation_vms: true
   cloud_properties: (( merge ))
 
 update:
-  canaries: 6
-  max_in_flight: 6
+  canaries: 0
+  max_in_flight: 1
   canary_watch_time: 3000-120000
   update_watch_time: 3000-120000
   serial: false
