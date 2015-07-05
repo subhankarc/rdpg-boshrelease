@@ -235,8 +235,8 @@ case ${action} in
     prepare_manifest "${args[@]}"
     ;;
   (destroy|delete)
-    echo "bosh -n delete deployment rdpg --force"
-    bosh -n delete deployment rdpg --force
+    echo "bosh -n delete deployment rdpg-warden --force"
+    bosh -n delete deployment rdpg-warden --force
     ;;
   (*)
     usage
