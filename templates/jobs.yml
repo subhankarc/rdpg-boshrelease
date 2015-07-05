@@ -12,7 +12,8 @@ jobs:
     resource_pool: rdpg
     instances: 3
     update:
-      canaries: 3
+      canaries: 0
+      max_in_flight: 1
     templates:
     - name: consul
       release: rdpg
@@ -29,7 +30,8 @@ jobs:
     resource_pool: rdpg
     instances: 2
     update:
-      canaries: 2
+      canaries: 0
+      max_in_flight: 1
     templates:
     - name: consul
       release: rdpg
@@ -48,7 +50,8 @@ jobs:
     resource_pool: rdpg
     instances: 2
     update:
-      canaries: 2
+      canaries: 0
+      max_in_flight: 1
     templates:
     - name: consul
       release: rdpg
