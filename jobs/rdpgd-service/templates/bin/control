@@ -6,7 +6,7 @@ source "$(dirname $(dirname ${0}))/shell/env"
 
 case ${action} in
   (start)
-    echo $$ > ${pidFile}
+    echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
     ensure_consul_is_available
     ensure_postgres_user_exists
     configure_pgbouncer

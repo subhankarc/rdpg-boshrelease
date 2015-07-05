@@ -26,8 +26,8 @@ done
 
 case ${action} in
   (start)
+    echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
     wait_for_server_cluster_ready
-
     user exec ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
       -config-dir "${jobPath}/config" ${args}
     ;;
