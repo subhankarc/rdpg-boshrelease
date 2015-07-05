@@ -8,8 +8,6 @@ packages:
 - haproxy
 templates:
   bin/control: bin/control
-  bin/check: bin/check
-  bin/consul-watch-notification: bin/consul-watch-notification
   shell/env.erb: shell/env
   shell/functions: shell/functions
   config/haproxy/haproxy.cfg: config/haproxy/haproxy.cfg
