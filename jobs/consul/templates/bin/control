@@ -17,16 +17,14 @@ then sed -i -e '1i nameserver 127.0.0.1' /etc/resolv.conf
 fi
 
 args=""
-for _path in $(ls -d /var/vcap/jobs/*/config/* | awk '/config\/consul$/')
-do args+=" -config-dir ${_path} "
-done
-for _path in $(ls -d /var/vcap/store/*/config/* | awk '/config\/consul$/' || true)
+for _path in $(ls -d /var/vcap/{jobs,store}/*/config/* | awk '/config\/consul$/')
 do args+=" -config-dir ${_path} "
 done
 
 case ${action} in
   (start)
     echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
+    user chown ${pidFile}
     wait_for_server_cluster_ready
     user exec ${pkgPath}/bin/consul agent -pid-file "${pidFile}" \
       -config-dir "${jobPath}/config" ${args}
