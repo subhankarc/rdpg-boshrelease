@@ -22,6 +22,9 @@ properties:
   pgbdr.max_connections:
     description: "Maximum Number of Connections"
     default: "200"
+  pgbdr.autovacuum_max_workers:
+    description: "Maximum Number of Connections"
+    default: "10"
   pgbdr.shared_buffers:
     description: "Shared Buffers"
     default: "128MB"
