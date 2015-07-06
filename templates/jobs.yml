@@ -14,7 +14,7 @@ jobs:
     update:
       serial: true
       canaries: 0
-      max_in_flight: 10
+      max_in_flight: 1
     templates:
     - name: consul
       release: rdpg
