@@ -39,3 +39,23 @@ properties:
     description: "Cluster Domain Name eg (manager, sc1,sc2,sc3,...)"
   rdpgd_service.pool_size:
     description: "Size of the pool of precreated available databases to maintain."
+
+  pgbouncer.debug:
+    description: "Enable debug output, can be 'true' or 'false' (default)."
+    default: "false"
+  pgbouncer.listen_addr:
+    description: "pgbouncer administration listen address."
+    default: "*"
+  pgbouncer.listen_port:
+    description: "pgbouncer administration listen port."
+    default: "6432"
+  pgbouncer.admin_user:
+    description: "pgbouncer administration user name."
+  pgbouncer.admin_pass:
+    description: "pgbouncer administration user password."
+  pgbouncer.auth_type:
+    description: "pgbouncer administration authorization type."
+    default: "md5"
+  pgbouncer.pool_mode:
+    description: "pgbouncer connection pooling mode."
+    default: "session"
