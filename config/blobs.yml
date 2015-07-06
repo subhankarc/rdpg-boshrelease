@@ -36,21 +36,21 @@ pcre/pcre-8.37.tar.gz:
   sha: 4a24a20c61347d8da4edc86d5475aaf70ac146bb
   size: 2041593
 pgbdr/pgbdr-extension.tar.xz:
-  object_id: c1e3dd00-e8f9-47ce-b186-318fefdf15ff
-  sha: ef60fd4835a24770e63125a0ebc00d6427453037
-  size: 399064
+  object_id: 2235c336-bdbb-43d6-bd29-08746fde79e3
+  sha: 116f86964ed63db636580f3133610c94c08b74f5
+  size: 399124
 pgbdr/pgbdr.tar.xz:
-  object_id: 3b41f016-1403-455c-a9cf-c355a4a4860b
-  sha: a3140c40dab0422a093720078f1593d36a817443
-  size: 10785748
+  object_id: d18018cc-f1d2-4a48-9ec9-818148889ab8
+  sha: abcb932669fcbaa6732b27d99013f54b0f035f4b
+  size: 10782476
 pgbouncer/pgbouncer-1.5.5.tar.gz:
   object_id: 43314897-30bb-4dda-87e7-e144816968b6
   sha: aea2999d46e6c87ea1dfd3e1282d64fe6569c04f
   size: 336145
 rdpgd/rdpgd_0.1.1_linux_amd64.tar.gz:
-  object_id: 3260a10d-bd05-4f8c-82d1-f6f6edb6491d
-  sha: e4a6a34c2c740090f4c6882849e3a38d5d8cf0ad
-  size: 21
+  object_id: 29e225dc-89de-4c96-808b-5d791ba3a185
+  sha: e263b71100ddb4cfe777821ad29f0596745c5914
+  size: 2360759
 socat/socat-2.0.0-b8.tar.gz:
   object_id: 190320f5-4cfd-4bf4-b935-fdb174cd7960
   sha: a83f7f4d62a892823ee788d29c0cd0ec9f54e4f2
@@ -59,3 +59,7 @@ zlib/zlib-1.2.8.tar.gz:
   object_id: 0feeb462-4b9d-404a-9f70-db06179d697b
   sha: a4d316c404ff54ca545ea71a27af7dbc29817088
   size: 571091
+remote_syslog2/remote_syslog_linux_amd64.tar.gz:
+  object_id: c56d9089-063f-4c72-9159-313d909ce8ff
+  sha: c0562f6d13e5eafece5c030c835f21fcf12fccdb
+  size: 1849384
