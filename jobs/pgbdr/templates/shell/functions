@@ -110,9 +110,9 @@ configure_kernel_settings() {
   # pageSize=$(getconf PAGE_SIZE)
   # vmPeak=$(grep ^VmPeak /proc/${pid}/status)
   # 
-  hugePages=256 # Ideally adjusted based on: ceil ( (( ${vmPeak} / ${pageSize} )) )
-  sysctl -w vm.nr_hugepages=256 # This will adjust as high as allowed.
-  echo "nr_hugepages: $(cat /proc/sys/vm/nr_hugepages)"
+  #hugePages=256 # Ideally adjusted based on: ceil ( (( ${vmPeak} / ${pageSize} )) )
+  #sysctl -w vm.nr_hugepages=256 # This will adjust as high as allowed.
+  #echo "nr_hugepages: $(cat /proc/sys/vm/nr_hugepages)"
 }
 
 renice_postmaster() {
