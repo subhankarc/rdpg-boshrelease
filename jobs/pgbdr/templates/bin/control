@@ -1,13 +1,11 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
-if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
+if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift
 
 source "$(dirname $(dirname ${0}))/shell/env"
 
-case ${action} in 
+case ${action} in
   (start)
-    echo $$ > ${pidFile} # So that Monit doesn't mistakenly reap the process.
-    user chown ${pidFile}
     configure_postgresql
     configure_kernel_settings
     user run ${pgbdrPkgPath}/bin/pg_ctl start -D ${databasePath} -s -t 300
@@ -25,4 +23,3 @@ case ${action} in
     fail "usage: $0 <start|stop>"
     ;;
 esac
-

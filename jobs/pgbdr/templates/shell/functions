@@ -1,6 +1,6 @@
 #!/var/vcap/packages/bash-4.3/bin/bash
 
-fail() { 
+fail() {
   echo "$*" >&2
   exit 1
 }
@@ -19,12 +19,9 @@ set_pid() {
   if [[ -s ${pidFile} ]]
   then pid=$(head -1 ${pidFile})
   fi
-  if (( pid < 0 ))
-  then pid=0
-  fi
 }
 
-send_signal() { 
+send_signal() {
   if (( ${pid:-0} > 0 ))
   then kill -${1} ${pid}
   fi
@@ -33,7 +30,7 @@ send_signal() {
 turn_debugging_on() {
   echo "Turning Debugging On"
   export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-  export DEBUG="true" 
+  export DEBUG="true"
   set -x
   set -v
 }
@@ -109,7 +106,7 @@ configure_kernel_settings() {
   # Huge Pages: https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt
   # pageSize=$(getconf PAGE_SIZE)
   # vmPeak=$(grep ^VmPeak /proc/${pid}/status)
-  # 
+  #
   #hugePages=256 # Ideally adjusted based on: ceil ( (( ${vmPeak} / ${pageSize} )) )
   #sysctl -w vm.nr_hugepages=256 # This will adjust as high as allowed.
   #echo "nr_hugepages: $(cat /proc/sys/vm/nr_hugepages)"
@@ -117,7 +114,5 @@ configure_kernel_settings() {
 
 renice_postmaster() {
   set_pid
-  if [[ -d /proc/${pid} ]]
-  then echo -1000 > /proc/${pid}/oom_score_adj
-  fi
+  echo -1000 > /proc/${pid}/oom_score_adj
 }
