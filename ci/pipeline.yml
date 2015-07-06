@@ -102,7 +102,7 @@ resources:
     bucket: {{pipeline-aws-bucket}}
     access_key_id: {{pipeline-aws-access-key-id}}
     secret_access_key: {{pipeline-aws-secret-access-key}}
-    initial_version: 0.1.0
+    initial_version: 0.2.0
 
 - name: git-rdpg-boshrelease
   type: git
