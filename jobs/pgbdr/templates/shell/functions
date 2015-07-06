@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/var/vcap/packages/bash-4.3/bin/bash
 
 fail() { 
   echo "$*" >&2
@@ -14,13 +14,16 @@ user() {
   esac
 }
 
-send_signal() { 
+set_pid() {
+  pid=0
   if [[ -s ${pidFile} ]]
-  then
-    pid=$(head -1 ${pidFile})
-    if (( ${pid:-0} > 0 ))
-    then kill -${1} ${pid}
-    fi
+  then pid=$(head -1 ${pidFile})
+  fi
+}
+
+send_signal() { 
+  if (( ${pid:-0} > 0 ))
+  then kill -${1} ${pid}
   fi
 }
 
@@ -58,3 +61,58 @@ configure_job_paths() {
   done
 }
 
+configure_postgresql() {
+    if ! [[ -d ${databasePath}/base ]]
+    then # Initialize the database if it has not already been initialized
+      rm -rf ${databasePath} # Clean up any previously failed attempts.
+      user chown ${storePath}
+      pushd ${storePath}
+      HOME=${storePath} chpst -u ${userName}:${groupName} \
+        ${pgbdrPkgPath}/bin/initdb -E UTF8 --local "en_US.UTF-8" \
+        -D ${databasePath}
+      popd
+    fi
+
+    cat ${jobPath}/config/postgresql.conf > ${databasePath}/postgresql.conf
+    cat ${jobPath}/config/pg_hba.conf > ${databasePath}/pg_hba.conf
+    user chown ${storePath}
+    chmod 0640 ${databasePath}/*.conf
+}
+
+ceiling_divide() {
+  echo $((($1+$2-1)/$2))
+}
+
+# http://www.postgresql.org/docs/9.4/static/kernel-resources.html
+configure_kernel_settings() {
+  # Limits
+  ulimit -v unlimited
+
+  # Semaphores
+  semmsl=$(awk '{print $1}' /proc/sys/kernel/sem)
+  semmns=$(awk '{print $2}' /proc/sys/kernel/sem)
+  semopm=$(awk '{print $3}' /proc/sys/kernel/sem)
+  semmni=$(awk '{print $4}' /proc/sys/kernel/sem)
+  echo "semmsl: $semmsl semmns: $semmns semopm: $semopm semmni: $semmni"
+  t=$((( ${maxConn} + ${avMaxWorkers} + 4 )))
+  otherProcs="128"
+  requiredSEMMNI=$(ceiling_divide ${t} 8) # Note the 4 vs 16, on EC2 we need it higher...
+  requiredSEMMNS=$(((${requiredSEMMNI}*17)))
+  requiredSEMMNS=$(((${requiredSEMMNS}+${otherProcs})))
+  if (( ${semmni} < ${requiredSEMMNI} )) ; then semmni=${requiredSEMMNI} ; fi
+  if (( ${semmns} < ${requiredSEMMNS} )) ; then semmns=${requiredSEMMNS} ; fi
+  printf "${semmsl}\t${semmns}\t${semopm}\t${semmni}" > /proc/sys/kernel/sem
+
+  # Huge Pages: https://www.kernel.org/doc/Documentation/vm/hugetlbpage.txt
+  # pageSize=$(getconf PAGE_SIZE)
+  # vmPeak=$(grep ^VmPeak /proc/${pid}/status)
+  # 
+  hugePages=256 # Ideally adjusted based on: ceil ( (( ${vmPeak} / ${pageSize} )) )
+  sysctl -w vm.nr_hugepages=256 # This will adjust as high as allowed.
+  echo "nr_hugepages: $(cat /proc/sys/vm/nr_hugepages)"
+}
+
+renice_postmaster() {
+  set_pid
+  echo -1000 > /proc/${pid}/oom_score_adj
+}

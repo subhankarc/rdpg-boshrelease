@@ -2,32 +2,14 @@
 
 if [[ -z ${1:-} ]] ; then fail "$0 start|stop" ; fi ; action=$1 ; shift 
 
-# TODO: Investigate what monit_debugger was providing that we can't emit here
 source "$(dirname $(dirname ${0}))/shell/env"
 
 case ${action} in 
   (start)
-    if ! [[ -d ${databasePath}/base ]]
-    then # Initialize the database if it has not already been initialized
-      rm -rf ${databasePath} # Clean up any previously failed attempts.
-      user chown ${storePath}
-      pushd ${storePath}
-      HOME=${storePath} chpst -u ${userName}:${groupName} \
-        ${pgbdrPkgPath}/bin/initdb -E UTF8 --local "en_US.UTF-8" \
-        -D ${databasePath}
-      popd
-    fi
-
-    user chown ${storePath}
-
-    ulimit -v unlimited
-
-    cat ${jobPath}/config/postgresql.conf > ${databasePath}/postgresql.conf
-    cat ${jobPath}/config/pg_hba.conf > ${databasePath}/pg_hba.conf
-    user chown ${storePath}
-    chmod 0640 ${databasePath}/*.conf
-
-    user exec ${pgbdrPkgPath}/bin/pg_ctl start -D ${databasePath} -s -t 300
+    configure_postgresql
+    configure_kernel_settings
+    user run ${pgbdrPkgPath}/bin/pg_ctl start -D ${databasePath} -s -t 300
+    renice_postmaster
     ;;
   (stop)
     user run ${pgbdrPkgPath}/bin/pg_ctl stop -D ${databasePath} -m fast
