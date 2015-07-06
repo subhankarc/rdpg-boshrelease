@@ -12,8 +12,9 @@ jobs:
     resource_pool: rdpg
     instances: 3
     update:
+      serial: true
       canaries: 0
-      max_in_flight: 1
+      max_in_flight: 10
     templates:
     - name: consul
       release: rdpg
@@ -36,6 +37,7 @@ jobs:
     - name: consul
       release: rdpg
     - name: pgbdr
+
       release: rdpg
     - name: pgbouncer
       release: rdpg
