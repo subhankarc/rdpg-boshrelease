@@ -75,6 +75,7 @@ jobs:
           host    replication   rdpg 10.0.0.0/8  trust
           host    all           rdpg 10.0.0.0/8  trust
           host    all           rdpg 192.0.0.0/8  trust
+          host    all           rdpg 172.0.0.0/8  trust
         max_connections: "100"
         shared_buffers: "128MB"
         effective_cache_size: "256MB"
