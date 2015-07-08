@@ -9,5 +9,5 @@ packages:
 
 templates:
   bin/run.erb: bin/run
-  config/acceptance-test-config.json.erb: config/acceptance-test-config.json
+  config/acceptance-tests-config.json.erb: config/acceptance-tests-config.json
 properties: {}
