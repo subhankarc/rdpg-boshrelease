@@ -1,28 +1,11 @@
 jobs:
-- name: rc
-  public: true
-  plan:
-  - aggregate:
-    - get: boshrelease
-      resource: git-rdpg-boshrelease
-      trigger: true
-    - get: version
-      trigger: true
-      params: {bump: patch, pre: rc}
-  - put: version
-    params: {file: version/number}
-
 - name: deploy
   public: true
   serial: true
   plan:
   - aggregate:
-    - get: version
-      passed: [rc]
-      trigger: true
     - get: boshrelease
       resource: git-rdpg-boshrelease
-      passed: [rc]
       trigger: true
   - task: create-release-and-deploy
     config:
@@ -52,17 +35,31 @@ jobs:
         bosh_username: {{bosh-lite-build-username}}
         bosh_password: {{bosh-lite-build-password}}
 
+- name: rc
+  public: true
+  plan:
+  - aggregate:
+    - get: boshrelease
+      resource: git-rdpg-boshrelease
+      passed: [deploy]
+      trigger: true
+    - get: version
+      trigger: false
+      params: {bump: patch, pre: rc}
+  - put: version
+    params: {file: version/number}
+
 - name: shipit
   public: true
   serial: true
   plan:
   - aggregate:
     - get: version
-      passed: [deploy]
+      passed: [rc]
       params: {bump: final}
     - get: boshrelease
       resource: git-rdpg-boshrelease
-      passed: [deploy]
+      passed: [rc]
   - task: create-final-release
     config:
       platform: linux
