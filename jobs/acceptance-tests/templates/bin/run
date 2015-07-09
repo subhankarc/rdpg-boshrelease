@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/bash -l
 
-echo "Running Acceptance Tests"
+set -e
 
 echo <<TODO
-Wait for bootstrapping to be completed for all clusters, perhaps have an admin 
+Wait for bootstrapping to be completed for all clusters, perhaps have an admin
 api endpoint for /state that summarizes the state of the entire system as of that moment.
 
 Get # of available instances on management database
@@ -30,3 +30,36 @@ Provision #clusters * 2 instances, get # available, sleep 10 seconds :
 
 TODO
 
+
+export GOPATH=/var/vcap/packages/acceptance-tests
+export GOROOT=/var/vcap/packages/golang1.4
+export PATH=/var/vcap/packages/cli/bin:$PATH
+export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+
+# export CF_COLOR=false
+export CONFIG=/var/vcap/jobs/acceptance-tests/config/acceptance-tests-config.json
+
+
+cd /var/vcap/packages/acceptance-tests/src/github.com/starkandwayne/rdpg-acceptance-tests
+
+echo '################################################################################################################'
+echo $(go version)
+echo CONFIG=$CONFIG
+cat $CONFIG
+env | sort
+echo '################################################################################################################'
+
+echo "Running acceptance tests..."
+
+bin/test-acceptance || EXITSTATUS=$?
+
+echo "Acceptance Tests Complete; exit status: $EXITSTATUS"
+
+for i in /var/vcap/sys/log/acceptance_tests/*; do
+  if [ -e "$i" ]
+  then
+    mv $i $i.log # needed to make download-logs work
+  fi
+done
+
+exit $EXITSTATUS
