@@ -32,7 +32,7 @@ properties:
   acceptance_tests.broker_admin_user:
     description: Username for the RDPG service broker
   acceptance_tests.broker_admin_password:
-    description: Passwird for the RDPG service broker
+    description: Password for the RDPG service broker
   acceptance_tests.broker_url_base:
     description: Base host:port or hostname for the RDPG service broker
 
