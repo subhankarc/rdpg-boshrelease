@@ -16,18 +16,18 @@ templates:
 
 properties:
   acceptance_tests.api:
-    description: 'Full URL of Cloud Foundry API'
+    description: Full URL of Cloud Foundry API
   acceptance_tests.admin_user:
-    description: 'Username of the admin user'
+    description: Username of the admin user
   acceptance_tests.admin_password:
-    description: 'Password of the admin user'
+    description: Password of the admin user
   acceptance_tests.apps_domain:
-    description: 'Shared domain for pushed apps'
+    description: Shared domain for pushed apps
   acceptance_tests.skip_ssl_validation:
-    description: 'Whether to add --skip-ssl-validation for cf cli'
+    description: Whether to add --skip-ssl-validation for cf cli
     default: false
   acceptance_tests.service_name:
-    description: stuff
+    description: Not used yet
 
   acceptance_tests.broker_admin_user:
     description: Username for the RDPG service broker
@@ -38,5 +38,7 @@ properties:
 
 
   acceptance_tests.timeout_scale:
-    description: 'scaling multiplier used to determine command timeouts'
+    description: >
+      Scaling multiplier used to determine command timeouts,
+      decimal values are OK
     default: 1
