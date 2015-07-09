@@ -32,7 +32,7 @@ Provision #clusters * 2 instances, get # available, sleep 10 seconds :
 TODO
 
 
-cd /var/vcap/packages/acceptance-tests/
+cd /var/vcap/packages/acceptance-tests/src/github.com/starkandwayne/rdpg-acceptance-tests
 
 
 export GOPATH=/var/vcap/packages/acceptance-tests
