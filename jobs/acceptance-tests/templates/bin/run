@@ -32,7 +32,7 @@ Provision #clusters * 2 instances, get # available, sleep 10 seconds :
 TODO
 
 
-cd /var/vcap/packages/acceptance-tests/src/rdpg-acceptance-tests
+cd /var/vcap/packages/acceptance-tests/
 
 
 export GOPATH=/var/vcap/packages/acceptance-tests
@@ -41,8 +41,4 @@ export PATH=/var/vcap/packages/cli/bin:$GOPATH/bin:$GOROOT/bin:$PWD/bin:$PATH
 
 export CONFIG=$PWD/config/acceptance-tests-config.json
 
-<% if p('smoke_tests_only') %>
-  bin/test-smoke --noColor
-<% else %>
-  bin/test-acceptance --noColor
-<% end %>
+bin/test-acceptance --noColor

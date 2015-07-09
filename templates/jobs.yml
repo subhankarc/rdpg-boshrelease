@@ -74,5 +74,4 @@ jobs:
       release: rdpg
     instances: 1
     lifecycle: errand
-
-acceptance_tests: (( merge || nil ))
+    properties: (( merge ))

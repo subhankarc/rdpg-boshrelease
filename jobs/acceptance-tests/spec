@@ -11,7 +11,32 @@ packages:
 - acceptance-tests
 
 templates:
-  bin/run.erb: bin/run
+  bin/run: bin/run
   config/acceptance-tests-config.json.erb: config/acceptance-tests-config.json
 
-properties: {}
+properties:
+  acceptance_tests.api:
+    description: 'Full URL of Cloud Foundry API'
+  acceptance_tests.admin_user:
+    description: 'Username of the admin user'
+  acceptance_tests.admin_password:
+    description: 'Password of the admin user'
+  acceptance_tests.apps_domain:
+    description: 'Shared domain for pushed apps'
+  acceptance_tests.skip_ssl_validation:
+    description: 'Whether to add --skip-ssl-validation for cf cli'
+    default: false
+  acceptance_tests.service_name:
+    description: stuff
+
+  acceptance_tests.broker_admin_user:
+    description: username for the RDPG broker
+  acceptance_tests.broker_admin_password:
+    description: stuff
+  acceptance_tests.url_base:
+    description: base URL for talking to the RDPG broker
+
+
+  acceptance_tests.timeout_scale:
+    description: 'scaling multiplier used to determine command timeouts'
+    default: 1

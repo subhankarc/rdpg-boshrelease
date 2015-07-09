@@ -37,7 +37,7 @@ bosh download manifest rdpg-development ~/workspace/manifests/rdpg.yml
 bosh deployment ~/workspace/manifests/rdpg.yml
 ```
 
-Alternatively, you can make your manifest. For example to prepare a manifest for 
+Alternatively, you can make your manifest. For example to prepare a manifest for
 bosh-lite (warden) using the 'centos' stemcell we would do the following:
 
 ```sh
@@ -88,7 +88,7 @@ Now you can deploy,
 bosh -n deploy
 ```
 
-Note that for each job you create in your release that you want to run on a 
+Note that for each job you create in your release that you want to run on a
 Job VM you must add a `templates:` entry with the `name:` of the template
 and the `release:` from which it comes.
 
@@ -97,7 +97,7 @@ and the `release:` from which it comes.
 The script `./rdpg-dev blobs` is used to prepare the `blobs/` directory
 runs each package's `prepare` script from within the `blobs/`
 directory. This will run each package's `prepare` script, if it exists,
-which *should* download and prepare that package's required blobs 
+which *should* download and prepare that package's required blobs
 (source tarballs, etc...) into the {package}/ directory.
 
 ## Development
@@ -129,7 +129,7 @@ bosh -n deploy
 
 See `docs/notes.md` for more information.
 
-In order to gain access to one of the VMs, from a terminal `bosh ssh rdpg {VM Index}`, 
+In order to gain access to one of the VMs, from a terminal `bosh ssh rdpg {VM Index}`,
 for example to ssh to the first node:
 ```sh
 bosh ssh rdpg 0 # Hop on and have a look around...
@@ -143,3 +143,6 @@ bosh -n recreate rdpg 0 --force
 
 See `docs/rdpg.md` for release specific information.
 
+To run acceptance tests:
+
+```bosh create release --force && bosh upload release && bosh -n deploy && bosh run errand acceptance_tests```
