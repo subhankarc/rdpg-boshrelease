@@ -30,11 +30,11 @@ properties:
     description: stuff
 
   acceptance_tests.broker_admin_user:
-    description: username for the RDPG broker
+    description: Username for the RDPG service broker
   acceptance_tests.broker_admin_password:
-    description: stuff
-  acceptance_tests.url_base:
-    description: base URL for talking to the RDPG broker
+    description: Passwird for the RDPG service broker
+  acceptance_tests.broker_url_base:
+    description: Base host:port or hostname for the RDPG service broker
 
 
   acceptance_tests.timeout_scale:
