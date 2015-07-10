@@ -113,6 +113,9 @@ configure_kernel_settings() {
 }
 
 renice_postmaster() {
+  sleep 5 # Let the postmaster startup and write it's pid...
   set_pid
-  echo -1000 > /proc/${pid}/oom_score_adj
+  if (( ${pid} > 0 ))
+  then echo -1000 > /proc/${pid}/oom_score_adj
+  fi
 }
