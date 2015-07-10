@@ -2,8 +2,9 @@
 
 set -ex
 
+subtree_repo=$1; shift
 if [[ "${subtree_repo}X" == "X" ]]; then
-  echo "REQUIRE: \$subtree_repo to match to src/xyz in bosh release"
+  echo "USAGE: update_acceptance_tests.sh subtree_repo - to match to src/xyz in bosh release"
   exit 1
 fi
 

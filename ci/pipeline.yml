@@ -18,7 +18,7 @@ jobs:
       - {name: rdpg-acceptance-tests}
       run:
         path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
-        args: []
+        args: [rdpg-acceptance-tests]
   - put: git-rdpg-boshrelease
     params:
       repository: update-acceptance-tests/rdpg-boshrelease
