@@ -9,7 +9,7 @@ jobs:
     - get: rdpg-acceptance-tests
       resource: git-rdpg-acceptance-tests
       trigger: true
-  - task: update-acceptance-tests
+  - task: update-subtree
     config:
       platform: linux
       image: {{docker-hub-task-image}}
@@ -21,7 +21,32 @@ jobs:
         args: [rdpg-acceptance-tests]
   - put: git-rdpg-boshrelease
     params:
-      repository: update-acceptance-tests/rdpg-boshrelease
+      repository: update-subtree/rdpg-boshrelease
+      rebase: true
+
+- name: bump-rdpgd
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: rdpg-boshrelease
+      resource: git-rdpg-boshrelease
+    - get: rdpgd
+      resource: git-rdpgd
+      trigger: true
+  - task: update-subtree
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+      - {name: rdpg-boshrelease}
+      - {name: rdpgd}
+      run:
+        path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
+        args: [rdpgd]
+  - put: git-rdpg-boshrelease
+    params:
+      repository: update-subtree/rdpg-boshrelease
       rebase: true
 
 - name: deploy
@@ -149,6 +174,12 @@ resources:
       - jobs/**/*
       - packages/**/*
       - config/blobs.yml
+
+- name: git-rdpgd
+  type: git
+  source:
+    uri: https://github.com/starkandwayne/rdpgd.git
+    branch: master
 
 - name: git-rdpg-acceptance-tests
   type: git
