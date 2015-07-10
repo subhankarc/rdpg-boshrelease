@@ -19,3 +19,4 @@ ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 
 RUN go get github.com/bronze1man/yaml2json
 RUN go get github.com/cloudfoundry-community/humanize-manifest
+RUN ssh -T -o "VerifyHostKeyDNS yes" git@github.com
