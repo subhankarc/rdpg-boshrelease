@@ -1,30 +1,39 @@
-# Reliable Distributed PostgreSQL (RDPG) BOSH release
+Reliable Distributed PostgreSQL (RDPG) BOSH release
+===================================================
 
-## License
+-	Build pipeline http://54.82.85.58:8080/pipelines/rdpg-boshrelease (see [Pipeline](#pipeline) for more)
+
+License
+-------
 
 MIT, see LICENSE file.
 
-## Usage: Configuration & Delpoyment
+Usage: Configuration & Delpoyment
+---------------------------------
 
 We will walk through an example of using with Cloud Foundry.
 
 Be sure to first target your BOSH Director:
+
 ```sh
 bosh target $BOSH_HOST
 ```
 
 If you are using bosh-lite you target like so:
+
 ```sh
 bosh target 192.168.50.4 lite
 ```
 
 Now clone this release and cd into the directory:
+
 ```sh
 git clone https://.../rdpg-boshrelease.git
 cd rdpg-boshrelease
 ```
 
 If you intend on using a final release upload it like so:
+
 ```sh
 bosh upload release releases/rdpg-1.yml
 ```
@@ -37,8 +46,7 @@ bosh download manifest rdpg-development ~/workspace/manifests/rdpg.yml
 bosh deployment ~/workspace/manifests/rdpg.yml
 ```
 
-Alternatively, you can make your manifest. For example to prepare a manifest for
-bosh-lite (warden) using the 'centos' stemcell we would do the following:
+Alternatively, you can make your manifest. For example to prepare a manifest for bosh-lite (warden) using the 'centos' stemcell we would do the following:
 
 ```sh
 STEMCELL_OS=centos ./rdpg-dev manifest warden
@@ -46,7 +54,7 @@ STEMCELL_OS=centos ./rdpg-dev manifest warden
 
 Edit the manifest file you downloaded (`~/workspace/manifests/rdpg.yml`) and add settings as follows.
 
-Add to the list of known `releases: `
+Add to the list of known `releases:`
 
 ```yaml
 releases:
@@ -55,7 +63,7 @@ releases:
   version: latest
 ```
 
-For consistency also add to the `releases: ` section under `meta: `
+For consistency also add to the `releases:` section under `meta:`
 
 ```yaml
 meta:
@@ -75,7 +83,7 @@ properties:
   rdpg:
 ```
 
-Now, for every `instances: ` entry you wish to collocate this release with under `jobs:` add the following in the `templates: ` section:
+Now, for every `instances:` entry you wish to collocate this release with under `jobs:` add the following in the `templates:` section:
 
 ```yaml
   - name: rdpg
@@ -88,30 +96,28 @@ Now you can deploy,
 bosh -n deploy
 ```
 
-Note that for each job you create in your release that you want to run on a
-Job VM you must add a `templates:` entry with the `name:` of the template
-and the `release:` from which it comes.
+Note that for each job you create in your release that you want to run on a Job VM you must add a `templates:` entry with the `name:` of the template and the `release:` from which it comes.
 
-## Deployments Blobs
+Deployments Blobs
+-----------------
 
-The script `./rdpg-dev blobs` is used to prepare the `blobs/` directory
-runs each package's `prepare` script from within the `blobs/`
-directory. This will run each package's `prepare` script, if it exists,
-which *should* download and prepare that package's required blobs
-(source tarballs, etc...) into the {package}/ directory.
+The script `./rdpg-dev blobs` is used to prepare the `blobs/` directory runs each package's `prepare` script from within the `blobs/` directory. This will run each package's `prepare` script, if it exists, which *should* download and prepare that package's required blobs (source tarballs, etc...) into the {package}/ directory.
 
-## Development
+Development
+-----------
 
 Download your manifest file for the deployment targeted.
 
 Target your BOSH Director as explained above, if you already have a deploy be sure to also download your manifest as per above.
 
 If this is your first time cloning the release repository for develompent first prepare all of the things:
+
 ```sh
 ./rdpg-dev prepare warden
 ```
 
 This is equivalent to:
+
 ```sh
 ./rdpg-dev blobs
 ./rdpg-dev release
@@ -125,12 +131,13 @@ Once these steps have all been completed
 bosh -n deploy
 ```
 
-## Debugging & QA
+Debugging & QA
+--------------
 
 See `docs/notes.md` for more information.
 
-In order to gain access to one of the VMs, from a terminal `bosh ssh rdpg {VM Index}`,
-for example to ssh to the first node:
+In order to gain access to one of the VMs, from a terminal `bosh ssh rdpg {VM Index}`, for example to ssh to the first node:
+
 ```sh
 bosh ssh rdpg 0 # Hop on and have a look around...
 ```
@@ -145,4 +152,34 @@ See `docs/rdpg.md` for release specific information.
 
 To run acceptance tests:
 
-```bosh create release --force && bosh upload release && bosh -n deploy && bosh run errand acceptance_tests```
+`bosh create release --force && bosh upload release && bosh -n deploy && bosh run errand acceptance_tests`
+
+Pipeline
+--------
+
+This BOSH release is automatically built and tested upon every commit to master.
+
+![bosh release changes trigger deploy job](http://cl.ly/image/0O220s281l1L/bosh_release_changes_trigger_deploy_job.png)
+
+The `deploy` job will:
+
+1.	Run `bosh create release` to ensure that the BOSH release can be successfully created
+2.	Upload the release to a bosh-lite running on AWS
+3.	Generate a manifest and deploy a cluster (via the `./rdpg-dev manifest warden` manifest generator)
+4.	Run the `acceptance_tests` errand
+
+The `deploy` job is triggered when:
+
+-	`jobs` or `packages` folders are modified - changing the BOSH release itself
+-	`templates` folders are modified - changing how users might deploy the BOSH release
+-	`src` folder is modified (see below for jobs that do this via Concourse)
+-	`config/blobs.yml` is modified - changing the blobs that go into the BOSH release
+
+There are some feeder repositories that are also monitored by the Concourse pipeline:
+
+-	[rdpgd](https://github.com/starkandwayne/rdpgd) via `bump-rdpgd` job - the bespoke agent/service broker, written in Go
+-	[rdpg-acceptance-tests](https://github.com/starkandwayne/rdpg-acceptance-tests) via `bump-tests` job - a set of acceptance tests for a running cluster of RDPG, written in Go
+
+If these repositories change (`master` branch) then they are added into the `src/` folder (via `git subtree pull`) and committed. This will then trigger the `deploy` job above.
+
+![repos-feeding](http://cl.ly/image/1z210F0f3o3K/pasted_image_at_2015_07_09_10_08_pm.png)
