@@ -5,16 +5,19 @@ set -ex
 pushd acceptance-tests
 commit_hash=$(git rev-parse HEAD)
 commit_message=$(git log --oneline | head -n1)
+subtree_repo_url=$(git config remote.origin.url)
+subtree_repo_branch=$(git branch --no-color | grep "*" | awk '{print $2}')
 popd
 
 pushd rdpg-boshrelease
-git submodule update --init
-cd src/rdpg-acceptance-tests
-git pull origin master
+git subtree pull \
+  --prefix src/rdpg-acceptance-tests \
+  ${subtree_repo_url} \
+  ${subtree_repo_branch} \
+  --squash
+
 
 echo "Checking for changes in $(pwd)..."
-git checkout $commit_hash
-cd ../..
 if [[ "$(git status -s)X" != "X" ]]; then
   git add . --all
   git commit -m "Bump tests: $commit_message"
