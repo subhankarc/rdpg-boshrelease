@@ -20,7 +20,7 @@ jobs:
       run:
         path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
         args: []
-  - put: rdpg-boshrelease
+  - put: git-rdpg-boshrelease
     params:
       repository: update-acceptance-tests/rdpg-boshrelease
       rebase: true
