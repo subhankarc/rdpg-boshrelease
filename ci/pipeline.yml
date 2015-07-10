@@ -1,10 +1,36 @@
 jobs:
+- name: bump-tests
+  public: true
+  serial: true
+  plan:
+  - aggregate:
+    - get: rdpg-boshrelease
+      resource: git-rdpg-boshrelease
+      trigger: false
+    - get: acceptance-tests
+      resource: git-rdpg-acceptance-tests
+      trigger: true
+  - task: update-acceptance-tests
+    config:
+      platform: linux
+      image: {{docker-hub-task-image}}
+      inputs:
+      - {name: rdpg-boshrelease}
+      - {name: acceptance-tests}
+      run:
+        path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
+        args: []
+  - put: rdpg-boshrelease
+    params:
+      repository: update-acceptance-tests/rdpg-boshrelease
+      rebase: true
+
 - name: deploy
   public: true
   serial: true
   plan:
   - aggregate:
-    - get: boshrelease
+    - get: rdpg-boshrelease
       resource: git-rdpg-boshrelease
       trigger: true
   - task: create-release-and-deploy
@@ -12,7 +38,7 @@ jobs:
       platform: linux
       image: {{docker-hub-task-image}}
       inputs:
-      - {name: boshrelease, path: rdpg-boshrelease}
+      - {name: rdpg-boshrelease}
       run:
         path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy.sh
         args: []
@@ -78,7 +104,7 @@ jobs:
         bosh_deployment_name: {{bosh-lite-build-deployment-name}}
         aws_access_key_id: {{boshrelease-aws-access-key-id}}
         aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
-        promotion_branch: {{pipeline-branch}}
+        promotion_branch: master
   - put: git-rdpg-boshrelease
     params:
       repository: create-final-release/rdpg-boshrelease
@@ -108,8 +134,15 @@ resources:
 - name: git-rdpg-boshrelease
   type: git
   source:
-    uri: {{pipeline-git-repo}}
-    branch: {{pipeline-branch}}
+    uri: git@github.com:starkandwayne/rdpg-boshrelease.git
+    branch: master
+    private_key: {{github-private-key}}
+
+- name: git-rdpg-acceptance-tests
+  type: git
+  source:
+    uri: git@github.com:starkandwayne/rdpg-acceptance-tests
+    branch: master
     private_key: {{github-private-key}}
 
 - name: github-final-release
