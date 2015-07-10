@@ -18,11 +18,4 @@ git subtree pull \
   --prefix src/rdpg-acceptance-tests \
   ${subtree_repo_url} \
   ${subtree_repo_branch} \
-  --squash
-
-
-echo "Checking for changes in $(pwd)..."
-if [[ "$(git status -s)X" != "X" ]]; then
-  git add . --all
-  git commit -m "Bump tests: $commit_message"
-fi
+  --squash -m "Bump tests: $commit_message"
