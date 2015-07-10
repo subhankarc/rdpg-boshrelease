@@ -6,7 +6,7 @@ jobs:
   - aggregate:
     - get: rdpg-boshrelease
       resource: git-rdpg-boshrelease
-    - get: acceptance-tests
+    - get: rdpg-acceptance-tests
       resource: git-rdpg-acceptance-tests
       trigger: true
   - task: update-acceptance-tests
@@ -15,7 +15,7 @@ jobs:
       image: {{docker-hub-task-image}}
       inputs:
       - {name: rdpg-boshrelease}
-      - {name: acceptance-tests}
+      - {name: rdpg-acceptance-tests}
       run:
         path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
         args: []
