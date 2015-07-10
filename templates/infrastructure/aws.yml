@@ -41,10 +41,10 @@ jobs:
         admin_pass: pleasechangethis
         admin_port: 9999
       rdpgd_manager:
-        debug: "true"
-        log_level: "trace"
+        debug: "false"
+        log_level: "info"
         cluster_name: "rdpgmc"
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
 
   - name: rdpgsc1
     resource_pool: rdpg
@@ -73,11 +73,11 @@ jobs:
         admin_pass: pleasechangethis
         admin_port: 9999
       rdpgd_service:
-        debug: "true"
-        log_level: "trace"
+        debug: "false"
+        log_level: "info"
         cluster_name: "rdpgsc1"
         pool_size: 20
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
 
   - name: rdpgsc2
     resource_pool: rdpg
@@ -106,11 +106,11 @@ jobs:
         admin_pass: pleasechangethis
         admin_port: 9999
       rdpgd_service:
-        debug: "true"
-        log_level: "trace"
+        debug: "false"
+        log_level: "info"
         cluster_name: "rdpgsc2"
         pool_size: 20
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
 
   - name: acceptance_tests
     networks:

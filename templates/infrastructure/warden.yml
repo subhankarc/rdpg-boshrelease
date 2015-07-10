@@ -62,7 +62,7 @@ jobs:
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgmc"
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
 
   - name: rdpgsc1
     resource_pool: rdpg
@@ -107,7 +107,7 @@ jobs:
         admin_pass: admin
         admin_port: 9999
       rdpgd_service:
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgsc1"
@@ -156,7 +156,7 @@ jobs:
         admin_pass: admin
         admin_port: 9999
       rdpgd_service:
-        db_pass: "CHANGEME@1ce12345!!!"
+        db_pass: "pleasechangethis"
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgsc1"
