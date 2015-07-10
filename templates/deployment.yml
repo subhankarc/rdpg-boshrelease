@@ -21,7 +21,7 @@ compilation:
   cloud_properties: (( merge ))
 
 update:
-  canaries: 0
+  canaries: 1
   max_in_flight: 1
   canary_watch_time: 3000-120000
   update_watch_time: 3000-120000
@@ -38,3 +38,5 @@ resource_pools:
     network: rdpg
     stemcell: (( meta.stemcell ))
     cloud_properties: (( merge ))
+
+disk_pools: (( merge || [] ))

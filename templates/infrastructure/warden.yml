@@ -2,14 +2,19 @@
 meta:
   environment: rdpg-warden
   stemcell:
-    name: bosh-warden-boshlite-centos-7-go_agent
+    name: bosh-warden-boshlite-centos-go_agent
     version: latest
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 32768
+  cloud_properties: {}
 
 jobs:
   - name: rdpgmc
     resource_pool: rdpg
-    ignstances: 3
-    persistent_disk: 65536
+    instances: 3
+    persistent_disk: 32768
     networks:
       - name: rdpg
         default: [dns, gateway]
@@ -38,8 +43,9 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "true"
+        listen_port: 6432
         admin_user: "rdpgpbadmin"
-        admin_pass: "admin"
+        admin_pass: "rdpgadmin"
       consul:
         debug: "true"
         server: true
@@ -55,12 +61,13 @@ jobs:
       rdpgd_manager:
         debug: "true"
         log_level: "trace"
-        db_pass: "admin"
+        cluster_name: "rdpgmc"
+        db_pass: "CHANGEME@1ce12345!!!"
 
   - name: rdpgsc1
     resource_pool: rdpg
     instances: 2
-    persistent_disk: 65536
+    persistent_disk_pool: rdpgsc_disk
     networks:
       - name: rdpg
         default: [dns, gateway]
@@ -88,8 +95,9 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "true"
+        listen_port: 6432
         admin_user: "rdpgpbadmin"
-        admin_pass: "admin"
+        admin_pass: "rdpgadmin"
       consul:
         debug: "true"
         join_node: 10.244.2.2
@@ -99,22 +107,22 @@ jobs:
         admin_pass: admin
         admin_port: 9999
       rdpgd_service:
+        db_pass: "CHANGEME@1ce12345!!!"
         debug: "true"
         log_level: "trace"
         cluster_name: "rdpgsc1"
-        db_pass: "admin"
         pool_size: 20
 
   - name: rdpgsc2
     resource_pool: rdpg
     instances: 2
-    persistent_disk: 65536
+    persistent_disk_pool: rdpgsc_disk
     networks:
       - name: rdpg
         default: [dns, gateway]
         static_ips:
-          - 10.244.2.22
-          - 10.244.2.26
+        - 10.244.2.46
+        - 10.244.2.50
     properties:
       pgbdr:
         debug: "true"
@@ -136,8 +144,9 @@ jobs:
         default_statistics_target: "100"
       pgbouncer:
         debug: "true"
+        listen_port: 6432
         admin_user: "rdpgpbadmin"
-        admin_pass: "admin"
+        admin_pass: "rdpgadmin"
       consul:
         debug: "true"
         join_node: 10.244.2.2
@@ -147,10 +156,10 @@ jobs:
         admin_pass: admin
         admin_port: 9999
       rdpgd_service:
+        db_pass: "CHANGEME@1ce12345!!!"
         debug: "true"
         log_level: "trace"
-        cluster_name: "rdpgsc2"
-        db_pass: "admin"
+        cluster_name: "rdpgsc1"
         pool_size: 20
 
   - name: acceptance_tests
@@ -176,8 +185,6 @@ jobs:
 
         skip_ssl_validation: true
         timeout_scale: 0.05
-
-
 compilation:
   cloud_properties:
     name: random
@@ -240,15 +247,13 @@ networks:
     range: 10.244.2.20/30
     reserved:
     - 10.244.2.21
-    static:
-    - 10.244.2.22
+    static: []
   - cloud_properties:
       name: random
     range: 10.244.2.24/30
     reserved:
     - 10.244.2.25
-    static:
-    - 10.244.2.26
+    static: []
   - cloud_properties:
       name: random
     range: 10.244.2.28/30
@@ -278,13 +283,15 @@ networks:
     range: 10.244.2.44/30
     reserved:
     - 10.244.2.45
-    static: []
+    static:
+    - 10.244.2.46
   - cloud_properties:
       name: random
     range: 10.244.2.48/30
     reserved:
     - 10.244.2.49
-    static: []
+    static:
+    - 10.244.2.50
   - cloud_properties:
       name: random
     range: 10.244.2.52/30

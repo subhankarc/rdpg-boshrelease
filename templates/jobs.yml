@@ -1,14 +1,28 @@
 meta:
   environment: ~
 
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: (( merge ))
+  cloud_properties: (( merge ))
+
 networks: ((merge))
 
 properties: ((merge))
 
 jobs:
   - name: rdpgmc
-    networks: (( merge ))
-    properties: (( merge ))
+    persistent_disk: (( merge ))
+    networks:
+    - name: rdpg
+      static_ips: (( static_ips(0,1,2) ))
+    properties:
+     <<: (( merge ))
+     consul:
+       debug: "false"
+       server: true
+       join_node: (( jobs.rdpgmc.networks.rdpg.static_ips.[0] ))
+       join_nodes: (( jobs.rdpgmc.networks.rdpg.static_ips ))
     resource_pool: rdpg
     instances: 3
     update:
@@ -20,14 +34,23 @@ jobs:
       release: rdpg
     - name: pgbdr
       release: rdpg
-    - name: pgbouncer
-      release: rdpg
     - name: rdpgd-manager
       release: rdpg
+    - name: pgbouncer
+      release: rdpg
+
 
   - name: rdpgsc1
-    networks: (( merge ))
-    properties: (( merge ))
+    persistent_disk_pool: (( merge ))
+    networks:
+    - name: rdpg
+      static_ips: (( static_ips(3,4) ))
+    properties:
+      <<: (( merge ))
+      consul:
+        debug: "false"
+        server: false
+        join_node: (( jobs.rdpgmc.networks.rdpg.static_ips.[0] ))
     resource_pool: rdpg
     instances: 2
     update:
@@ -37,7 +60,6 @@ jobs:
     - name: consul
       release: rdpg
     - name: pgbdr
-
       release: rdpg
     - name: pgbouncer
       release: rdpg
@@ -47,8 +69,16 @@ jobs:
       release: rdpg
 
   - name: rdpgsc2
-    networks: (( merge ))
-    properties: (( merge ))
+    persistent_disk_pool: (( merge ))
+    networks:
+    - name: rdpg
+      static_ips: (( static_ips(5,6) ))
+    properties:
+      <<: (( merge ))
+      consul:
+        debug: "false"
+        server: false
+        join_node: (( jobs.rdpgmc.networks.rdpg.static_ips.[0] ))
     resource_pool: rdpg
     instances: 2
     update:
@@ -74,4 +104,3 @@ jobs:
       release: rdpg
     instances: 1
     lifecycle: errand
-    properties: (( merge ))
