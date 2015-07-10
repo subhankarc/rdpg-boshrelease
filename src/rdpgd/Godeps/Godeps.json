@@ -1,0 +1,29 @@
+{
+	"ImportPath": "github.com/wayneeseguin/rdpgd",
+	"GoVersion": "go1.4",
+	"Deps": [
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "1be7a086a5fd6440ef16fe96baeda0c78282b980"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "e444e69cbd2e2e3e0749a2f3c717cec491552bbf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/consul/api",
+			"Comment": "v0.5.2-114-ga7eecda",
+			"Rev": "a7eecda22dc3ab7e037c23e3e84e1d22618df044"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.0-58-gac7070c",
+			"Rev": "ac7070c8a115e759a26e524fd299efdac81b7e86"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-21-g2ca26b3",
+			"Rev": "2ca26b30a7edcd0b0af72d372c93a2d9d9c2038a"
+		}
+	]
+}
