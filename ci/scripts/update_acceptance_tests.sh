@@ -6,7 +6,7 @@ pushd acceptance-tests
 commit_hash=$(git rev-parse HEAD)
 commit_message=$(git log --oneline | head -n1)
 subtree_repo_url=$(git config remote.origin.url)
-subtree_repo_branch=$(git branch --no-color | grep "*" | awk '{print $2}')
+subtree_repo_branch="master"
 popd
 
 pushd rdpg-boshrelease
