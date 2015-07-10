@@ -301,21 +301,10 @@ func (r *RDPG) bdrGroupJoin() (err error) {
 	re := regexp.MustCompile(`[^0-9]+`)
 	ip := strings.ToLower(string(re.ReplaceAll([]byte(myIP), []byte("_"))))
 	localNodeName := fmt.Sprintf(`rdpg_%s`, ip)
-	cbRE := regexp.MustCompile(`connection from remote back to local in replication mode failed`)
-	for {
-		err = p.BDRGroupJoin(localNodeName, `rdpg`, *joinPG)
-		if err != nil {
-			if cbRE.MatchString(err.Error()) {
-				log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupJoin(%s,rdpg) ! %s`, ClusterID, localNodeName, err))
-				time.Sleep(1 * time.Second)
-				log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupJoin(%s,rdpg) retrying...`, ClusterID, localNodeName))
-				continue
-			} else {
-				log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupJoin(%s,rdpg) ! %s`, ClusterID, localNodeName, err))
-				return
-			}
-		}
-		break
+	err = p.BDRGroupJoin(localNodeName, `rdpg`, *joinPG)
+	if err != nil {
+		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupJoin(%s,rdpg) {HINT: Check pgbdr logs and pg_hba.conf} ! %s`, ClusterID, localNodeName, err))
+		return
 	}
 	return
 }
