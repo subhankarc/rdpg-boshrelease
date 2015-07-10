@@ -10,6 +10,7 @@ subtree_repo_branch="master"
 popd
 
 pushd rdpg-boshrelease
+git checkout master # see http://stackoverflow.com/a/18608538/36170
 git subtree pull \
   --prefix src/rdpg-acceptance-tests \
   ${subtree_repo_url} \
