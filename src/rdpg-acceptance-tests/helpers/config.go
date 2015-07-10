@@ -12,6 +12,7 @@ type Component struct {
 	SshTunnel string `json:"ssh_tunnel"`
 }
 
+// Plan describes a service plan in a catalog
 type Plan struct {
 	Name               string `json:"plan_name"`
 	MaxStorageMb       int    `json:"max_storage_mb"`
@@ -28,14 +29,14 @@ type Proxy struct {
 
 type RdpgIntegrationConfig struct {
 	services.Config
-	BrokerUrlBase  string      `json:"broker_url_base"`
-	BrokerAdminUser  string      `json:"broker_admin_user"`
-	BrokerAdminPassword  string      `json:"broker_admin_password"`
-	ServiceName string      `json:"service_name"`
-	Plans       []Plan      `json:"plans"`
-	Brokers     []Component `json:"brokers"`
-	RdpglNodes  []Component `json:"mysql_nodes"`
-	Proxy       Proxy       `json:"proxy"`
+	BrokerUrlBase       string      `json:"broker_url_base"`
+	BrokerAdminUser     string      `json:"broker_admin_user"`
+	BrokerAdminPassword string      `json:"broker_admin_password"`
+	ServiceName         string      `json:"service_name"`
+	Plans               []Plan      `json:"plans"`
+	Brokers             []Component `json:"brokers"`
+	RdpglNodes          []Component `json:"mysql_nodes"`
+	Proxy               Proxy       `json:"proxy"`
 }
 
 func (c RdpgIntegrationConfig) AppURI(appname string) string {
