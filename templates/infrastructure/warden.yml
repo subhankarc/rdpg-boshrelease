@@ -2,8 +2,13 @@
 meta:
   environment: rdpg-warden
   stemcell:
-    name: bosh-warden-boshlite-centos-7-go_agent
+    name: bosh-warden-boshlite-centos-go_agent
     version: latest
+
+disk_pools:
+- name: rdpgsc_disk
+  disk_size: 32768
+  cloud_properties: {}
 
 jobs:
   - name: rdpgmc
@@ -61,7 +66,7 @@ jobs:
   - name: rdpgsc1
     resource_pool: rdpg
     instances: 2
-    persistent_disk: 65536
+    persistent_disk_pool: rdpgsc_disk
     networks:
       - name: rdpg
         default: [dns, gateway]
@@ -110,7 +115,7 @@ jobs:
   - name: rdpgsc2
     resource_pool: rdpg
     instances: 2
-    persistent_disk: 65536
+    persistent_disk_pool: rdpgsc_disk
     networks:
       - name: rdpg
         default: [dns, gateway]
@@ -194,7 +199,7 @@ resource_pools:
     cloud_properties:
       name: random
 
-properties: {}
+properties: ~
 
 networks:
 - name: rdpg
