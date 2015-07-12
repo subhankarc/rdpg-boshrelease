@@ -23,8 +23,8 @@ compilation:
 update:
   canaries: 0
   max_in_flight: 1
-  canary_watch_time: 3000-120000
-  update_watch_time: 3000-120000
+  canary_watch_time: 3000-240000
+  update_watch_time: 3000-240000
   serial: false
 
 resource_pools:
