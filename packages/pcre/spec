@@ -1,5 +1,0 @@
----
-name: pcre
-dependencies: []
-files:
-  - pcre/pcre-*.tar.gz

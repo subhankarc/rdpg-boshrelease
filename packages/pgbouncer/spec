@@ -1,6 +1,0 @@
----
-name: pgbouncer
-dependencies:
-- libevent
-files:
-  - pgbouncer/pgbouncer-*.tar.gz
