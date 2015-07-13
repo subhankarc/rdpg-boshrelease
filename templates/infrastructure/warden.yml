@@ -199,7 +199,7 @@ resource_pools:
     cloud_properties:
       name: random
 
-properties: ~
+properties: (( merge ))
 
 networks:
 - name: rdpg

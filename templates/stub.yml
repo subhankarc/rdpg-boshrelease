@@ -15,3 +15,5 @@ director_uuid: DIRECTOR-UUID
 releases:
   - name: rdpg
     version: latest
+
+properties: {}
