@@ -16,10 +16,10 @@ import (
 )
 
 func (t *Task) ReconcileAvailableDatabases(workRole string) (err error) {
-	log.Trace(fmt.Sprintf(`tasks.Task#ReconcileAvailableDatabases(%s)...`, t.Data))
+	log.Trace(fmt.Sprintf(`tasks.ReconcileAvailableDatabases(%s)...`, t.Data))
 	client, err := consulapi.NewClient(consulapi.DefaultConfig())
 	if err != nil {
-		log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() consulapi.NewClient()! %s", err))
+		log.Error(fmt.Sprintf("rdpg.newRDPG() consulapi.NewClient()! %s", err))
 		return
 	}
 	catalog := client.Catalog()
@@ -38,6 +38,7 @@ func (t *Task) ReconcileAvailableDatabases(workRole string) (err error) {
 				log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() catalog.Service() ! %s", err))
 				return err
 			}
+			log.Trace(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() svcs: %+v", svcs))
 			if len(svcs) == 0 {
 				log.Error("tasks.Task#ReconcileAvailableDatabases() ! No services found, no known nodes?!")
 				return err
@@ -76,11 +77,12 @@ func (t *Task) ReconcileAvailableDatabases(workRole string) (err error) {
 		log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() Failed connecting to %s err: %s", p.URI, err))
 		return err
 	}
+	defer db.Close()
+
 	for index, _ := range clusterInstances {
 		i, err := instances.FindByDatabase(clusterInstances[index].Database)
 		if err != nil {
 			log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() Failed connecting to %s err: %s", p.URI, err))
-			db.Close()
 			return err
 		}
 		if i == nil {
@@ -91,7 +93,6 @@ func (t *Task) ReconcileAvailableDatabases(workRole string) (err error) {
 			continue
 		}
 	}
-	db.Close()
 	return
 }
 

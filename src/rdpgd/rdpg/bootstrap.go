@@ -61,13 +61,12 @@ func Bootstrap(role string) (err error) {
 		err = r.nonLeaderBootstrap(role)
 		if err != nil {
 			log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#Bootstrap() r.nonLeaderBootstrap() ! %s`, ClusterID, err))
-			return err
 		}
 	}
 
 	err = r.reconfigureServices()
 	if err != nil {
-		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() reconfigureServices() ! %s`, ClusterID, err))
+		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#Bootstrap() reconfigureServices() ! %s`, ClusterID, err))
 	}
 
 	err = r.registerConsulServices()
@@ -185,11 +184,8 @@ func (r *RDPG) leaderBootstrap(role string) (err error) {
 	err = r.bdrGroupCreate()
 	if err != nil {
 		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#leaderBootstrap() Error Creating BDR Group ! %s`, ClusterID, err))
-		r.bootstrapUnlock()
-		return err // Release the leader lock, don't swollow the error...
-	} else {
-		r.bootstrapUnlock()
 	}
+	r.bootstrapUnlock()
 
 	err = r.waitForBDRNodes()
 	if err != nil {
@@ -220,7 +216,7 @@ func (r *RDPG) leaderBootstrap(role string) (err error) {
 
 // Non-Leader specifc bootstrapping.
 func (r *RDPG) nonLeaderBootstrap(role string) (err error) {
-	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() bootstrapping non-leader for cluster...`, ClusterID))
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() bootstrapping non-leader...`, ClusterID))
 	err = r.bdrGroupJoin()
 	if err != nil {
 		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() bdrGroupJoin() ! %s`, ClusterID, err))
@@ -232,8 +228,7 @@ func (r *RDPG) nonLeaderBootstrap(role string) (err error) {
 
 	err = r.waitForBDRNodes()
 	if err != nil {
-		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() Waiting for BDR Nodes ! %s`, ClusterID, err))
-		return
+		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#nonLeaderBootstrap() r.waitForBDRNodes() ! %s`, ClusterID, err))
 	}
 
 	p := pg.NewPG(`127.0.0.1`, pgPort, `rdpg`, `rdpg`, pgPass)
@@ -258,7 +253,7 @@ func (r *RDPG) nonLeaderBootstrap(role string) (err error) {
 
 // Join BDR Group
 func (r *RDPG) bdrGroupCreate() (err error) {
-	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupCreate() Creating BDR Group rdpg for cluster.`, ClusterID))
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupCreate() Creating BDR Group rdpg for cluster...`, ClusterID))
 	kv := r.ConsulClient.KV()
 	key := fmt.Sprintf(`rdpg/%s/bdr/join/ip`, ClusterID)
 	kvp, _, err := kv.Get(key, nil)
@@ -296,6 +291,7 @@ func (r *RDPG) bdrGroupCreate() (err error) {
 
 // Join BDR Group
 func (r *RDPG) bdrGroupJoin() (err error) {
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#bdrGroupJoin() Joining BDR Group rdpg for cluster...`, ClusterID))
 	p := pg.NewPG(myIP, pgPort, `rdpg`, `rdpg`, pgPass)
 	joinPG := pg.NewPG(bdrJoinIP, pgPort, `rdpg`, `rdpg`, pgPass)
 	re := regexp.MustCompile(`[^0-9]+`)
@@ -338,7 +334,7 @@ func (r *RDPG) getKey(key string) (val string, err error) {
 }
 
 func (r *RDPG) waitForClusterNodes() (err error) {
-	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#waitForClusterNodes() waiting for all nodes to be registered...`, ClusterID))
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#waitForClusterNodes() waiting for all nodes to be registered as Consul services...`, ClusterID))
 	cluster, err := NewCluster(ClusterID, r.ConsulClient)
 	if err != nil {
 		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#waitForClusterNodes() NewCluster() ! %s`, ClusterID, err))
@@ -401,7 +397,7 @@ func (r *RDPG) waitForBDRNodes() (err error) {
 }
 
 func (r *RDPG) registerConsulServices() (err error) {
-	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#registerConsulServices()`, ClusterID))
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#registerConsulServices() Registering Consul Services...`, ClusterID))
 
 	re := regexp.MustCompile(`^rdpgsc[0-9]+$`)
 	if !re.MatchString(ClusterID) {
@@ -453,7 +449,7 @@ func (r *RDPG) registerConsulServices() (err error) {
 }
 
 func (r *RDPG) registerConsulWatches() (err error) {
-	log.Info(`rdpg.RDPG#registerConsulWatches() TODO: Register Consul Watches...`)
+	log.Info(`rdpg.RDPG#registerConsulWatches() TODO: Registering Consul Watches...`)
 	/*
 	   "type": "service", "service": "haproxy", "handler": "/var/vcap/jobs/rdpgd-service/bin/consul-watch-notification"
 	   "type": "service", "service": "postgres", "handler": "/var/vcap/jobs/rdpgd-service/bin/consul-watch-notification"
@@ -462,13 +458,12 @@ func (r *RDPG) registerConsulWatches() (err error) {
 }
 
 func (r *RDPG) waitForWriteMasterIP() (err error) {
-	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#waitForWriteMasterIP() ...`, ClusterID))
+	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#waitForWriteMasterIP() Waiting for Master IP to be set in Consul...`, ClusterID))
 	cluster, err := NewCluster(ClusterID, r.ConsulClient)
 	if err != nil {
 		log.Error(fmt.Sprintf(`rdpg.RDPG<%s>#waitForWriteMasterIP() NewCluster() ! %s`, ClusterID, err))
 		return err
 	}
-
 	for {
 		n, err := cluster.GetWriteMaster()
 		if err != nil {
@@ -481,6 +476,5 @@ func (r *RDPG) waitForWriteMasterIP() (err error) {
 		}
 		break
 	}
-
 	return
 }
