@@ -42,7 +42,7 @@ jobs:
       - {name: rdpg-boshrelease}
       - {name: rdpgd}
       run:
-        path: ./rdpg-boshrelease/ci/scripts/update_acceptance_tests.sh
+        path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
         args: [rdpgd]
   - put: git-rdpg-boshrelease
     params:
