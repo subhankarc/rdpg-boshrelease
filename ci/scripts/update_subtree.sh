@@ -15,8 +15,11 @@ subtree_repo_url=$(git config remote.origin.url)
 subtree_repo_branch="master"
 popd
 
-git config --global user.email "concourse-bot@starkandwayne.com"
-git config --global user.name "Concourse Bot"
+if [[ -z "$(git config --global user.name)" ]]
+then
+  git config --global user.name "Concourse Bot"
+  git config --global user.email "concourse-bot@starkandwayne.com"
+fi
 
 pushd rdpg-boshrelease
 git checkout master # see http://stackoverflow.com/a/18608538/36170
