@@ -68,7 +68,7 @@ prepare_blobs() {
   done
 }
 
-prepare_stemcell() {
+determine_stemcell() {
   select_infrastructure $*
   directorName=$(awk -F: '/target_name/{print $2}' ~/.bosh_config)
   stemcellOS=${stemcellOS:-"centos"}
@@ -114,9 +114,11 @@ prepare_stemcell() {
       fail
       ;;
   esac
-  shift
-
   stemcell=${stemcell:-$(latest_uploaded_stemcell)}
+}
+
+prepare_stemcell() {
+  determine_stemcell $*
   if [[ -z ${stemcell} ]]
   then
     pattern=$(basename ${stemcellURL} | sed -e 's/^bosh-/bosh-*/')
@@ -145,7 +147,7 @@ prepare_dev_release() {
 
 prepare_manifest() {
   select_infrastructure $*
-  prepare_stemcell $*
+  determine_stemcell $*
 
   shift # remove the warden|aws to allow params passing to spiff below.
   releaseName=$(basename $PWD | sed -e 's/-boshrelease//')
