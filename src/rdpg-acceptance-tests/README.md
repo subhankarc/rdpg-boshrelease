@@ -28,3 +28,10 @@ Then run tests:
 ```
 ./bin/test-acceptance
 ```
+
+Update godeps
+-------------
+
+```
+godep save ./...
+```

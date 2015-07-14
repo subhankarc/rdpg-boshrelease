@@ -33,6 +33,7 @@ type RdpgIntegrationConfig struct {
 	BrokerAdminUser     string      `json:"broker_admin_user"`
 	BrokerAdminPassword string      `json:"broker_admin_password"`
 	ServiceName         string      `json:"service_name"`
+	ConsulIP            string      `json:"consul_ip"`
 	Plans               []Plan      `json:"plans"`
 	Brokers             []Component `json:"brokers"`
 	RdpglNodes          []Component `json:"mysql_nodes"`

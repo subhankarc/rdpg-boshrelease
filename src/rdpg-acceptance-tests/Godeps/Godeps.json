@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/starkandwayne/rdpg-acceptance-tests",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.4",
 	"Packages": [
 		"./..."
 	],
@@ -18,6 +18,21 @@
 			"Rev": "6eb40501259e9b6bb784328189202b5e32c4b9c3"
 		},
 		{
+			"ImportPath": "github.com/hashicorp/consul/api",
+			"Comment": "v0.5.2-120-gb109046",
+			"Rev": "b1090469c212b0b11a46e0b67ebb991cbd198e40"
+		},
+		{
+			"ImportPath": "github.com/jmoiron/sqlx",
+			"Comment": "sqlx-v1.0-58-gac7070c",
+			"Rev": "ac7070c8a115e759a26e524fd299efdac81b7e86"
+		},
+		{
+			"ImportPath": "github.com/lib/pq",
+			"Comment": "go1.0-cutoff-21-g2ca26b3",
+			"Rev": "2ca26b30a7edcd0b0af72d372c93a2d9d9c2038a"
+		},
+		{
 			"ImportPath": "github.com/onsi/ginkgo",
 			"Comment": "v1.2.0-8-g25380c6",
 			"Rev": "25380c62e61d3f90436be125b8127dbae578fdef"
@@ -26,6 +41,16 @@
 			"ImportPath": "github.com/onsi/gomega",
 			"Comment": "v1.0-50-gd6c945f",
 			"Rev": "d6c945f9fdbf6cad99e85b0feff591caa268e0db"
+		},
+		{
+			"ImportPath": "github.com/wayneeseguin/rdpgd/log",
+			"Comment": "0.0.20-25-g4ceec3b",
+			"Rev": "4ceec3b81aa2e6d513c063f83050a4714710471d"
+		},
+		{
+			"ImportPath": "github.com/wayneeseguin/rdpgd/pg",
+			"Comment": "0.0.20-25-g4ceec3b",
+			"Rev": "4ceec3b81aa2e6d513c063f83050a4714710471d"
 		}
 	]
 }
