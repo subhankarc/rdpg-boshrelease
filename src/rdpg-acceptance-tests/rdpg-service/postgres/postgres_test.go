@@ -25,7 +25,41 @@ func getRowCount(address string, sq string) (query_row_count int, err error) {
 	return row_count[0], nil
 }
 
-var _ = Describe("RDPG Service broker", func() {
+func getAllNodes() (all_nodes []*consulapi.CatalogService) {
+
+	consulConfig := consulapi.DefaultConfig()
+	consulConfig.Address = helpers.TestConfig.ConsulIP
+	consulClient, _ := consulapi.NewClient(consulConfig)
+
+	rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
+	rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+	nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
+	for index, _ := range rdpgsc1_nodes {
+		nodes = append(nodes, rdpgsc1_nodes[index])
+	}
+	for index, _ := range rdpgsc2_nodes {
+		nodes = append(nodes, rdpgsc2_nodes[index])
+	}
+
+	return nodes
+}
+
+func getServiceNodes() (all_service_nodes []*consulapi.CatalogService) {
+
+	consulConfig := consulapi.DefaultConfig()
+	consulConfig.Address = helpers.TestConfig.ConsulIP
+	consulClient, _ := consulapi.NewClient(consulConfig)
+
+	nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
+	rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+	for index, _ := range rdpgsc2_nodes {
+		nodes = append(nodes, rdpgsc2_nodes[index])
+	}
+
+	return nodes
+}
+
+var _ = Describe("RDPG Postgres Testing...", func() {
 	var (
 		consulClient *consulapi.Client
 	)
@@ -38,15 +72,8 @@ var _ = Describe("RDPG Service broker", func() {
 	})
 
 	It("Check Schemas Exist", func() {
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-		all_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		for index, _ := range rdpgsc1_nodes {
-			all_nodes = append(all_nodes, rdpgsc1_nodes[index])
-		}
-		for index, _ := range rdpgsc2_nodes {
-			all_nodes = append(all_nodes, rdpgsc2_nodes[index])
-		}
+
+		all_nodes := getAllNodes()
 
 		//Check all nodes
 		node_row_count := make([]int, 0)
@@ -68,15 +95,8 @@ var _ = Describe("RDPG Service broker", func() {
 	})
 
 	It("Check cfsb Tables Exist", func() {
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-		all_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		for index, _ := range rdpgsc1_nodes {
-			all_nodes = append(all_nodes, rdpgsc1_nodes[index])
-		}
-		for index, _ := range rdpgsc2_nodes {
-			all_nodes = append(all_nodes, rdpgsc2_nodes[index])
-		}
+
+		all_nodes := getAllNodes()
 
 		//Check all nodes
 		node_row_count := make([]int, 0)
@@ -99,15 +119,7 @@ var _ = Describe("RDPG Service broker", func() {
 
 	It("Check rdpg Tables Exist", func() {
 
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-		all_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		for index, _ := range rdpgsc1_nodes {
-			all_nodes = append(all_nodes, rdpgsc1_nodes[index])
-		}
-		for index, _ := range rdpgsc2_nodes {
-			all_nodes = append(all_nodes, rdpgsc2_nodes[index])
-		}
+		all_nodes := getAllNodes()
 
 		//Check all nodes
 		node_row_count := make([]int, 0)
@@ -129,15 +141,7 @@ var _ = Describe("RDPG Service broker", func() {
 	})
 
 	It("Check tasks Tables Exist", func() {
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-		all_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		for index, _ := range rdpgsc1_nodes {
-			all_nodes = append(all_nodes, rdpgsc1_nodes[index])
-		}
-		for index, _ := range rdpgsc2_nodes {
-			all_nodes = append(all_nodes, rdpgsc2_nodes[index])
-		}
+		all_nodes := getAllNodes()
 
 		//Check all nodes
 		node_row_count := make([]int, 0)
@@ -309,15 +313,7 @@ var _ = Describe("RDPG Service broker", func() {
 		//Looks for any active scheduled tasks which have not been scheduled in two
 		//frequency cycles
 
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-		all_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		for index, _ := range rdpgsc1_nodes {
-			all_nodes = append(all_nodes, rdpgsc1_nodes[index])
-		}
-		for index, _ := range rdpgsc2_nodes {
-			all_nodes = append(all_nodes, rdpgsc2_nodes[index])
-		}
+		all_nodes := getAllNodes()
 
 		//Check all nodes
 		node_row_count := make([]int, 0)
@@ -340,87 +336,47 @@ var _ = Describe("RDPG Service broker", func() {
 
 	It("Check for databases known to cfsb.instances but don't exist", func() {
 
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+		all_nodes := getServiceNodes()
 
-		fmt.Println(rdpgsc1_nodes)
-
-		//Check SC1
-		sc1_row_count := make([]int, 0)
-		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			address := rdpgsc1_nodes[i].Address
+		//Check SC
+		sc_row_count := make([]int, 0)
+		for i := 0; i < len(all_nodes); i++ {
+			address := all_nodes[i].Address
 			sq := `SELECT count(name) AS row_count FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_databaes; `
 			row_count, err := getRowCount(address, sq)
-			sc1_row_count = append(sc1_row_count, row_count)
+			sc_row_count = append(sc_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", rdpgsc1_nodes[i].Node, row_count)
+			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(sc1_row_count); i++ {
-			Expect(sc1_row_count[0]).To(Equal(sc1_row_count[i]))
+		for i := 1; i < len(sc_row_count); i++ {
+			Expect(sc_row_count[0]).To(Equal(sc_row_count[i]))
 		}
 		//There should be no rows of databases which are known to cfsb.instances but don't exist
-		Expect(sc1_row_count[0]).To(Equal(0))
-
-		//Check SC2
-		sc2_row_count := make([]int, 0)
-		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			address := rdpgsc2_nodes[i].Address
-			sq := `SELECT count(name) AS row_count FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_databaes; `
-			row_count, err := getRowCount(address, sq)
-			sc2_row_count = append(sc2_row_count, row_count)
-			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", rdpgsc2_nodes[i].Node, row_count)
-		}
-		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(sc2_row_count); i++ {
-			Expect(sc2_row_count[0]).To(Equal(sc2_row_count[i]))
-		}
-		//There should be no rows of databases which are known to cfsb.instances but don't exist
-		Expect(sc2_row_count[0]).To(Equal(0))
+		Expect(sc_row_count[0]).To(Equal(0))
 
 	})
 
 	It("Check for databases which exist and aren't known to cfsb.instances", func() {
 
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+		all_nodes := getServiceNodes()
 
-		fmt.Println(rdpgsc1_nodes)
-
-		//Check SC1
-		sc1_row_count := make([]int, 0)
-		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			address := rdpgsc1_nodes[i].Address
+		//Check SC
+		sc_row_count := make([]int, 0)
+		for i := 0; i < len(all_nodes); i++ {
+			address := all_nodes[i].Address
 			sq := `SELECT count(name) as row_count FROM ( (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') EXCEPT (SELECT dbname AS name FROM cfsb.instances)) AS databases_missing_instances; `
 			row_count, err := getRowCount(address, sq)
-			sc1_row_count = append(sc1_row_count, row_count)
+			sc_row_count = append(sc_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("%s: Found %d databases in pg not in cfsb.instances...\n", rdpgsc1_nodes[i].Node, row_count)
+			fmt.Printf("%s: Found %d databases in pg not in cfsb.instances...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(sc1_row_count); i++ {
-			Expect(sc1_row_count[0]).To(Equal(sc1_row_count[i]))
+		for i := 1; i < len(sc_row_count); i++ {
+			Expect(sc_row_count[0]).To(Equal(sc_row_count[i]))
 		}
 		//There should be no rows of databases which are known to pg but aren't in cfsb.instances
-		Expect(sc1_row_count[0]).To(Equal(0))
-
-		//Check SC2
-		sc2_row_count := make([]int, 0)
-		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			address := rdpgsc2_nodes[i].Address
-			sq := `SELECT count(name) as row_count FROM ( (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') EXCEPT (SELECT dbname AS name FROM cfsb.instances)) AS databases_missing_instances; `
-			row_count, err := getRowCount(address, sq)
-			sc2_row_count = append(sc2_row_count, row_count)
-			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("%s: Found %d databases in pg not in cfsb.instances...\n", rdpgsc2_nodes[i].Node, row_count)
-		}
-		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(sc2_row_count); i++ {
-			Expect(sc2_row_count[0]).To(Equal(sc2_row_count[i]))
-		}
-		//There should be no rows of databases which are known to pg but aren't in cfsb.instances
-		Expect(sc2_row_count[0]).To(Equal(0))
+		Expect(sc_row_count[0]).To(Equal(0))
 
 	})
 
