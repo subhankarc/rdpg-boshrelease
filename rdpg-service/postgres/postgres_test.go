@@ -11,6 +11,20 @@ import (
 	"github.com/starkandwayne/rdpg-acceptance-tests/helpers"
 )
 
+func getRowCount(address string, sq string) (query_row_count int, err error) {
+	p := pg.NewPG(address, "7432", `rdpg`, `rdpg`, "admin")
+	db, err := p.Connect()
+	if err != nil {
+		return 0, err
+	}
+	row_count := make([]int, 0)
+	err = db.Select(&row_count, sq)
+	if err != nil {
+		return 0, err
+	}
+	return row_count[0], nil
+}
+
 var _ = Describe("RDPG Service broker", func() {
 	var (
 		consulClient *consulapi.Client
@@ -37,17 +51,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check all nodes
 		node_row_count := make([]int, 0)
 		for i := 0; i < len(all_nodes); i++ {
-			fmt.Printf("Working on %s\n", all_nodes[i].Node)
-			p := pg.NewPG(all_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := all_nodes[i].Address
 			sq := ` SELECT count(schema_name) as row_count FROM information_schema.schemata WHERE schema_name IN ('bdr', 'rdpg', 'cfsb', 'tasks', 'backups', 'metrics', 'audit'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			node_row_count = append(node_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d tables in schema rdpg...\n", row_count[0])
-			node_row_count = append(node_row_count, row_count[0])
+			fmt.Printf("%s: Found %d schemas in rdpg database...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
@@ -72,17 +81,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check all nodes
 		node_row_count := make([]int, 0)
 		for i := 0; i < len(all_nodes); i++ {
-			fmt.Printf("Working on %s\n", all_nodes[i].Node)
-			p := pg.NewPG(all_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := all_nodes[i].Address
 			sq := ` SELECT count(table_name) as row_count FROM information_schema.tables WHERE table_schema = 'cfsb' and table_name IN ('services','plans','instances','bindings','credentials'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			node_row_count = append(node_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d tables in schema rdpg...\n", row_count[0])
-			node_row_count = append(node_row_count, row_count[0])
+			fmt.Printf("%s: Found %d tables in schema cfsb...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
@@ -108,17 +112,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check all nodes
 		node_row_count := make([]int, 0)
 		for i := 0; i < len(all_nodes); i++ {
-			fmt.Printf("Working on %s\n", all_nodes[i].Node)
-			p := pg.NewPG(all_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := all_nodes[i].Address
 			sq := ` SELECT count(table_name) as row_count FROM information_schema.tables WHERE table_schema = 'rdpg' and table_name IN ('config', 'consul_watch_notifications', 'events'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			node_row_count = append(node_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d tables in schema rdpg...\n", row_count[0])
-			node_row_count = append(node_row_count, row_count[0])
+			fmt.Printf("%s: Found %d tables in schema rdpg...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
@@ -143,17 +142,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check all nodes
 		node_row_count := make([]int, 0)
 		for i := 0; i < len(all_nodes); i++ {
-			fmt.Printf("Working on %s\n", all_nodes[i].Node)
-			p := pg.NewPG(all_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := all_nodes[i].Address
 			sq := ` SELECT count(table_name) as row_count FROM information_schema.tables WHERE table_schema = 'tasks' and table_name IN ('tasks','schedules'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			node_row_count = append(node_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d tables in schema tasks...\n", row_count[0])
-			node_row_count = append(node_row_count, row_count[0])
+			fmt.Printf("%s: Found %d tables in schema tasks...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
@@ -175,17 +169,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC1
 		sc1_instance_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc1_nodes[i].Node)
-			p := pg.NewPG(rdpgsc1_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			instance_count := make([]int, 0)
+			address := rdpgsc1_nodes[i].Address
 			sq := ` SELECT count(*) as instance_count FROM cfsb.instances WHERE effective_at IS NOT NULL AND decommissioned_at IS NULL; `
-			err = db.Select(&instance_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc1_instance_count = append(sc1_instance_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d instances...\n", instance_count[0])
-			sc1_instance_count = append(sc1_instance_count, instance_count[0])
+			fmt.Printf("%s: Found %d instances...\n", rdpgsc1_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc1_instance_count); i++ {
@@ -195,17 +184,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC2
 		sc2_instance_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc2_nodes[i].Node)
-			p := pg.NewPG(rdpgsc2_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			instance_count := make([]int, 0)
+			address := rdpgsc2_nodes[i].Address
 			sq := ` SELECT count(*) as instance_count FROM cfsb.instances WHERE effective_at IS NOT NULL AND decommissioned_at IS NULL; `
-			err = db.Select(&instance_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc2_instance_count = append(sc2_instance_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d instances...\n", instance_count[0])
-			sc2_instance_count = append(sc2_instance_count, instance_count[0])
+			fmt.Printf("%s: Found %d instances...\n", rdpgsc2_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc2_instance_count); i++ {
@@ -215,17 +199,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check MC
 		mc_instance_count := make([]int, 0)
 		for i := 0; i < len(rdpgmc_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgmc_nodes[i].Node)
-			p := pg.NewPG(rdpgmc_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			instance_count := make([]int, 0)
+			address := rdpgmc_nodes[i].Address
 			sq := ` SELECT count(*) as instance_count FROM cfsb.instances WHERE effective_at IS NOT NULL AND decommissioned_at IS NULL; `
-			err = db.Select(&instance_count, sq)
+			row_count, err := getRowCount(address, sq)
+			mc_instance_count = append(mc_instance_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d instances...\n", instance_count[0])
-			mc_instance_count = append(mc_instance_count, instance_count[0])
+			fmt.Printf("%s: Found %d instances...\n", rdpgmc_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(mc_instance_count); i++ {
@@ -275,17 +254,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC1
 		sc1_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc1_nodes[i].Node)
-			p := pg.NewPG(rdpgsc1_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc1_nodes[i].Address
 			sq := ` SELECT count(*) AS row_count FROM tasks.schedules WHERE role IN ('all', 'service'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc1_row_count = append(sc1_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d scheduled tasks...\n", row_count[0])
-			sc1_row_count = append(sc1_row_count, row_count[0])
+			fmt.Printf("%s: Found %d scheduled tasks...\n", rdpgsc1_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc1_row_count); i++ {
@@ -297,17 +271,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC2
 		sc2_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc2_nodes[i].Node)
-			p := pg.NewPG(rdpgsc2_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc2_nodes[i].Address
 			sq := ` SELECT count(*) AS row_count FROM tasks.schedules WHERE role IN ('all', 'service'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc2_row_count = append(sc2_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d scheduled tasks...\n", row_count[0])
-			sc2_row_count = append(sc2_row_count, row_count[0])
+			fmt.Printf("%s: Found %d scheduled tasks...\n", rdpgsc2_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc2_row_count); i++ {
@@ -319,17 +288,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check MC
 		mc_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgmc_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgmc_nodes[i].Node)
-			p := pg.NewPG(rdpgmc_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgmc_nodes[i].Address
 			sq := ` SELECT count(*) AS row_count FROM tasks.schedules WHERE role IN ('all', 'manager'); `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			mc_row_count = append(mc_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d scheduled tasks...\n", row_count[0])
-			mc_row_count = append(mc_row_count, row_count[0])
+			fmt.Printf("%s: Found %d scheduled tasks...\n", rdpgmc_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(mc_row_count); i++ {
@@ -358,17 +322,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check all nodes
 		node_row_count := make([]int, 0)
 		for i := 0; i < len(all_nodes); i++ {
-			fmt.Printf("Working on %s\n", all_nodes[i].Node)
-			p := pg.NewPG(all_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := all_nodes[i].Address
 			sq := ` SELECT count(*) as row_count FROM tasks.schedules WHERE last_scheduled_at + (2 * frequency) < CURRENT_TIMESTAMP AND enabled=true; `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			node_row_count = append(node_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d missed scheduled tasks...\n", row_count[0])
-			node_row_count = append(node_row_count, row_count[0])
+			fmt.Printf("%s: Found %d missed scheduled tasks...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
@@ -389,17 +348,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC1
 		sc1_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc1_nodes[i].Node)
-			p := pg.NewPG(rdpgsc1_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc1_nodes[i].Address
 			sq := `SELECT count(name) AS row_count FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_databaes; `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc1_row_count = append(sc1_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d databases known to cfsb.instances but don't exist...\n", row_count[0])
-			sc1_row_count = append(sc1_row_count, row_count[0])
+			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", rdpgsc1_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc1_row_count); i++ {
@@ -411,17 +365,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC2
 		sc2_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc2_nodes[i].Node)
-			p := pg.NewPG(rdpgsc2_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc2_nodes[i].Address
 			sq := `SELECT count(name) AS row_count FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_databaes; `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc2_row_count = append(sc2_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d databases known to cfsb.instances but don't exist...\n", row_count[0])
-			sc2_row_count = append(sc2_row_count, row_count[0])
+			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", rdpgsc2_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc2_row_count); i++ {
@@ -442,17 +391,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC1
 		sc1_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc1_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc1_nodes[i].Node)
-			p := pg.NewPG(rdpgsc1_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc1_nodes[i].Address
 			sq := `SELECT count(name) as row_count FROM ( (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') EXCEPT (SELECT dbname AS name FROM cfsb.instances)) AS databases_missing_instances; `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc1_row_count = append(sc1_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d databases in pg not in cfsb.instances...\n", row_count[0])
-			sc1_row_count = append(sc1_row_count, row_count[0])
+			fmt.Printf("%s: Found %d databases in pg not in cfsb.instances...\n", rdpgsc1_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc1_row_count); i++ {
@@ -464,17 +408,12 @@ var _ = Describe("RDPG Service broker", func() {
 		//Check SC2
 		sc2_row_count := make([]int, 0)
 		for i := 0; i < len(rdpgsc2_nodes); i++ {
-			fmt.Printf("Working on %s\n", rdpgsc2_nodes[i].Node)
-			p := pg.NewPG(rdpgsc2_nodes[i].Address, "7432", `rdpg`, `rdpg`, "admin")
-			db, err := p.Connect()
-			Expect(err).NotTo(HaveOccurred())
-
-			row_count := make([]int, 0)
+			address := rdpgsc2_nodes[i].Address
 			sq := `SELECT count(name) as row_count FROM ( (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') EXCEPT (SELECT dbname AS name FROM cfsb.instances)) AS databases_missing_instances; `
-			err = db.Select(&row_count, sq)
+			row_count, err := getRowCount(address, sq)
+			sc2_row_count = append(sc2_row_count, row_count)
 			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("Found %d databases in pg not in cfsb.instances...\n", row_count[0])
-			sc2_row_count = append(sc2_row_count, row_count[0])
+			fmt.Printf("%s: Found %d databases in pg not in cfsb.instances...\n", rdpgsc2_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(sc2_row_count); i++ {
