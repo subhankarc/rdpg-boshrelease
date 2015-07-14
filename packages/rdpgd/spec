@@ -1,6 +1,0 @@
----
-name: rdpgd
-dependencies:
-- golang1.4
-files:
-- rdpgd/**/*.go

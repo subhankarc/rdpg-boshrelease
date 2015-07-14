@@ -1,5 +1,0 @@
----
-name: libevent
-dependencies: []
-files:
-  - libevent/libevent-*.tar.gz
