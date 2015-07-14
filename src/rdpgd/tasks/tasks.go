@@ -99,7 +99,7 @@ func (t *Task) Dequeue() (err error) {
 		log.Error(fmt.Sprintf(`tasks.Task<%d>#Dequeue() Selecting Task %+v ! %s`, t.ID, t, err))
 		return
 	}
-	if tasks == nil {
+	if len(tasks) == 0 {
 		log.Error(fmt.Sprintf(`tasks.Task<%d>#Dequeue() No rows returned for task %+v`, t.ID, t))
 		return
 	}

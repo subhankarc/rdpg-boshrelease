@@ -63,7 +63,7 @@ func (t *Task) ReconcileAvailableDatabases(workRole string) (err error) {
 			is := []instances.Instance{}
 			err = json.Unmarshal(body, &is)
 			if err != nil {
-				log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() ! %s", err))
+				log.Error(fmt.Sprintf("tasks.Task#ReconcileAvailableDatabases() ! %s json: %s", err, string(body)))
 				continue
 			}
 			for _, i := range is {
@@ -144,7 +144,7 @@ func (t *Task) ReconcileAllDatabases(workRole string) (err error) {
 			is := []instances.Instance{}
 			err = json.Unmarshal(body, &is)
 			if err != nil {
-				log.Error(fmt.Sprintf("tasks.Task#ReconcileAllDatabases() ! %s", err))
+				log.Error(fmt.Sprintf("tasks.Task#ReconcileAllDatabases() ! %s json: %s", err, string(body)))
 				continue
 			}
 			for _, i := range is {
