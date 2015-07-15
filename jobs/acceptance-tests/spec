@@ -29,6 +29,9 @@ properties:
   acceptance_tests.service_name:
     description: Not used yet
 
+  acceptance_tests.consul_ip:
+    description: Consul IP
+  
   acceptance_tests.broker_admin_user:
     description: Username for the RDPG service broker
   acceptance_tests.broker_admin_password:

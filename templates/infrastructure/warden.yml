@@ -172,9 +172,12 @@ jobs:
         admin_user:    admin
         admin_password:  admin
 
+        consul_ip: 10.244.2.2:8500
+
         broker_url_base:  10.244.2.2:8888
         broker_admin_user: cfadmin
         broker_admin_password: cfadmin
+
 
         service_name:  rdpg
         plans:
