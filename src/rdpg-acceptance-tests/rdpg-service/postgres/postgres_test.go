@@ -267,16 +267,16 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			address := rdpgsc1Nodes[i].Address
 			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'service'); `
 			rowCount, err := getRowCount(address, sq)
-			sc1_rowCount = append(sc1_rowCount, rowCount)
+			sc1RowCount = append(sc1RowCount, rowCount)
 			Expect(err).NotTo(HaveOccurred())
 			fmt.Printf("%s: Found %d scheduled tasks...\n", rdpgsc1Nodes[i].Node, rowCount)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(sc1_rowCount); i++ {
-			Expect(sc1_rowCount[0]).To(Equal(sc1_rowCount[i]))
+		for i := 1; i < len(sc1RowCount); i++ {
+			Expect(sc1RowCount[0]).To(Equal(sc1RowCount[i]))
 		}
 
-		Expect(sc1_rowCount[0]).To(BeNumerically(">=", 3))
+		Expect(sc1RowCount[0]).To(BeNumerically(">=", 3))
 
 		//Check SC2
 		var sc2RowCount []int
@@ -301,16 +301,16 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			address := rdpgmcNodes[i].Address
 			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'manager'); `
 			rowCount, err := getRowCount(address, sq)
-			mc_rowCount = append(mc_rowCount, rowCount)
+			mcRowCount = append(mcRowCount, rowCount)
 			Expect(err).NotTo(HaveOccurred())
 			fmt.Printf("%s: Found %d scheduled tasks...\n", rdpgmcNodes[i].Node, rowCount)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(mc_rowCount); i++ {
-			Expect(mc_rowCount[0]).To(Equal(mc_rowCount[i]))
+		for i := 1; i < len(mcRowCount); i++ {
+			Expect(mcRowCount[0]).To(Equal(mcRowCount[i]))
 		}
 
-		Expect(mc_rowCount[0]).To(BeNumerically(">=", 4))
+		Expect(mcRowCount[0]).To(BeNumerically(">=", 4))
 
 	})
 
@@ -361,7 +361,7 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(scRowCount[0]).To(Equal(scRowCount[i]))
 		}
 
-		Expect(len(nodeRowCount)).NotTo(Equal(0))
+		Expect(len(allNodes)).NotTo(Equal(0))
 		//There should be no rows of databases which are known to cfsb.instances but don't exist
 		Expect(scRowCount[0]).To(Equal(0))
 
@@ -386,7 +386,8 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(scRowCount[0]).To(Equal(scRowCount[i]))
 		}
 
-		Expect(len(nodeRowCount)).NotTo(Equal(0))
+		Expect(len(allNodes)).NotTo(Equal(0))
+
 		//There should be no rows of databases which are known to pg but aren't in cfsb.instances
 		Expect(scRowCount[0]).To(Equal(0))
 
