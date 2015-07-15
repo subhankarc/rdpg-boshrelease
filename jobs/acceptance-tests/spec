@@ -39,7 +39,6 @@ properties:
   acceptance_tests.broker_url_base:
     description: Base host:port or hostname for the RDPG service broker
 
-
   acceptance_tests.timeout_scale:
     description: >
       Scaling multiplier used to determine command timeouts,
