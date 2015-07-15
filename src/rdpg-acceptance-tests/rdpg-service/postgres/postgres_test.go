@@ -44,6 +44,18 @@ func getAllNodes() (all_nodes []*consulapi.CatalogService) {
 	return nodes
 }
 
+func getNodesByClusterName(clusterName string) (all_nodes []*consulapi.CatalogService) {
+
+	consulConfig := consulapi.DefaultConfig()
+	consulConfig.Address = helpers.TestConfig.ConsulIP
+	consulClient, _ := consulapi.NewClient(consulConfig)
+
+	nodes, _, _ := consulClient.Catalog().Service(clusterName, "", nil)
+
+	return nodes
+
+}
+
 func getServiceNodes() (all_service_nodes []*consulapi.CatalogService) {
 
 	consulConfig := consulapi.DefaultConfig()
@@ -60,16 +72,6 @@ func getServiceNodes() (all_service_nodes []*consulapi.CatalogService) {
 }
 
 var _ = Describe("RDPG Postgres Testing...", func() {
-	var (
-		consulClient *consulapi.Client
-	)
-
-	BeforeEach(func() {
-		consulConfig := consulapi.DefaultConfig()
-		consulConfig.Address = helpers.TestConfig.ConsulIP
-		consulClient, _ = consulapi.NewClient(consulConfig)
-
-	})
 
 	It("Check Schemas Exist", func() {
 
@@ -164,11 +166,9 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	It("Check Instance Counts", func() {
 
-		rdpgmc_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
-
-		fmt.Println(rdpgsc1_nodes)
+		rdpgmc_nodes := getNodesByClusterName("rdpgmc")
+		rdpgsc1_nodes := getNodesByClusterName("rdpgsc1")
+		rdpgsc2_nodes := getNodesByClusterName("rdpgsc2")
 
 		//Check SC1
 		sc1_instance_count := make([]int, 0)
@@ -227,9 +227,9 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	It("Check Node Counts", func() {
 
-		rdpgmc_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+		rdpgmc_nodes := getNodesByClusterName("rdpgmc")
+		rdpgsc1_nodes := getNodesByClusterName("rdpgsc1")
+		rdpgsc2_nodes := getNodesByClusterName("rdpgsc2")
 
 		//Check SC1
 		expectedNodeCount := 2
@@ -249,9 +249,9 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	It("Check Scheduled Tasks Exist", func() {
 
-		rdpgmc_nodes, _, _ := consulClient.Catalog().Service("rdpgmc", "", nil)
-		rdpgsc1_nodes, _, _ := consulClient.Catalog().Service("rdpgsc1", "", nil)
-		rdpgsc2_nodes, _, _ := consulClient.Catalog().Service("rdpgsc2", "", nil)
+		rdpgmc_nodes := getNodesByClusterName("rdpgmc")
+		rdpgsc1_nodes := getNodesByClusterName("rdpgsc1")
+		rdpgsc2_nodes := getNodesByClusterName("rdpgsc2")
 
 		fmt.Println(rdpgsc1_nodes)
 
