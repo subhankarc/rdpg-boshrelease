@@ -88,12 +88,14 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			fmt.Printf("%s: Found %d schemas in rdpg database...\n", all_nodes[i].Node, row_count)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
+		fmt.Printf("%#v\n", node_row_count)
+
 		for i := 1; i < len(node_row_count); i++ {
 			Expect(node_row_count[0]).To(Equal(node_row_count[i]))
 		}
 
+		Expect(len(node_row_count)).NotTo(Equal(0))
 		Expect(node_row_count[0]).To(Equal(7))
-
 	})
 
 	It("Check cfsb Tables Exist", func() {
@@ -110,13 +112,14 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(err).NotTo(HaveOccurred())
 			fmt.Printf("%s: Found %d tables in schema cfsb...\n", all_nodes[i].Node, row_count)
 		}
+
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
 			Expect(node_row_count[0]).To(Equal(node_row_count[i]))
 		}
 
+		Expect(len(node_row_count)).NotTo(Equal(0))
 		Expect(node_row_count[0]).To(Equal(5))
-
 	})
 
 	It("Check rdpg Tables Exist", func() {
@@ -133,11 +136,13 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(err).NotTo(HaveOccurred())
 			fmt.Printf("%s: Found %d tables in schema rdpg...\n", all_nodes[i].Node, row_count)
 		}
+
 		//Verify each database also sees the same number of records (bdr sanity check)
 		for i := 1; i < len(node_row_count); i++ {
 			Expect(node_row_count[0]).To(Equal(node_row_count[i]))
 		}
 
+		Expect(len(node_row_count)).NotTo(Equal(0))
 		Expect(node_row_count[0]).To(Equal(3))
 
 	})
@@ -160,6 +165,7 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(node_row_count[0]).To(Equal(node_row_count[i]))
 		}
 
+		Expect(len(node_row_count)).NotTo(Equal(0))
 		Expect(node_row_count[0]).To(Equal(2))
 
 	})
