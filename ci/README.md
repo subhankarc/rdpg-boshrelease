@@ -7,7 +7,7 @@ Setup pipeline in Concourse
 ---------------------------
 
 ```
-fly -t bosh-lite c -c pipeline.yml --vars-from credentials.yml rdpg-boshrelease
+fly -t snw -c pipeline.yml --vars-from credentials.yml rdpg-boshrelease
 ```
 
 Building/updating the base Docker image for tasks
@@ -18,7 +18,7 @@ Each task within all job build plans uses the same base Docker image for all dep
 All the resources used in the pipeline are shipped as independent Docker images and are outside the scope of this section.
 
 ```
-fly -t bosh-lite configure \
+fly -t snw configure \
   -c ci_image/pipeline.yml \
   --vars-from credentials.yml \
   rdpg-boshrelease-image
