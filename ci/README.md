@@ -7,7 +7,7 @@ Setup pipeline in Concourse
 ---------------------------
 
 ```
-fly -t snw -c pipeline.yml --vars-from credentials.yml rdpg-boshrelease
+fly -t snw c -c pipeline.yml --vars-from credentials.yml rdpg-boshrelease
 ```
 
 Building/updating the base Docker image for tasks
