@@ -1,29 +1,4 @@
 jobs:
-- name: bump-tests
-  public: true
-  serial: true
-  plan:
-  - aggregate:
-    - get: rdpg-boshrelease
-      resource: git-rdpg-boshrelease
-    - get: rdpg-acceptance-tests
-      resource: git-rdpg-acceptance-tests
-      trigger: true
-  - task: update-subtree
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-      - {name: rdpg-boshrelease}
-      - {name: rdpg-acceptance-tests}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
-        args: [rdpg-acceptance-tests]
-  - put: git-rdpg-boshrelease
-    params:
-      repository: update-subtree/rdpg-boshrelease
-      rebase: true
-
 - name: bump-rdpgd
   public: true
   serial: true
@@ -179,12 +154,6 @@ resources:
   type: git
   source:
     uri: https://github.com/starkandwayne/rdpgd.git
-    branch: master
-
-- name: git-rdpg-acceptance-tests
-  type: git
-  source:
-    uri: https://github.com/starkandwayne/rdpg-acceptance-tests.git
     branch: master
 
 - name: github-final-release
