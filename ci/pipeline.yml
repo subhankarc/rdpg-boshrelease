@@ -109,8 +109,6 @@ jobs:
   public: true
   plan:
   - aggregate:
-    - get: rdpg-boshrelease
-      resource: git-rdpg-boshrelease
     - get: version
       trigger: false
       params: {bump: patch}
