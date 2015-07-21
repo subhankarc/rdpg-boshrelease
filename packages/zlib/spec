@@ -1,5 +1,0 @@
----
-name: zlib
-dependencies: []
-files:
-  - zlib/zlib-*.tar.gz
