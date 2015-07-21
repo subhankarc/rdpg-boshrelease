@@ -23,7 +23,6 @@ jobs:
     - put: git-rdpg-boshrelease
       params:
         repository: update-subtree/rdpg-boshrelease
-        rebase: true
     on_failure:
       put: slack-devs
       params:
