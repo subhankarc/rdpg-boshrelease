@@ -70,10 +70,24 @@ jobs:
           bosh_target: {{bosh-lite-build-target}}
           bosh_username: {{bosh-lite-build-username}}
           bosh_password: {{bosh-lite-build-password}}
+      on_failure:
+        put: slack-devs
+        params:
+          text: acceptance tests failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease (deploy job)
+          channel: "#ge-rdpg"
+          username: concourse
+          icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
     on_failure:
       put: slack-devs
       params:
         text: deploy job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    on_success:
+      put: slack-devs
+      params:
+        text: deploy job succeeded
         channel: "#ge-rdpg"
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
