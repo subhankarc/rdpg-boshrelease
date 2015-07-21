@@ -49,7 +49,7 @@ cp ci/release_notes.md release/notes.md
 echo "${release_name} v${version}" > release/name
 echo "v${version}" > release/tag
 cat > release/slack_success_message.txt <<EOS
-<!channel> New version v${version} released
+<!here> New version v${version} released
 EOS
 
 git config --global user.email "ci@localhost"
