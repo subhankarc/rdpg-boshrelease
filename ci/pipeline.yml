@@ -1,3 +1,16 @@
+groups:
+- name: build
+  jobs:
+  - bump-rdpgd
+  - deploy
+  - rc
+  - shipit
+- name: version
+  jobs:
+  - patch
+  - minor
+  - major
+
 jobs:
 - name: bump-rdpgd
   public: true
