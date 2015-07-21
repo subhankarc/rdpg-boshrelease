@@ -27,7 +27,7 @@ jobs:
     on_failure:
       put: slack-devs
       params:
-        text: bump-rdpgd job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        text: <!channel> bump-rdpgd job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
         channel: "#ge-rdpg"
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
@@ -73,21 +73,21 @@ jobs:
       on_failure:
         put: slack-devs
         params:
-          text: acceptance tests failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease (deploy job)
+          text: <!channel> acceptance tests failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease (deploy job)
           channel: "#ge-rdpg"
           username: concourse
           icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
     on_failure:
       put: slack-devs
       params:
-        text: deploy job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        text: <!channel> deploy job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
         channel: "#ge-rdpg"
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
     on_success:
       put: slack-devs
       params:
-        text: deploy job succeeded
+        text: <!channel> deploy & tests succeeded
         channel: "#ge-rdpg"
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
@@ -187,7 +187,7 @@ jobs:
     on_failure:
       put: slack-devs
       params:
-        text: shipit job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        text: <!channel> shipit job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
         channel: "#ge-rdpg"
         username: concourse
         icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
