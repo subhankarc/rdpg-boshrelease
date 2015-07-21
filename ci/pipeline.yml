@@ -3,26 +3,35 @@ jobs:
   public: true
   serial: true
   plan:
-  - aggregate:
-    - get: rdpg-boshrelease
-      resource: git-rdpg-boshrelease
-    - get: rdpgd
-      resource: git-rdpgd
-      trigger: true
-  - task: update-subtree
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-      - {name: rdpg-boshrelease}
-      - {name: rdpgd}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
-        args: [rdpgd]
-  - put: git-rdpg-boshrelease
-    params:
-      repository: update-subtree/rdpg-boshrelease
-      rebase: true
+  - do:
+    - aggregate:
+      - get: rdpg-boshrelease
+        resource: git-rdpg-boshrelease
+      - get: rdpgd
+        resource: git-rdpgd
+        trigger: true
+    - task: update-subtree
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: rdpg-boshrelease}
+        - {name: rdpgd}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
+          args: [rdpgd]
+    - put: git-rdpg-boshrelease
+      params:
+        repository: update-subtree/rdpg-boshrelease
+        rebase: true
+    on_failure:
+      put: slack-devs
+      params:
+        text: rdpg-boshrelease / bump-rdpgd job failed [<pipeline|http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease>]
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+
 
 - name: deploy
   public: true
@@ -170,3 +179,8 @@ resources:
     regexp: rdpg-(.*).tgz
     access_key_id: {{boshrelease-aws-access-key-id}}
     secret_access_key: {{boshrelease-aws-secret-access-key}}
+
+- name: slack-devs
+  type: slack-notification
+  source:
+    url: {{slack-devs-webhook}}
