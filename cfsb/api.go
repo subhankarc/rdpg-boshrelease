@@ -59,7 +59,7 @@ func API() (err error) {
 func httpAuth(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, request *http.Request) {
 		if len(request.Header["Authorization"]) == 0 {
-			log.Trace(fmt.Sprintf("httpAuth(): Authorization Required"))
+			log.Trace(fmt.Sprintf("httpAuth(): 'Authorization' Header Required"))
 			http.Error(w, "Authorization Required", http.StatusUnauthorized)
 			return
 		}
@@ -72,13 +72,13 @@ func httpAuth(h http.HandlerFunc) http.HandlerFunc {
 		}
 		payload, err := base64.StdEncoding.DecodeString(auth[1])
 		if err != nil {
-			log.Error(fmt.Sprintf("httpAuth(): Authorization Failed"))
+			log.Error(fmt.Sprintf("httpAuth(): Authorization base64.StdEncoding.DecodeString() Failed"))
 			http.Error(w, "Authorization Failed\n", http.StatusUnauthorized)
 			return
 		}
 		nv := strings.SplitN(string(payload), ":", 2)
 		if (len(nv) != 2) || !isAuthorized(nv[0], nv[1]) {
-			log.Error(fmt.Sprintf("httpAuth(): Authorization Failed"))
+			log.Error(fmt.Sprintf("httpAuth(): Authorization Failed: !isAuthorized() nv: %+v", nv))
 			http.Error(w, "Authorization Failed\n", http.StatusUnauthorized)
 			return
 		}
