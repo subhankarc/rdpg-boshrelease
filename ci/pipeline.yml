@@ -179,6 +179,7 @@ jobs:
           aws_access_key_id: {{boshrelease-aws-access-key-id}}
           aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
           promotion_branch: master
+          ci_git_email: {{ci-git-email}}
     - put: git-rdpg-boshrelease
       params:
         repository: create-final-release/rdpg-boshrelease
