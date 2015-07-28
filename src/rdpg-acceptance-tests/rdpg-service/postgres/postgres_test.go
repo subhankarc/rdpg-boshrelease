@@ -320,30 +320,7 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	})
 
-	It("Check for databases known to cfsb.instances but don't exist", func() {
-
-		allNodes := getServiceNodes()
-
-		//Check SC
-		var scRowCount []int
-		for i := 0; i < len(allNodes); i++ {
-			address := allNodes[i].Address
-			sq := `SELECT count(name) AS rowCount FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_databaes; `
-			rowCount, err := getRowCount(address, sq)
-			scRowCount = append(scRowCount, rowCount)
-			Expect(err).NotTo(HaveOccurred())
-			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", allNodes[i].Node, rowCount)
-		}
-		//Verify each database also sees the same number of records (bdr sanity check)
-		for i := 1; i < len(scRowCount); i++ {
-			Expect(scRowCount[0]).To(Equal(scRowCount[i]))
-		}
-
-		Expect(len(allNodes)).NotTo(Equal(0))
-		//There should be no rows of databases which are known to cfsb.instances but don't exist
-		Expect(scRowCount[0]).To(Equal(0))
-
-	})
+	
 
 	It("Check for databases which exist and aren't known to cfsb.instances", func() {
 
