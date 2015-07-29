@@ -43,10 +43,11 @@ func init() {
 	pgPass = os.Getenv(`RDPGD_PG_PASS`)
 }
 
-func (i *Instance) ExternalDNS() (dns string) {
+func (i *Instance) ExternalDNS() (dns string, err error) {
 	client, err := consulapi.NewClient(consulapi.DefaultConfig())
 	if err != nil {
 		log.Error(fmt.Sprintf(`instances.Instance#ExternalDNS(%s) i.ClusterIPs() ! %s`, i.InstanceID, err))
+		return
 	}
 	catalog := client.Catalog()
 
@@ -64,28 +65,41 @@ func (i *Instance) ExternalDNS() (dns string) {
 	// TODO: Figure out where we'll store and retrieve the external DNS information
 	// instead of IP Should be settable per service cluster via BOSH properties
 	// and we read here via os.Getenv(``).
-	return fmt.Sprintf(`%s:5432`, masterIP)
+	dns = fmt.Sprintf(`%s:5432`, masterIP)
+	return
 }
 
-func (i *Instance) URI() (uri string) {
+func (i *Instance) URI() (uri string, err error) {
+	dns, err := i.ExternalDNS()
+	if err != nil {
+		log.Error(fmt.Sprintf("instances.Instance#URI(%s) ! %s", i.ClusterID))
+		return
+	}
 	d := `postgres://%s:%s@%s/%s?sslmode=%s`
-	uri = fmt.Sprintf(d, i.User, i.Pass, i.ExternalDNS(), i.Database, `disable`)
+	uri = fmt.Sprintf(d, i.User, i.Pass, dns, i.Database, `disable`)
 	return
 }
 
-func (i *Instance) DSN() (uri string) {
-	dns := i.ExternalDNS()
+func (i *Instance) DSN() (uri string, err error) {
+	dns, err := i.ExternalDNS()
+	if err != nil {
+		log.Error(fmt.Sprintf("instances.Instance#DSN(%s) ! %s", i.ClusterID))
+		return
+	}
 	s := strings.Split(dns, ":")
 	d := `host=%s port=%s user=%s password=%s dbname=%s connect_timeout=%s sslmode=%s`
 	uri = fmt.Sprintf(d, s[0], s[1], i.User, i.Pass, i.Database, `5`, `disable`)
 	return
 }
 
-func (i *Instance) JDBCURI() (uri string) {
-	dns := i.ExternalDNS()
-	s := strings.Split(dns, ":")
-	d := `host=%s port=%s user=%s password=%s dbname=%s connect_timeout=%s sslmode=%s`
-	uri = fmt.Sprintf(d, s[0], s[1], i.User, i.Pass, i.Database, `5`, `disable`)
+func (i *Instance) JDBCURI() (uri string, err error) {
+	dns, err := i.ExternalDNS()
+	if err != nil {
+		log.Error(fmt.Sprintf("instances.Instance#JDBCURI(%s) ! %s", i.ClusterID))
+		return
+	}
+	d := `jdbc:postgres://%s:%s@%s/%s?sslmode=%s`
+	uri = fmt.Sprintf(d, i.User, i.Pass, dns, i.Database, `disable`)
 	return
 }
 

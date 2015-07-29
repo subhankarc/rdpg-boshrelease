@@ -232,9 +232,10 @@ func BindingHandler(w http.ResponseWriter, request *http.Request) {
 			log.Error(fmt.Sprintf("%s /v2/service_instances/:instance_id/service_bindings/:binding_id %s", request.Method, err))
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{"status": %d,"description": "%s"}`, http.StatusInternalServerError, err)
+			return
 		} else {
 			w.WriteHeader(http.StatusOK)
-			w.Write(j)
+			fmt.Fprintf(w, string(j))
 			return
 		}
 	case "DELETE":
