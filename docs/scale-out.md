@@ -1,6 +1,6 @@
 # Scale Out
 
-Scaling out allows adding new service clusters to the existing deployment and adding new node to the management cluster. When new service clusters are added, the new requests for user databases will be distributed among the existing and new service clusters. On one hand, scaling out allows user databases span among more servers; on the other hand, it enables RDPG to flexibly increase user database capacity.
+Scaling out allows adding a new service clusters to the existing deployment and adding new node to the management cluster. When new service clusters are added, the new requests for user databases will be distributed among the existing and new service clusters. On one hand, scaling out allows user databases span among more servers; on the other hand, it enables RDPG to flexibly increase user database capacity.
 
 ## Add New Service Clusters
 
@@ -72,7 +72,7 @@ yaml
      size: 9
 ```
 
-### Testing 
+### Cheking Cluster Status 
 
 Run `bosh vms`, you should be able to see the new service clusters nodes running.
 
@@ -150,7 +150,7 @@ yaml
      size: 10
 ```
 
-### Testing 
+### Cheking Cluster Status
 
 Run `bosh vms`, you should be able to see the new management node running.
 
