@@ -325,7 +325,7 @@ func (p *PG) BDRGroupJoin(nodeName, dbname string, target PG) (err error) {
 	return
 }
 
-func (p *PG) BDRJoinWaitForReady() {
+func (p *PG) BDRJoinWaitForReady() (err error) {
 	db, err := p.Connect()
 	if err != nil {
 		return

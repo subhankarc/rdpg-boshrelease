@@ -1,65 +1,108 @@
+groups:
+- name: build
+  jobs:
+  - bump-rdpgd
+  - deploy
+  - rc
+  - shipit
+- name: version
+  jobs:
+  - patch
+  - minor
+  - major
+
 jobs:
 - name: bump-rdpgd
   public: true
   serial: true
   plan:
-  - aggregate:
-    - get: rdpg-boshrelease
-      resource: git-rdpg-boshrelease
-    - get: rdpgd
-      resource: git-rdpgd
-      trigger: true
-  - task: update-subtree
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-      - {name: rdpg-boshrelease}
-      - {name: rdpgd}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
-        args: [rdpgd]
-  - put: git-rdpg-boshrelease
-    params:
-      repository: update-subtree/rdpg-boshrelease
-      rebase: true
+  - do:
+    - aggregate:
+      - get: rdpg-boshrelease
+        resource: git-rdpg-boshrelease
+      - get: rdpgd
+        resource: git-rdpgd
+        trigger: true
+    - task: update-subtree
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: rdpg-boshrelease}
+        - {name: rdpgd}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/update_subtree.sh
+          args: [rdpgd]
+    - put: git-rdpg-boshrelease
+      params:
+        repository: update-subtree/rdpg-boshrelease
+    on_failure:
+      put: slack-devs
+      params:
+        text: <!here> bump-rdpgd job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+
 
 - name: deploy
   public: true
   serial: true
   plan:
-  - aggregate:
-    - get: rdpg-boshrelease
-      resource: git-rdpg-boshrelease
-    - get: git-rdpg-boshrelease-release-changes
-      trigger: true
-  - task: create-release-and-deploy
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-      - {name: rdpg-boshrelease}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy.sh
-        args: []
+  - do:
+    - aggregate:
+      - get: rdpg-boshrelease
+        resource: git-rdpg-boshrelease
+      - get: git-rdpg-boshrelease-release-changes
+        trigger: true
+    - task: create-release-and-deploy
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: rdpg-boshrelease}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/create_release_and_deploy.sh
+          args: []
+        params:
+          bosh_target: {{bosh-lite-build-target}}
+          bosh_username: {{bosh-lite-build-username}}
+          bosh_password: {{bosh-lite-build-password}}
+          bosh_deployment_name: {{bosh-lite-build-deployment-name}}
+    - task: bosh-run-errand-acceptance-tests
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+          - {name: create-release-and-deploy, path: .}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/acceptance_tests.sh
+          args: []
+        params:
+          bosh_target: {{bosh-lite-build-target}}
+          bosh_username: {{bosh-lite-build-username}}
+          bosh_password: {{bosh-lite-build-password}}
+      on_failure:
+        put: slack-devs
+        params:
+          text: <!here> acceptance tests failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease (deploy job)
+          channel: "#ge-rdpg"
+          username: concourse
+          icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    on_failure:
+      put: slack-devs
       params:
-        bosh_target: {{bosh-lite-build-target}}
-        bosh_username: {{bosh-lite-build-username}}
-        bosh_password: {{bosh-lite-build-password}}
-        bosh_deployment_name: {{bosh-lite-build-deployment-name}}
-  - task: bosh-run-errand-acceptance-tests
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-        - {name: create-release-and-deploy, path: .}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/acceptance_tests.sh
-        args: []
+        text: <!here> deploy job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    on_success:
+      put: slack-devs
       params:
-        bosh_target: {{bosh-lite-build-target}}
-        bosh_username: {{bosh-lite-build-username}}
-        bosh_password: {{bosh-lite-build-password}}
+        text: <!here> deploy & tests succeeded
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
 - name: rc
   public: true
@@ -75,51 +118,97 @@ jobs:
   - put: version
     params: {file: version/number}
 
+- name: patch
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: patch}
+  - put: version
+    params: {file: version/number}
+
+- name: minor
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: minor}
+  - put: version
+    params: {file: version/number}
+
+- name: major
+  public: true
+  plan:
+  - aggregate:
+    - get: version
+      trigger: false
+      params: {bump: major}
+  - put: version
+    params: {file: version/number}
+
 - name: shipit
   public: true
   serial: true
   plan:
-  - aggregate:
-    - get: version
-      passed: [rc]
-      params: {bump: final}
-    - get: boshrelease
-      resource: git-rdpg-boshrelease
-      passed: [rc]
-  - task: create-final-release
-    config:
-      platform: linux
-      image: {{docker-hub-task-image}}
-      inputs:
-      - {name: boshrelease, path: rdpg-boshrelease}
-      - {name: version}
-      run:
-        path: ./rdpg-boshrelease/ci/scripts/shipit.sh
-        args: []
+  - do:
+    - aggregate:
+      - get: version
+        passed: [rc]
+        params: {bump: final}
+      - get: boshrelease
+        resource: git-rdpg-boshrelease
+        passed: [rc]
+    - task: create-final-release
+      config:
+        platform: linux
+        image: {{docker-hub-task-image}}
+        inputs:
+        - {name: boshrelease, path: rdpg-boshrelease}
+        - {name: version}
+        run:
+          path: ./rdpg-boshrelease/ci/scripts/shipit.sh
+          args: []
+        params:
+          release_name: "Reliable Distributed PostgreSQL"
+          bosh_target: {{bosh-lite-build-target}}
+          bosh_username: {{bosh-lite-build-username}}
+          bosh_password: {{bosh-lite-build-password}}
+          bosh_deployment_name: {{bosh-lite-build-deployment-name}}
+          aws_access_key_id: {{boshrelease-aws-access-key-id}}
+          aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
+          promotion_branch: master
+          ci_git_email: {{ci-git-email}}
+    - put: git-rdpg-boshrelease
       params:
-        release_name: "Reliable Distributed PostgreSQL"
-        bosh_target: {{bosh-lite-build-target}}
-        bosh_username: {{bosh-lite-build-username}}
-        bosh_password: {{bosh-lite-build-password}}
-        bosh_deployment_name: {{bosh-lite-build-deployment-name}}
-        aws_access_key_id: {{boshrelease-aws-access-key-id}}
-        aws_secret_access_key: {{boshrelease-aws-secret-access-key}}
-        promotion_branch: master
-  - put: git-rdpg-boshrelease
-    params:
-      repository: create-final-release/rdpg-boshrelease
-      rebase: true
-  - aggregate:
-    - put: version
-      params: {file: version/number}
-    - put: final-release
-      params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
-    - put: github-final-release
+        repository: create-final-release/rdpg-boshrelease
+        rebase: true
+    - aggregate:
+      - put: version
+        params: {file: version/number}
+      - put: final-release
+        params: {from: create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-(.*).tgz}
+      - put: github-final-release
+        params:
+          name: create-final-release/rdpg-boshrelease/release/name
+          tag: create-final-release/rdpg-boshrelease/release/tag
+          body: create-final-release/rdpg-boshrelease/release/notes.md
+          globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-*.tgz]
+    on_failure:
+      put: slack-devs
       params:
-        name: create-final-release/rdpg-boshrelease/release/name
-        tag: create-final-release/rdpg-boshrelease/release/tag
-        body: create-final-release/rdpg-boshrelease/release/notes.md
-        globs: [create-final-release/rdpg-boshrelease/releases/rdpg/rdpg-*.tgz]
+        text: <!here> shipit job failed http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    on_success:
+      put: slack-devs
+      params:
+        text_file: create-final-release/rdpg-boshrelease/release/slack_success_message.txt
+        channel: "#ge-rdpg"
+        username: concourse
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
 
 resources:
 - name: version
@@ -170,3 +259,8 @@ resources:
     regexp: rdpg-(.*).tgz
     access_key_id: {{boshrelease-aws-access-key-id}}
     secret_access_key: {{boshrelease-aws-secret-access-key}}
+
+- name: slack-devs
+  type: slack-notification
+  source:
+    url: {{slack-devs-webhook}}

@@ -20,9 +20,6 @@ func (r *RDPG) InitSchema(role string) (err error) {
 
 	var name string
 	p := pg.NewPG(`127.0.0.1`, pgPort, `rdpg`, `rdpg`, pgPass)
-
-	p.BDRJoinWaitForReady()
-
 	db, err := p.Connect()
 	if err != nil {
 		log.Error(fmt.Sprintf(`rdpg.RDPG#InitSchema(%s) Opening db connection ! %s`, role, err))
@@ -35,7 +32,7 @@ func (r *RDPG) InitSchema(role string) (err error) {
 		log.Error(fmt.Sprintf(`RDPG#initSchema() bdr.bdr_node_join_wait_for_ready ! %s`, err))
 	}
 
-	ddlLockRE := regexp.MustCompile(`cannot acquire DDL lock`)
+	ddlLockRE := regexp.MustCompile(`cannot acquire DDL lock|Database is locked against DDL operations`)
 	for { // Retry loop for acquiring DDL schema lock.
 		log.Trace(fmt.Sprintf("RDPG#initSchema() SQL[%s]", "rdpg_schemas"))
 		_, err = db.Exec(SQL["rdpg_schemas"])

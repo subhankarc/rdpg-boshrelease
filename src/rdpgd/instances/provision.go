@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	consulapi "github.com/hashicorp/consul/api"
 
@@ -25,6 +26,7 @@ func (i *Instance) Provision() (err error) {
 	}
 	defer db.Close()
 
+	attempts := 0
 	var dbname string
 	for { // In case we need to wait for a precreated database on the cluster...
 		// TODO: Compute which cluster the database will be assigned to based on
@@ -32,12 +34,19 @@ func (i *Instance) Provision() (err error) {
 		// TODO: Take into account plan with the above calculation, eg. dedicated vs shared
 		// TODO: Group By minimum assigned on cluster when possible.
 		// TODO: really switch this up, prefer a PostgreSQL pl/pgsql function.
-		sq := `SELECT dbname FROM cfsb.instances WHERE instance_id IS NULL AND effective_at IS NOT NULL AND ineffective_at IS NULL LIMIT 1`
+		sq := `SELECT dbname FROM cfsb.instances WHERE instance_id IS NULL AND effective_at IS NOT NULL AND ineffective_at IS NULL ORDER BY created_at ASC LIMIT 1`
 		log.Trace(fmt.Sprintf(`instances.Instance#Provision() > %s`, sq))
 		err = db.Get(&dbname, sq)
 		if err != nil {
 			if err == sql.ErrNoRows {
-				return errors.New(`Provisioning failed, temporarily out of capacity. Please wait a few minutes and try again. If the problem persists beyond 10 minutes please notify the operations team.`)
+				if attempts < 3 {
+					log.Error(fmt.Sprintf("instances.Instance#Provision() ! Out of Capacity, attempt %d, retrying in 10s.", attempts))
+					attempts += 1
+					time.Sleep(10 * time.Second)
+					continue
+				} else {
+					return errors.New(`Provisioning failed, temporarily out of capacity. Please wait a few minutes and try again. If the problem persists beyond 10 minutes please notify the operations team.`)
+				}
 			} else {
 				log.Error(fmt.Sprintf("instances.Instance#Provision(%s) ! %s", i.InstanceID, err))
 				return err

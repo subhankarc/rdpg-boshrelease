@@ -1,7 +1,7 @@
 Reliable Distributed PostgreSQL (RDPG) BOSH release
 ===================================================
 
--	Build pipeline http://54.82.85.58:8080/pipelines/rdpg-boshrelease (see [Pipeline](#pipeline) for more)
+-	Build pipeline http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease (see [Pipeline](#pipeline) for more)
 
 License
 -------
@@ -159,7 +159,7 @@ Pipeline
 
 This BOSH release is automatically built and tested upon every commit to master.
 
-![bosh release changes trigger deploy job](http://cl.ly/image/0O220s281l1L/bosh_release_changes_trigger_deploy_job.png)
+[![bosh release changes trigger deploy job](http://cl.ly/image/0O220s281l1L/bosh_release_changes_trigger_deploy_job.png)](http://ci.starkandwayne.com:8080/pipelines/rdpg-boshrelease)
 
 The `deploy` job will:
 

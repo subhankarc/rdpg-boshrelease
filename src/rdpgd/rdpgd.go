@@ -98,12 +98,12 @@ Flags:
 
 func manager() (err error) {
 	log.Info(`Starting with 'manager' role...`)
-	go admin.API()
 	err = bootstrap()
 	if err != nil {
 		log.Error(fmt.Sprintf(`main.manager() bootstrap() ! %s`, err))
 		os.Exit(1)
 	}
+	go admin.API()
 	go cfsb.API()
 	go tasks.Scheduler(Role)
 	go tasks.Work(Role)
@@ -113,12 +113,12 @@ func manager() (err error) {
 
 func service() (err error) {
 	log.Info(`Starting with 'service' role...`)
-	go admin.API()
 	err = bootstrap()
 	if err != nil {
 		log.Error(fmt.Sprintf(`main.service() bootstrap() ! %s`, err))
 		os.Exit(1)
 	}
+	go admin.API()
 	go tasks.Scheduler(Role)
 	go tasks.Work(Role)
 	err = signalHandler()

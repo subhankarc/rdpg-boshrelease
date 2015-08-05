@@ -18,9 +18,9 @@ type Credentials struct {
 	JDBCURI    string `json:"jdbc_uri"`
 	Host       string `db:"host" json:"host"`
 	Port       string `db:"port" json:"port"`
-	UserName   string `db:"username" json:"username"`
-	Password   string `db:"password" json:"password"`
-	Database   string `db:"database" json:"database"`
+	UserName   string `db:"dbuser" json:"username"`
+	Password   string `db:"dbpass" json:"password"`
+	Database   string `db:"dbname" json:"database"`
 }
 
 // Create Credentials in the data store
@@ -37,16 +37,21 @@ func (c *Credentials) Create() (err error) {
 
 	err = c.Find()
 	if err != nil { // Does not yet exist, insert the credentials.
-		sq := fmt.Sprintf(`INSERT INTO cfsb.credentials (instance_id,binding_id,host,port,dbuser,dbpass,dbname) VALUES (lower('%s'),lower('%s'),'%s','%s','%s','%s','%s');`, c.InstanceID, c.BindingID, c.Host, c.Port, c.UserName, c.Password, c.Database)
-		log.Trace(fmt.Sprintf(`cfsb.Credentials#Create() > %s`, sq))
-		_, err = db.Exec(sq)
-		if err != nil {
-			log.Error(fmt.Sprintf(`cfsb.Credentials#Create(%s) ! %s`, c.BindingID, err))
+		if err == sql.ErrNoRows { // Does not yet exist, insert the credentials.
+			sq := fmt.Sprintf(`INSERT INTO cfsb.credentials (instance_id,binding_id,host,port,dbuser,dbpass,dbname) VALUES (lower('%s'),lower('%s'),'%s','%s','%s','%s','%s');`, c.InstanceID, c.BindingID, c.Host, c.Port, c.UserName, c.Password, c.Database)
+			log.Trace(fmt.Sprintf(`cfsb.Credentials#Create() > %s`, sq))
+			_, err = db.Exec(sq)
+			if err != nil {
+				log.Error(fmt.Sprintf(`cfsb.Credentials#Create()  %s ! %s`, sq, err))
+			}
+		} else {
+			log.Error(fmt.Sprintf(`cfsb.Credentials#Create() c.Find() binding %s ! %s`, c.BindingID, err))
 		}
+		return
 	} else { // Credentials already exists, return.
+		log.Trace(fmt.Sprintf(`cfsb.Credentials#Create() Credentials already exist for binding %s, returning`, c.BindingID))
 		return
 	}
-	return
 }
 
 func (c *Credentials) Find() (err error) {
@@ -63,7 +68,7 @@ func (c *Credentials) Find() (err error) {
 	}
 	defer db.Close()
 
-	sq := fmt.Sprintf(`SELECT id,instance_id FROM cfsb.bindings WHERE binding_id=lower('%s') LIMIT 1`, c.BindingID)
+	sq := fmt.Sprintf(`SELECT id,instance_id,binding_id FROM cfsb.bindings WHERE binding_id=lower('%s') LIMIT 1`, c.BindingID)
 	log.Trace(fmt.Sprintf(`cfsb.Find(%s) > %s`, c.BindingID, sq))
 	err = db.Get(c, sq)
 	if err != nil {

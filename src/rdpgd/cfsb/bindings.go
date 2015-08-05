@@ -28,17 +28,37 @@ func (b *Binding) Create() (err error) {
 		return
 	}
 
-	dns := instance.ExternalDNS()
+	dns, err := instance.ExternalDNS()
+	if err != nil {
+		log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) instance.ExternalDNS(%s) ! %s`, b.BindingID, b.InstanceID, err))
+		return
+	}
 	// For now the crednetials are fixed, future feature is that we will be able to
 	// create new users/credentials for each binding later on. Currently only
 	// one set of credentials exists for each Instance.
 	s := strings.Split(dns, ":")
+	uri, err := instance.URI()
+	if err != nil {
+		log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) instance.URI(%s) ! %s`, b.BindingID, b.InstanceID, err))
+		return
+	}
+	dsn, err := instance.DSN()
+	if err != nil {
+		log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) instance.DSN(%s) ! %s`, b.BindingID, b.InstanceID, err))
+		return
+	}
+	jdbc, err := instance.JDBCURI()
+	if err != nil {
+		log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) instance.JDBCURI(%s) ! %s`, b.BindingID, b.InstanceID, err))
+		return
+	}
+
 	b.Creds = Credentials{
 		InstanceID: b.InstanceID,
 		BindingID:  b.BindingID,
-		URI:        instance.URI(),
-		DSN:        instance.DSN(),
-		JDBCURI:    "jdbc:" + instance.URI(),
+		URI:        uri,
+		DSN:        dsn,
+		JDBCURI:    jdbc,
 		Host:       s[0],
 		Port:       s[1],
 		UserName:   instance.User,
@@ -61,11 +81,11 @@ func (b *Binding) Create() (err error) {
 			log.Trace(fmt.Sprintf(`cfsb.Binding#Create() > %s`, sq))
 			_, err = db.Exec(sq)
 			if err != nil {
-				log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) ! %s`, b.BindingID, err))
+				log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) %s ! %s`, b.BindingID, sq, err))
 			}
 			err := b.Creds.Create()
 			if err != nil {
-				log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) ! %s`, b.BindingID, err))
+				log.Error(fmt.Sprintf(`cfsb.Binding#Create(%s) b.Creds.Create() ! %s`, b.BindingID, err))
 			}
 		}
 	} else { // Binding already exists, return existing binding and credentials.

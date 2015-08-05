@@ -8,6 +8,7 @@ import (
 	"time"
 
 	consulapi "github.com/hashicorp/consul/api"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/starkandwayne/rdpgd/log"
 	"github.com/starkandwayne/rdpgd/pg"
@@ -363,18 +364,32 @@ func (r *RDPG) waitForClusterNodes() (err error) {
 func (r *RDPG) waitForBDRNodes() (err error) {
 	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#waitForBDRNodes() waiting for all BDR nodes to be joined...`, ClusterID))
 	p := pg.NewPG(`127.0.0.1`, pgPort, `rdpg`, `rdpg`, pgPass)
-	db, err := p.Connect()
-	if err != nil {
-		log.Error(fmt.Sprintf("rdpg.RDPG<%s>#waitForBDRNodes() ! %s", ClusterID, err))
-		return
+	var db *sqlx.DB
+	for {
+		db, err = p.Connect()
+		if err != nil {
+			re := regexp.MustCompile("canceling statement due to conflict with recovery")
+			if re.MatchString(err.Error()) {
+				log.Error(fmt.Sprintf("rdpg.RDPG<%s>#waitForBDRNodes() p.Connect() (sleeping 2 seconds and trying again) ! %s", ClusterID, err))
+				time.Sleep(2 * time.Second)
+				continue // Sleep 2 seconds and try again...
+			} else {
+				log.Error(fmt.Sprintf("rdpg.RDPG<%s>#waitForBDRNodes() p.Connect() ! %s", ClusterID, err))
+				return err
+			}
+		} else {
+			break
+		}
 	}
 	defer db.Close()
 
 	for {
 		nodes := []string{}
-		err = db.Select(&nodes, `SELECT node_name FROM bdr.bdr_nodes;`)
+		sq := `SELECT node_name FROM bdr.bdr_nodes;`
+		err = db.Select(&nodes, sq)
 		if err != nil {
 			if err == sql.ErrNoRows {
+				log.Error(fmt.Sprintf("rdpg.RDPG<%s>#waitForBDRNodes() db.Select() %sq ! Sleeping 2 seconds and trying again.", ClusterID, sq))
 				time.Sleep(2 * time.Second)
 				continue
 			}
