@@ -26,6 +26,7 @@ type Schedule struct {
 	Action    string `db:"action" json:"action"`
 	Data      string `db:"data" json:"data"`
 	TTL       int64  `db:"ttl" json:"ttl"`
+	NodeType  string `db:"node_type" json:"node_type"`
 }
 
 /*
@@ -58,7 +59,7 @@ func Scheduler(role string) {
 			continue
 		}
 		schedules := []Schedule{}
-		sq := fmt.Sprintf(`SELECT id,cluster_id, role, action, data, ttl FROM tasks.schedules WHERE enabled = true AND CURRENT_TIMESTAMP >= (last_scheduled_at + frequency::interval) AND role IN ('all','%s')`, role)
+		sq := fmt.Sprintf(`SELECT id,cluster_id, role, action, data, ttl, node_type FROM tasks.schedules WHERE enabled = true AND CURRENT_TIMESTAMP >= (last_scheduled_at + frequency::interval) AND role IN ('all','%s')`, role)
 		log.Trace(fmt.Sprintf(`tasks#Scheduler() Selecting Schedules > %s`, sq))
 		err = scheduleDB.Select(&schedules, sq)
 		if err != nil {
@@ -81,6 +82,7 @@ func Scheduler(role string) {
 			task.Action = schedules[index].Action
 			task.Data = schedules[index].Data
 			task.TTL = schedules[index].TTL
+			task.NodeType = schedules[index].NodeType
 			err = task.Enqueue()
 			if err != nil {
 				log.Error(fmt.Sprintf(`tasks.Scheduler() Task.Enqueue() %+v ! %s`, task, err))
