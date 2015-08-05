@@ -9,12 +9,12 @@ import (
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //Used by sqlx
 	"github.com/starkandwayne/rdpgd/log"
 	"github.com/starkandwayne/rdpgd/pg"
 )
 
-// Initialize the rdpg system database schemas.
+// InitSchema - Initialize the rdpg system database schemas.
 func (r *RDPG) InitSchema(role string) (err error) {
 	log.Trace(fmt.Sprintf(`rdpg.RDPG<%s>#InitSchema() Initializing Schema for Cluster...`, ClusterID))
 
@@ -58,6 +58,7 @@ func (r *RDPG) InitSchema(role string) (err error) {
 		"create_table_rdpg_consul_watch_notifications",
 		"create_table_rdpg_events",
 		"create_table_rdpg_config",
+		"create_table_backups_file_history",
 	}
 	for _, key := range keys {
 		k := strings.Split(strings.Replace(strings.Replace(key, "create_table_", "", 1), "_", ".", 1), ".")
@@ -82,7 +83,7 @@ func (r *RDPG) InitSchema(role string) (err error) {
 		log.Error(fmt.Sprintf(`rdpg.initSchema() service task schedules ! %s`, err))
 	}
 
-	sq := fmt.Sprintf(`INSERT INTO rdpg.config (key,cluster_id,value) VALUES ('BackupsPath', '%s','/var/vcap/store/pgbdr/backups')`, ClusterID)
+	sq := fmt.Sprintf(`INSERT INTO rdpg.config (key,cluster_id,value) VALUES ('BackupsPath', '%s','/var/vcap/store/pgbdr/backups'), ('BackupPort', '%s', '7432'), ('pgDumpBinaryLocation', '%s', '/var/vcap/packages/pgbdr/bin/pg_dump'),('defaultDaysToKeepFileHistory', '%s', '180')`, ClusterID, ClusterID, ClusterID, ClusterID)
 	log.Trace(fmt.Sprintf(`rdpg.InitSchema() > %s`, sq))
 	_, err = db.Exec(sq)
 	if err != nil {
@@ -163,7 +164,7 @@ func insertDefaultSchedules(role string, db *sqlx.DB) (err error) {
 	log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules(%s)...`, role))
 
 	// role == 'all':
-	sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled) VALUES ('%s','all','Vacuum','tasks.tasks','5 minutes'::interval, true) `, ClusterID)
+	sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','all','Vacuum','tasks.tasks','5 minutes'::interval, true, 'any') `, ClusterID)
 	log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules(%s) > %s`, role, sq))
 	re := regexp.MustCompile(`global sequence.*not initialized yet`)
 	for { // Ensure that we wait for global sequence initialization (post create)
@@ -180,15 +181,16 @@ func insertDefaultSchedules(role string, db *sqlx.DB) (err error) {
 		break
 	}
 
-	if role == "manager" {
-		sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled) VALUES ('%s','manager','ScheduleBackups','','1 minute'::interval, true)`, ClusterID)
-		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
-		_, err = db.Exec(sq)
-		if err != nil {
-			log.Error(fmt.Sprintf(`rdpg.insertDefaultSchedules() service task schedules ! %s`, err))
-		}
+	sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','all','DeleteBackupHistory','','1 hour'::interval, true, 'read')`, ClusterID)
+	log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
+	_, err = db.Exec(sq)
+	if err != nil {
+		log.Error(fmt.Sprintf(`rdpg.insertDefaultSchedules() service task schedules ! %s`, err))
+	}
 
-		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled) VALUES ('%s','manager','ReconcileAvailableDatabases','','1 minute'::interval, true), ('%s','manager','ReconcileAllDatabases','','5 minutes'::interval, true)`, ClusterID, ClusterID)
+	if role == "manager" {
+
+		sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','manager','ReconcileAvailableDatabases','','1 minute'::interval, true, 'read'), ('%s','manager','ReconcileAllDatabases','','5 minutes'::interval, true, 'read')`, ClusterID, ClusterID)
 		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
 		_, err = db.Exec(sq)
 		if err != nil {
@@ -197,15 +199,22 @@ func insertDefaultSchedules(role string, db *sqlx.DB) (err error) {
 	}
 
 	if role == "service" {
-		// TODO: Move initial population of services out of rdpg to Admin API.
-		sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled) VALUES ('%s','service','PrecreateDatabases','','1 minute'::interval, true)`, ClusterID)
+		sq := fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','service','ScheduleNewDatabaseBackups','','1 minute'::interval, true, 'write')`, ClusterID)
 		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
 		_, err = db.Exec(sq)
 		if err != nil {
 			log.Error(fmt.Sprintf(`rdpg.insertDefaultSchedules() service task schedules ! %s`, err))
 		}
 
-		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled) VALUES ('%s','service','DecommissionDatabases','','15 minutes'::interval, true)`, ClusterID)
+		// TODO: Move initial population of services out of rdpg to Admin API.
+		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','service','PrecreateDatabases','','1 minute'::interval, true, 'any')`, ClusterID)
+		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
+		_, err = db.Exec(sq)
+		if err != nil {
+			log.Error(fmt.Sprintf(`rdpg.insertDefaultSchedules() service task schedules ! %s`, err))
+		}
+
+		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','service','DecommissionDatabases','','15 minutes'::interval, true, 'any')`, ClusterID)
 		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
 		_, err = db.Exec(sq)
 		if err != nil {

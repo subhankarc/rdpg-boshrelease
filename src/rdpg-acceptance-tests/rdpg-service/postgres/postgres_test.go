@@ -88,8 +88,6 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			fmt.Printf("%s: Found %d schemas in rdpg database...\n", allNodes[i].Node, rowCount)
 		}
 		//Verify each database also sees the same number of records (bdr sanity check)
-		fmt.Printf("%#v\n", nodeRowCount)
-
 		for i := 1; i < len(nodeRowCount); i++ {
 			Expect(nodeRowCount[0]).To(Equal(nodeRowCount[i]))
 		}
@@ -172,6 +170,10 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	It("Check Instance Counts", func() {
 
+		//Note to future self: stop trying to optimize this one, each of the service
+		//service clusters can have a different number of active databases, so you
+		//can't just lump them all together for the test...
+
 		rdpgmcNodes := getNodesByClusterName("rdpgmc")
 		rdpgsc1Nodes := getNodesByClusterName("rdpgsc1")
 		rdpgsc2Nodes := getNodesByClusterName("rdpgsc2")
@@ -243,7 +245,7 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 		var sc1RowCount []int
 		for i := 0; i < len(rdpgsc1Nodes); i++ {
 			address := rdpgsc1Nodes[i].Address
-			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'service'); `
+			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'service') AND action NOT IN ('BackupDatabase'); `
 			rowCount, err := getRowCount(address, sq)
 			sc1RowCount = append(sc1RowCount, rowCount)
 			Expect(err).NotTo(HaveOccurred())
@@ -260,7 +262,7 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 		var sc2RowCount []int
 		for i := 0; i < len(rdpgsc2Nodes); i++ {
 			address := rdpgsc2Nodes[i].Address
-			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'service'); `
+			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'service') AND action IN ('Vacuum', 'DecommissionDatabases', 'PrecreateDatabases'); `
 			rowCount, err := getRowCount(address, sq)
 			sc2RowCount = append(sc2RowCount, rowCount)
 			Expect(err).NotTo(HaveOccurred())
@@ -271,13 +273,13 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(sc2RowCount[0]).To(Equal(sc2RowCount[i]))
 		}
 
-		Expect(sc2RowCount[0]).To(BeNumerically(">=", 3))
+		Expect(sc2RowCount[0]).To(Equal(3))
 
 		//Check MC
 		var mcRowCount []int
 		for i := 0; i < len(rdpgmcNodes); i++ {
 			address := rdpgmcNodes[i].Address
-			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'manager'); `
+			sq := ` SELECT count(*) AS rowCount FROM tasks.schedules WHERE role IN ('all', 'manager') AND action IN ('Vacuum','ReconcileAllDatabases','ReconcileAvailableDatabases'); `
 			rowCount, err := getRowCount(address, sq)
 			mcRowCount = append(mcRowCount, rowCount)
 			Expect(err).NotTo(HaveOccurred())
@@ -288,14 +290,14 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 			Expect(mcRowCount[0]).To(Equal(mcRowCount[i]))
 		}
 
-		Expect(mcRowCount[0]).To(BeNumerically(">=", 4))
+		Expect(mcRowCount[0]).To(Equal(3))
 
 	})
 
 	It("Check For Missed Scheduled Tasks", func() {
 
 		//Looks for any active scheduled tasks which have not been scheduled in two
-		//frequency cycles
+		//frequency cycles.  This also validates the backups.
 
 		allNodes := getAllNodes()
 
@@ -320,7 +322,30 @@ var _ = Describe("RDPG Postgres Testing...", func() {
 
 	})
 
-	
+	It("Check for databases known to cfsb.instances but don't exist", func() {
+
+		allNodes := getServiceNodes()
+
+		//Check SC
+		var scRowCount []int
+		for i := 0; i < len(allNodes); i++ {
+			address := allNodes[i].Address
+			sq := `SELECT count(name) AS rowCount FROM ( (SELECT dbname AS name FROM cfsb.instances) EXCEPT (SELECT datname AS name FROM pg_database WHERE datname LIKE 'd%') ) AS instances_missing_database; `
+			rowCount, err := getRowCount(address, sq)
+			scRowCount = append(scRowCount, rowCount)
+			Expect(err).NotTo(HaveOccurred())
+			fmt.Printf("%s: Found %d databases known to cfsb.instances but don't exist...\n", allNodes[i].Node, rowCount)
+		}
+		//Verify each database also sees the same number of records (bdr sanity check)
+		for i := 1; i < len(scRowCount); i++ {
+			Expect(scRowCount[0]).To(Equal(scRowCount[i]))
+		}
+
+		Expect(len(allNodes)).NotTo(Equal(0))
+		//There should be no rows of databases which are known to cfsb.instances but don't exist
+		Expect(scRowCount[0]).To(Equal(0))
+
+	})
 
 	It("Check for databases which exist and aren't known to cfsb.instances", func() {
 

@@ -37,14 +37,20 @@ func Work(role string) {
 	}
 	defer CloseWorkDB()
 
-	for { // TODO: only work for my role type: write vs read eg. WHERE role = 'read'
+	for {
 		tasks := []Task{}
 		err = WorkLock()
 		if err != nil {
 			time.Sleep(10 * time.Second)
 			continue
 		}
-		sq := fmt.Sprintf(`SELECT id,cluster_id,node,role,action,data,ttl FROM tasks.tasks WHERE locked_by IS NULL AND role IN ('all','%s') AND node IN ('*','%s') ORDER BY created_at DESC LIMIT 1`, workRole, myIP)
+
+		nodeType := `read`
+		if isWriteNode(myIP) {
+			nodeType = `write`
+		}
+		sq := fmt.Sprintf(`SELECT id,cluster_id,node,role,action,data,ttl,node_type FROM tasks.tasks WHERE locked_by IS NULL AND role IN ('all','%s') AND node IN ('*','%s') AND node_type IN ('any','%s') ORDER BY created_at DESC LIMIT 1`, workRole, myIP, nodeType)
+
 		log.Trace(fmt.Sprintf(`tasks.Work() > %s`, sq))
 		err = workDB.Select(&tasks, sq)
 		if err != nil {
@@ -97,8 +103,8 @@ func Work(role string) {
 	}
 }
 
+// Acquire consul for cluster to aquire right to schedule tasks.
 func WorkLock() (err error) {
-	// Acquire consul for cluster to aquire right to schedule tasks.
 	key := fmt.Sprintf("rdpg/%s/tasks/work/lock", os.Getenv(`RDPGD_CLUSTER`))
 	client, _ := consulapi.NewClient(consulapi.DefaultConfig())
 	workLock, err = client.LockKey(key)
@@ -133,8 +139,6 @@ func WorkUnlock() (err error) {
 func (t *Task) Work() (err error) {
 	// TODO: Add in TTL Logic with error logging.
 	switch t.Action {
-	case "ScheduleBackups":
-		go t.ScheduleBackups(workRole)
 	case "Vacuum":
 		go t.Vacuum(workRole)
 	case "PrecreateDatabases":
@@ -151,11 +155,12 @@ func (t *Task) Work() (err error) {
 		go t.Reconfigure(workRole)
 	case "RemoveDatabase": // Role: all
 		go t.RemoveDatabase(workRole)
+	case "ScheduleNewDatabaseBackups":
+		go t.ScheduleNewDatabaseBackups(workRole)
 	case "BackupDatabase": // Role: read
 		go t.BackupDatabase(workRole)
-	case "BackupAllDatabases":
-		// Role: read
-		go t.BackupAllDatabases(workRole)
+	case "DeleteBackupHistory":
+		go t.DeleteBackupHistory(workRole)
 	default:
 		err = fmt.Errorf(`tasks.Work() BUG!!! Unknown Task Action %s`, t.Action)
 		log.Error(fmt.Sprintf(`tasks.Work() Task %+v ! %s`, t, err))
