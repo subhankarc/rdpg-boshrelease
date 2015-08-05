@@ -27,6 +27,7 @@ type Task struct {
 	Action    string `db:"action" json:"action"`
 	Data      string `db:"data" json:"data"`
 	TTL       int64  `db:"ttl" json:"ttl"`
+	NodeType  string `db:"node_type" json:"node_type"`
 }
 
 func init() {
@@ -69,7 +70,7 @@ func setMyIP() (err error) {
 }
 
 func (t *Task) Enqueue() (err error) {
-	sq := fmt.Sprintf(`INSERT INTO tasks.tasks (cluster_id,node,role,action,data,ttl) VALUES ('%s','%s','%s','%s','%s',%d)`, t.ClusterID, t.Node, t.Role, t.Action, t.Data, t.TTL)
+	sq := fmt.Sprintf(`INSERT INTO tasks.tasks (cluster_id,node,role,action,data,ttl,node_type) VALUES ('%s','%s','%s','%s','%s',%d,'%s')`, t.ClusterID, t.Node, t.Role, t.Action, t.Data, t.TTL, t.NodeType)
 	log.Trace(fmt.Sprintf(`tasks.Task#Enqueue() > %s`, sq))
 	for {
 		OpenWorkDB()
@@ -91,7 +92,7 @@ func (t *Task) Enqueue() (err error) {
 
 func (t *Task) Dequeue() (err error) {
 	tasks := []Task{}
-	sq := fmt.Sprintf(`SELECT id,node,cluster_id,role,action,data,ttl FROM tasks.tasks WHERE id=%d LIMIT 1`, t.ID)
+	sq := fmt.Sprintf(`SELECT id,node,cluster_id,role,action,data,ttl,node_type FROM tasks.tasks WHERE id=%d LIMIT 1`, t.ID)
 	log.Trace(fmt.Sprintf(`tasks.Task<%d>#Dequeue() > %s`, t.ID, sq))
 	OpenWorkDB()
 	err = workDB.Select(&tasks, sq)
