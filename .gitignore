@@ -19,6 +19,7 @@ dev_releases/
 my*.yml
 releases/*.tgz
 src/*
+!src/rdpg-acceptance-tests
 !src/.gitkeep
 manifests/*
 stemcells/*
