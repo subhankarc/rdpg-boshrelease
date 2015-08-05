@@ -33,7 +33,7 @@ func (t *Task) ScheduleNewDatabaseBackups(workRole string) (err error) {
 
 	for _, databaseName := range listMissingDatabases {
 		log.Trace(fmt.Sprintf("tasks.BackupDatabase() > Attempting to add %s", databaseName))
-		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','service','BackupDatabase','%s','1 minute'::interval, true, 'read')`, ClusterID, databaseName)
+		sq = fmt.Sprintf(`INSERT INTO tasks.schedules (cluster_id,role,action,data,frequency,enabled,node_type) VALUES ('%s','service','BackupDatabase','%s','1 day'::interval, true, 'read')`, ClusterID, databaseName)
 		log.Trace(fmt.Sprintf(`rdpg.insertDefaultSchedules() > %s`, sq))
 		err = execQuery(address, sq)
 		if err != nil {
